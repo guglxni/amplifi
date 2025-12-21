@@ -1,0 +1,59 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea'}}}%%
+
+flowchart TB
+    subgraph CRON["CRON SUBSCRIPTION"]
+        direction TB
+        INTERVAL["Block Interval: 100<br/>~12 minutes"]
+        TRIGGER["CRON Trigger"]
+    end
+
+    subgraph RSC["YIELD OPTIMIZER RSC"]
+        direction TB
+        DETECT["Detect CRON Event<br/>chain_id == 0"]
+        SNAPSHOT["Request Yield Snapshot"]
+        EMIT_CB["emit Callback(triggerYieldSnapshot)"]
+    end
+
+    subgraph VAULT["YIELD VAULT"]
+        direction TB
+        EXECUTE_SNAP["Execute Snapshot"]
+        COLLECT["Collect APYs from Aave"]
+        EMIT_YIELD["emit YieldSnapshot(apys, tvl)"]
+    end
+
+    subgraph PROCESS["RSC PROCESSING"]
+        direction TB
+        COMPARE["Compare APYs"]
+        DECIDE{APY Diff > 0.5%?}
+        SKIP["Skip Rebalance<br/>emit RebalanceSkipped"]
+        QUEUE{Large Rebalance?}
+        FINALITY["Queue for Finality<br/>Wait 64 blocks"]
+        REBALANCE["emit Callback(executeRebalance)"]
+    end
+
+    INTERVAL --> TRIGGER
+    TRIGGER --> DETECT
+    DETECT --> SNAPSHOT
+    SNAPSHOT --> EMIT_CB
+    EMIT_CB --> EXECUTE_SNAP
+    EXECUTE_SNAP --> COLLECT
+    COLLECT --> EMIT_YIELD
+    EMIT_YIELD --> COMPARE
+    COMPARE --> DECIDE
+    DECIDE -->|No| SKIP
+    DECIDE -->|Yes| QUEUE
+    QUEUE -->|>50% TVL Change| FINALITY
+    QUEUE -->|<=50% TVL Change| REBALANCE
+    FINALITY -->|After 64 blocks| REBALANCE
+
+    classDef cron fill:#4a5568,stroke:#667eea,stroke-width:2px
+    classDef rsc fill:#764ba2,stroke:#ffffff,stroke-width:2px
+    classDef vault fill:#48bb78,stroke:#ffffff,stroke-width:2px,color:#000000
+    classDef process fill:#2d3748,stroke:#667eea,stroke-width:2px
+    classDef decision fill:#ed8936,stroke:#ffffff,stroke-width:2px,color:#000000
+
+    class INTERVAL,TRIGGER cron
+    class DETECT,SNAPSHOT,EMIT_CB rsc
+    class EXECUTE_SNAP,COLLECT,EMIT_YIELD vault
+    class COMPARE,SKIP,FINALITY,REBALANCE,QUEUE process
+    class DECIDE decision

@@ -1,0 +1,58 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea'}}}%%
+
+flowchart TB
+    subgraph ASSETS["SUPPORTED ASSETS"]
+        direction LR
+        
+        WETH["WETH<br/>18 decimals<br/>20% allocation"]
+        LINK["LINK<br/>18 decimals<br/>20% allocation"]
+        AAVE["AAVE<br/>18 decimals<br/>20% allocation"]
+        EURS["EURS<br/>2 decimals<br/>10% allocation"]
+        WBTC["WBTC<br/>8 decimals<br/>15% allocation"]
+        USDT["USDT<br/>6 decimals<br/>15% allocation"]
+    end
+
+    subgraph ORACLE["UNIFIED PRICE ORACLE"]
+        direction TB
+        
+        MULTIFEED["MultiFeed Source<br/>reactive-bounty-1<br/>0x889c32f46E..."]
+        
+        ABSTRACT["AbstractFeedProxy Source<br/>aggreatorv3-bridge<br/>USDC/USD | EUR/USD"]
+        
+        CORRELATED["Correlated Source<br/>AAVE = LINK × 10x"]
+    end
+
+    subgraph PRICES["LIVE USD PRICES"]
+        direction LR
+        P_WETH["ETH/USD<br/>~$2,900"]
+        P_WBTC["BTC/USD<br/>~$95,000"]
+        P_LINK["LINK/USD<br/>~$15"]
+        P_AAVE["AAVE/USD<br/>~$150"]
+        P_USDT["USDC/USD<br/>~$1.00"]
+        P_EURS["EUR/USD<br/>~$1.05"]
+    end
+
+    WETH --> MULTIFEED
+    WBTC --> MULTIFEED
+    LINK --> MULTIFEED
+    
+    USDT --> ABSTRACT
+    EURS --> ABSTRACT
+    
+    AAVE --> CORRELATED
+    CORRELATED --> LINK
+
+    MULTIFEED --> P_WETH
+    MULTIFEED --> P_WBTC
+    MULTIFEED --> P_LINK
+    CORRELATED --> P_AAVE
+    ABSTRACT --> P_USDT
+    ABSTRACT --> P_EURS
+
+    classDef asset fill:#4a5568,stroke:#667eea,stroke-width:2px
+    classDef oracle fill:#764ba2,stroke:#ffffff,stroke-width:2px
+    classDef price fill:#48bb78,stroke:#ffffff,stroke-width:2px,color:#000000
+
+    class WETH,LINK,AAVE,EURS,WBTC,USDT asset
+    class MULTIFEED,ABSTRACT,CORRELATED oracle
+    class P_WETH,P_WBTC,P_LINK,P_AAVE,P_USDT,P_EURS price

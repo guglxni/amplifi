@@ -1,0 +1,41 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#48bb78', 'secondaryColor': '#667eea'}}}%%
+
+flowchart LR
+    subgraph USER["USER"]
+        WALLET["Wallet<br/>MetaMask"]
+    end
+
+    subgraph VAULT["YIELD VAULT MULTI-ASSET"]
+        direction TB
+        
+        DEPOSIT["deposit(assetId, amount)"]
+        WITHDRAW["withdraw(assetId, amount)"]
+        
+        ASSETS["Supported Assets:<br/>0: WETH | 1: LINK | 2: AAVE<br/>3: EURS | 4: WBTC | 5: USDT"]
+        
+        ALLOC["Allocations:<br/>WETH: 20% | LINK: 20%<br/>AAVE: 20% | EURS: 10%<br/>WBTC: 15% | USDT: 15%"]
+    end
+
+    subgraph AAVE["AAVE V3 POOL"]
+        SUPPLY["supply(token, amount)"]
+        AWITHDRAW["withdraw(token, amount)"]
+        ATOKEN["aTokens<br/>Interest Bearing"]
+    end
+
+    WALLET -->|1. approve| VAULT
+    WALLET -->|2. deposit| DEPOSIT
+    DEPOSIT -->|3. transferFrom| WALLET
+    DEPOSIT -->|4. supply| SUPPLY
+    SUPPLY -->|5. mint| ATOKEN
+
+    WALLET -->|withdraw| WITHDRAW
+    WITHDRAW -->|redeem| AWITHDRAW
+    AWITHDRAW -->|transfer| WALLET
+
+    classDef user fill:#4a5568,stroke:#667eea,stroke-width:2px
+    classDef vault fill:#48bb78,stroke:#ffffff,stroke-width:2px,color:#000000
+    classDef aave fill:#764ba2,stroke:#ffffff,stroke-width:2px
+
+    class WALLET user
+    class DEPOSIT,WITHDRAW,ASSETS,ALLOC vault
+    class SUPPLY,AWITHDRAW,ATOKEN aave

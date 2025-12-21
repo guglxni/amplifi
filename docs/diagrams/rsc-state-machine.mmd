@@ -1,0 +1,33 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea'}}}%%
+
+stateDiagram-v2
+    [*] --> Idle
+    
+    Idle --> Monitoring: CRON tick / YieldSnapshot event
+    
+    Monitoring --> Comparing: Collect APY data
+    
+    Comparing --> NoAction: APY diff < 0.5%
+    Comparing --> SmallRebalance: APY diff >= 0.5% && change < 50%
+    Comparing --> LargeRebalance: APY diff >= 0.5% && change >= 50%
+    
+    NoAction --> Idle: emit RebalanceSkipped
+    
+    SmallRebalance --> Executing: emit Callback(executeRebalance)
+    
+    LargeRebalance --> PendingFinality: Queue rebalance
+    PendingFinality --> PendingFinality: Wait 64 blocks
+    PendingFinality --> Executing: Finality reached
+    
+    Executing --> Completed: Rebalance executed
+    Completed --> Idle: Reset
+    
+    note right of Monitoring
+        Every ~12 minutes
+        or on manual trigger
+    end note
+    
+    note right of PendingFinality
+        Safety measure for
+        large TVL changes
+    end note

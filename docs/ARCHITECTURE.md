@@ -61,9 +61,19 @@ The Unified Price Oracle combines two reactive cross-chain oracle implementation
 ### Source 2: aggreatorv3-reactive-bridge-abstract (AbstractFeedProxy)
 
 - **Type**: Per-feed proxy contracts
-- **Origin Chains**: Base Sepolia, BSC, Polygon Amoy, Avalanche Fuji
-- **Feeds**: Any Chainlink feed (dynamically deployable)
+- **Origin Chains**: Base Sepolia, Polygon Amoy
+- **Feeds**: USDC/USD, EUR/USD
 - **Interface**: Standard `AggregatorV3Interface`
+
+### Oracle Bridge Flow
+
+![Oracle Bridge Flow](diagrams/oracle-bridge-flow.png)
+
+### Source 3: Correlated Pricing
+
+- **Type**: Derived from another token's price
+- **Example**: AAVE = LINK × 10x multiplier
+- **Interface**: Internal calculation
 
 ### Price Resolution Priority
 
@@ -106,11 +116,19 @@ if (bestAPY - currentAPY > REBALANCE_THRESHOLD * 1e23) {
 }
 ```
 
+### Rebalancing Logic Detail
+
+![Rebalancing Logic](diagrams/rebalancing-logic.png)
+
 ---
 
-## Self-Sustaining Gas Pattern
+## Self-Sustaining Gas Pattern (Reactivate)
 
 ![Gas Funding](diagrams/gas-funding.png)
+
+### Reactivate Pattern Details
+
+![Reactivate Pattern](diagrams/reactivate-pattern.png)
 
 ### Components
 
@@ -119,11 +137,13 @@ if (bestAPY - currentAPY > REBALANCE_THRESHOLD * 1e23) {
 - Receives ETH from users (fees, donations)
 - Maintains a gas reserve for operations
 - Bridges excess funds to RSC via `coverDebt()`
+- Supports faucet bridge for 100:1 REACT conversion
 
 #### ReactiveFunderRC (Lasna)
 
 - Monitors `FundsReceived` events from Funder
 - Triggers `coverDebt` callback when balance threshold met
+- Auto-refills RSC when balance drops below 1 REACT
 - Ensures RSC always has gas for operations
 
 ### Funding Flow
@@ -147,6 +167,43 @@ User --> Funder (ETH)
               |
               v
          RSC Gas Replenished
+```
+
+---
+
+## RSC State Machine
+
+![RSC State Machine](diagrams/rsc-state-machine.png)
+
+### States
+
+| State | Description |
+|-------|-------------|
+| Idle | Waiting for CRON or YieldSnapshot events |
+| Monitoring | Processing incoming event |
+| Comparing | Analyzing APY differences |
+| PendingFinality | Large rebalance queued (64 blocks) |
+| Executing | Emitting rebalance callback |
+
+---
+
+## CRON-Based Monitoring
+
+![CRON Monitoring](diagrams/cron-monitoring.png)
+
+### CRON Configuration
+
+```solidity
+uint256 public cronInterval = 100; // ~12 minutes
+
+service.subscribe(
+    CRON_CHAIN_ID,    // 0 for CRON
+    address(0),
+    cronInterval,
+    REACTIVE_IGNORE,
+    REACTIVE_IGNORE,
+    REACTIVE_IGNORE
+);
 ```
 
 ---

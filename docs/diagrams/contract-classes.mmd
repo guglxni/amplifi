@@ -1,0 +1,63 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea'}}}%%
+
+classDiagram
+    class YieldVaultMultiAsset {
+        +address aavePool
+        +mapping assets
+        +mapping allocations
+        +deposit(assetId, amount)
+        +withdraw(assetId, amount)
+        +triggerYieldSnapshot()
+        +executeRebalance()
+    }
+
+    class UnifiedPriceOracle {
+        +address MULTI_FEED_ORACLE
+        +mapping feedConfigs
+        +getPrice(token) uint256
+        +getPriceDetailed(token)
+        +getAllPrices()
+        +addAbstractProxyFeed()
+    }
+
+    class YieldOptimizerRsc {
+        +address vault
+        +uint256 cronInterval
+        +react(LogRecord)
+        +subscribeToCron()
+        +_processYieldComparison()
+    }
+
+    class Funder {
+        +address callbackProxy
+        +uint256 gasReserve
+        +coverDebt(target)
+        +bridgeToFaucet(recipient)
+        +collectFees()
+    }
+
+    class ReactiveFunderRC {
+        +address funderContract
+        +address autoLooperReactive
+        +react(LogRecord)
+        +subscribe()
+    }
+
+    class AbstractFeedProxy {
+        +address sourceFeed
+        +latestRoundData()
+        +updateFromBridge()
+    }
+
+    class ChainlinkMirrorReactive {
+        +address originFeed
+        +address destinationFeed
+        +react(LogRecord)
+        +subscribe()
+    }
+
+    YieldVaultMultiAsset --> UnifiedPriceOracle : uses
+    YieldVaultMultiAsset <.. YieldOptimizerRsc : monitors
+    Funder <.. ReactiveFunderRC : monitors
+    AbstractFeedProxy <.. ChainlinkMirrorReactive : updates
+    UnifiedPriceOracle --> AbstractFeedProxy : queries

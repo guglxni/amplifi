@@ -35,17 +35,38 @@ The Unified Price Oracle combines two Reactive cross-chain oracle sources:
 | Source | Type | Coverage |
 |--------|------|----------|
 | **reactive-bounty-1** | MultiFeedDestinationV2 | ETH/USD, BTC/USD, LINK/USD |
-| **aggreatorv3-reactive-bridge-abstract** | AbstractFeedProxy | Any Chainlink feed from any supported chain |
+| **aggreatorv3-reactive-bridge-abstract** | AbstractFeedProxy | USDC/USD, EUR/USD |
+| **Correlated** | Derived | AAVE (from LINK x10) |
+
+### Oracle Bridge Flow
+
+![Oracle Bridge Flow](docs/diagrams/oracle-bridge-flow.png)
 
 ### Yield Optimization Flow
 
 ![Yield Flow](docs/diagrams/yield-flow.png)
 
-### Self-Sustaining Gas Pattern
+### Multi-Asset Support
+
+![Multi-Asset Support](docs/diagrams/multi-asset-support.png)
+
+### Rebalancing Logic
+
+![Rebalancing Logic](docs/diagrams/rebalancing-logic.png)
+
+### RSC State Machine
+
+![RSC State Machine](docs/diagrams/rsc-state-machine.png)
+
+### Self-Sustaining Gas Pattern (Reactivate)
 
 ![Gas Funding Flow](docs/diagrams/gas-funding.png)
 
----
+### CRON-Based Monitoring
+
+![CRON Monitoring](docs/diagrams/cron-monitoring.png)
+
+For all diagrams and their source files, see [docs/DIAGRAMS.md](docs/DIAGRAMS.md).
 
 ## Deployed Contracts
 
@@ -77,12 +98,14 @@ The Unified Price Oracle combines two Reactive cross-chain oracle sources:
 
 | Asset | Protocol | Allocation | Oracle Source |
 |-------|----------|------------|---------------|
-| WETH | Aave V3 | 20% | MultiFeed ETH/USD |
-| LINK | Aave V3 | 20% | MultiFeed LINK/USD |
-| AAVE | Aave V3 | 20% | MultiFeed (upgradeable) |
-| EURS | Aave V3 | 10% | Fallback $1.05 |
-| WBTC | Aave V3 | 15% | MultiFeed BTC/USD |
-| USDT | Aave V3 | 15% | Fallback $1.00 |
+| WETH | Aave V3 | 20% | MultiFeed ETH/USD (LIVE) |
+| LINK | Aave V3 | 20% | MultiFeed LINK/USD (LIVE) |
+| AAVE | Aave V3 | 20% | CORRELATED from LINK x10 (LIVE) |
+| EURS | Aave V3 | 10% | AbstractFeedProxy EUR/USD (LIVE) |
+| WBTC | Aave V3 | 15% | MultiFeed BTC/USD (LIVE) |
+| USDT | Aave V3 | 15% | AbstractFeedProxy USDC/USD (LIVE) |
+
+All 6 assets use live cross-chain oracle feeds - no fallbacks or mocked data.
 
 ---
 

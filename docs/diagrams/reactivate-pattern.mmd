@@ -1,0 +1,37 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#48bb78'}}}%%
+
+sequenceDiagram
+    participant User
+    participant Funder as Funder.sol<br/>(Sepolia)
+    participant FunderRC as ReactiveFunderRC<br/>(Lasna)
+    participant Callback as Callback Proxy<br/>(Sepolia)
+    participant Faucet as Reactive Faucet<br/>(Lasna)
+    participant RSC as YieldOptimizerRsc<br/>(Lasna)
+
+    Note over User,RSC: REACTIVATE: Self-Sustaining Gas Pattern
+
+    User->>Funder: Send ETH (fees)
+    Funder-->>FunderRC: emit FundsReceived(user, amount)
+    
+    FunderRC->>FunderRC: Evaluate: amount >= MIN_BRIDGE?
+    
+    alt Amount >= 0.001 ETH
+        FunderRC->>FunderRC: Calculate bridgeAmount (95%)
+        FunderRC->>Callback: emit Callback(coverDebt)
+        Callback->>Funder: coverDebt(rscAddress)
+        Funder->>Callback: depositTo(rscAddress)
+        Callback->>RSC: Receive REACT tokens
+        Note over RSC: Balance replenished
+    end
+    
+    FunderRC->>FunderRC: Check RSC balance
+    
+    alt RSC balance < threshold
+        FunderRC->>Callback: emit Callback(bridgeToFaucet)
+        Callback->>Funder: bridgeToFaucet(rsc, amount)
+        Funder->>Faucet: Convert SepETH to REACT
+        Faucet-->>RSC: 100 REACT per SepETH
+        Note over RSC: Auto-refilled
+    end
+
+    Note over RSC: RSC continues<br/>autonomous operation

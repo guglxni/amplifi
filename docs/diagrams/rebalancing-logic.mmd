@@ -1,0 +1,37 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea'}}}%%
+
+sequenceDiagram
+    participant User
+    participant Vault as YieldVaultMultiAsset<br/>(Sepolia)
+    participant Oracle as UnifiedPriceOracle<br/>(Sepolia)
+    participant Aave as Aave V3 Pool<br/>(Sepolia)
+    participant RSC as YieldOptimizerRsc<br/>(Lasna)
+
+    Note over User,RSC: Rebalancing Trigger Flow
+
+    User->>Vault: triggerYieldSnapshot()
+    
+    loop For each asset
+        Vault->>Aave: getReserveData(token)
+        Aave-->>Vault: currentLiquidityRate (APY)
+    end
+    
+    Vault->>Oracle: getPrice(token)
+    Oracle-->>Vault: price, isLive
+    
+    Vault->>Vault: Calculate TVL and APYs
+    Vault-->>RSC: emit YieldSnapshot(apys, allocations, tvl)
+    
+    RSC->>RSC: Compare APYs
+    RSC->>RSC: Calculate optimal allocation
+    
+    alt APY difference > 0.5%
+        Note over RSC: Rebalance needed
+        RSC->>RSC: emit Callback(executeRebalance)
+        RSC-->>Vault: executeRebalance(newAllocations)
+        Vault->>Vault: Update allocations
+        Vault-->>User: Assets rebalanced
+    else APY difference <= 0.5%
+        Note over RSC: No action needed
+        RSC->>RSC: Skip rebalance
+    end
