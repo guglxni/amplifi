@@ -1,0 +1,49 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea', 'secondaryColor': '#764ba2', 'tertiaryColor': '#1e1e2e', 'primaryTextColor': '#ffffff', 'secondaryTextColor': '#a0aec0', 'lineColor': '#667eea', 'fontFamily': 'Inter, system-ui, sans-serif'}}}%%
+
+flowchart TB
+    subgraph ORIGIN["ORIGIN CHAINS"]
+        direction LR
+        BASE["Base Sepolia<br/>Chainlink Feeds"]
+        BSC["BSC Testnet<br/>Chainlink Feeds"]
+        POLYGON["Polygon Amoy<br/>Chainlink Feeds"]
+        AVALANCHE["Avalanche Fuji<br/>Chainlink Feeds"]
+    end
+
+    subgraph REACTIVE["LASNA - REACTIVE NETWORK"]
+        direction TB
+        MULTI_RSC["MultiFeedMirrorRC<br/>reactive-bounty-1<br/>---<br/>ETH/USD, BTC/USD, LINK/USD"]
+        ABSTRACT_RSC["ChainlinkMirrorReactive<br/>aggreatorv3-bridge<br/>---<br/>Per-feed proxies"]
+    end
+
+    subgraph SEPOLIA["ETHEREUM SEPOLIA"]
+        direction TB
+        MULTI_DEST["MultiFeedDestinationV2<br/>0x889c32f46E273fBd0d5B1806F3f1286010cD73B3"]
+        ABSTRACT_PROXY["AbstractFeedProxy<br/>Per-feed contracts"]
+        
+        UNIFIED["UNIFIED PRICE ORACLE<br/>---<br/>getPrice(token)<br/>getPriceDetailed(token)<br/>getAllPrices()"]
+        
+        VAULT["YieldVaultMultiAsset<br/>0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d<br/>---<br/>WETH | LINK | AAVE | EURS | WBTC | USDT"]
+    end
+
+    BASE --> MULTI_RSC
+    BASE --> ABSTRACT_RSC
+    BSC --> ABSTRACT_RSC
+    POLYGON --> ABSTRACT_RSC
+    AVALANCHE --> ABSTRACT_RSC
+    
+    MULTI_RSC --> MULTI_DEST
+    ABSTRACT_RSC --> ABSTRACT_PROXY
+    
+    MULTI_DEST --> UNIFIED
+    ABSTRACT_PROXY --> UNIFIED
+    UNIFIED --> VAULT
+
+    classDef origin fill:#4a5568,stroke:#667eea,stroke-width:2px
+    classDef reactive fill:#2d3748,stroke:#764ba2,stroke-width:2px
+    classDef sepolia fill:#1a202c,stroke:#48bb78,stroke-width:2px
+    classDef unified fill:#667eea,stroke:#ffffff,stroke-width:3px,color:#ffffff
+
+    class BASE,BSC,POLYGON,AVALANCHE origin
+    class MULTI_RSC,ABSTRACT_RSC reactive
+    class MULTI_DEST,ABSTRACT_PROXY,VAULT sepolia
+    class UNIFIED unified

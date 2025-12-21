@@ -1,0 +1,29 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea', 'secondaryColor': '#764ba2', 'tertiaryColor': '#1e1e2e', 'primaryTextColor': '#ffffff'}}}%%
+
+sequenceDiagram
+    participant User
+    participant Vault as YieldVaultMultiAsset<br/>(Sepolia)
+    participant Aave as Aave V3 Pool<br/>(Sepolia)
+    participant RSC as YieldOptimizerRsc<br/>(Lasna)
+    participant Callback as Callback Proxy<br/>(Sepolia)
+
+    Note over User,Callback: Yield Monitoring and Rebalancing Flow
+
+    User->>Vault: triggerYieldSnapshot()
+    Vault->>Aave: getReserveData(asset)
+    Aave-->>Vault: liquidityRate, APY data
+    Vault->>Vault: Calculate APYs for all assets
+    Vault-->>RSC: emit YieldSnapshot(assetIds, apys, allocations)
+    
+    Note over RSC: RSC analyzes yield data
+    RSC->>RSC: Compare APYs across assets
+    RSC->>RSC: Determine optimal allocation
+    
+    alt Yield difference exceeds threshold
+        RSC->>Callback: emit Callback(executeRebalance)
+        Callback->>Vault: executeRebalance(newAllocations)
+        Vault->>Vault: Update asset allocations
+        Vault-->>User: Funds rebalanced to higher yield
+    else Yield difference below threshold
+        Note over RSC: No rebalance needed
+    end

@@ -1,0 +1,63 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea', 'secondaryColor': '#764ba2', 'tertiaryColor': '#1e1e2e', 'primaryTextColor': '#ffffff', 'secondaryTextColor': '#a0aec0', 'lineColor': '#667eea'}}}%%
+
+flowchart TB
+    subgraph USER["USER INTERACTION"]
+        WALLET["Wallet Connection<br/>MetaMask / WalletConnect"]
+        DEPOSIT["Deposit Assets"]
+        WITHDRAW["Withdraw Assets"]
+    end
+
+    subgraph SEPOLIA["ETHEREUM SEPOLIA - Chain ID: 11155111"]
+        direction TB
+        
+        subgraph VAULTS["YIELD VAULTS"]
+            MULTI_VAULT["YieldVaultMultiAsset<br/>0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d<br/>---<br/>6 Assets: WETH, LINK, AAVE, EURS, WBTC, USDT"]
+            COMPOUND["YieldVaultCompound<br/>0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a<br/>---<br/>Compound V3 USDC"]
+        end
+
+        subgraph PROTOCOLS["DeFi PROTOCOLS"]
+            AAVE["Aave V3 Pool<br/>0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951"]
+            COMP["Compound V3 cUSDC<br/>0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"]
+        end
+
+        subgraph FUNDING["GAS FUNDING"]
+            FUNDER["Funder<br/>0x9f7c78a50379dc4d9703b19c708088d5eac5c923<br/>---<br/>Collects fees, bridges to RSC"]
+        end
+
+        CALLBACK["Callback Proxy<br/>0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA"]
+    end
+
+    subgraph LASNA["LASNA - REACTIVE NETWORK - Chain ID: 5318007"]
+        direction TB
+        RSC["YieldOptimizerRsc<br/>0x98969559717c24b47A2E4365a569c947a88C4767<br/>---<br/>CRON Monitoring<br/>Yield Comparison<br/>Rebalance Callbacks"]
+        FUNDER_RC["ReactiveFunderRC<br/>0x1caC802c52Cd82b9988e1163aF46258539280E71<br/>---<br/>Auto-Refill Monitoring"]
+    end
+
+    WALLET --> DEPOSIT
+    WALLET --> WITHDRAW
+    DEPOSIT --> MULTI_VAULT
+    DEPOSIT --> COMPOUND
+    WITHDRAW --> MULTI_VAULT
+    WITHDRAW --> COMPOUND
+
+    MULTI_VAULT <--> AAVE
+    COMPOUND <--> COMP
+
+    MULTI_VAULT -.->|YieldSnapshot Events| RSC
+    COMPOUND -.->|YieldSnapshot Events| RSC
+    RSC -.->|executeRebalance Callback| CALLBACK
+    CALLBACK --> MULTI_VAULT
+
+    FUNDER -.->|bridgeToFaucet| FUNDER_RC
+    FUNDER_RC -.->|coverDebt Callback| CALLBACK
+    CALLBACK --> FUNDER
+
+    classDef user fill:#4a5568,stroke:#667eea,stroke-width:2px
+    classDef vault fill:#48bb78,stroke:#ffffff,stroke-width:2px,color:#000000
+    classDef protocol fill:#2d3748,stroke:#667eea,stroke-width:2px
+    classDef reactive fill:#764ba2,stroke:#ffffff,stroke-width:2px
+
+    class WALLET,DEPOSIT,WITHDRAW user
+    class MULTI_VAULT,COMPOUND vault
+    class AAVE,COMP,FUNDER,CALLBACK protocol
+    class RSC,FUNDER_RC reactive

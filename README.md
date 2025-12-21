@@ -1,177 +1,271 @@
-# Reactive Yield Optimizer 🔄💰
+# YieldOpt - Reactive Yield Optimizer
 
-> **Cross-Chain Yield Automation for Lenders using Reactive Smart Contracts**
-> 
-> Built for [Reactive Network Bounty 3](https://dorahacks.io/hackathon/bounty/1317)
+> Cross-Chain Yield Optimization using Reactive Smart Contracts
 
-## 📋 Overview
+**Repository:** [github.com/guglxni/YieldOpt](https://github.com/guglxni/YieldOpt)
 
-The Reactive Yield Optimizer is a vault that **automatically routes funds across different lending pools** to achieve better yields. Using Reactive Smart Contracts, the system monitors yield rates and rebalances allocations without user intervention.
+---
 
-### How It Works
+## Overview
 
-```
-User Deposits USDC
-       │
-       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     YieldVault.sol                          │
-│  ┌───────────────────┐        ┌───────────────────┐        │
-│  │   AAVE V3 USDC    │   ◄──► │  COMPOUND V3 USDC │        │
-│  │   APY: 3.5%       │        │   APY: 4.2%       │        │
-│  └───────────────────┘        └───────────────────┘        │
-│            │ Emits YieldSnapshot events                     │
-└────────────┼────────────────────────────────────────────────┘
-             ▼
-┌─────────────────────────────────────────────────────────────┐
-│            YieldOptimizerReactive.sol (Lasna)               │
-│  - Monitors yield snapshots from both pools                 │
-│  - Compares APYs and determines optimal allocation          │
-│  - Triggers rebalance if yield difference > threshold       │
-└─────────────────────────────────────────────────────────────┘
-             │ Callback
-             ▼
-        executeRebalance() → Funds move to higher-yield pool
-```
+YieldOpt is a multi-asset yield optimization vault that automatically routes funds across DeFi lending protocols to maximize returns. The system uses Reactive Smart Contracts (RSC) on the Lasna Network to monitor yields and trigger rebalancing operations without user intervention.
 
-## 🎯 Key Features
+### Key Capabilities
 
-- **Automatic Yield Optimization** - RSC monitors and rebalances without user action
-- **Dual Pool Support** - Aave V3 + Compound V3 on Sepolia
-- **Self-Sustaining Gas** - Reactivate pattern for continuous operation
-- **Configurable Thresholds** - Minimum yield difference before rebalancing
-- **Diversification Rules** - Maintain minimum allocation (20%) for risk management
+- **Multi-Asset Support** - 6 assets: WETH, LINK, AAVE, EURS, WBTC, USDT
+- **Cross-Protocol Optimization** - Aave V3 and Compound V3 integration
+- **Unified Cross-Chain Oracle** - Live price feeds from multiple chains
+- **Autonomous Rebalancing** - RSC-driven yield comparison and allocation
+- **Self-Sustaining Gas** - Automatic funding via the Reactivate pattern
 
-## 📊 Contract Addresses
+---
 
-### Sepolia Testnet (Chain ID: 11155111)
+## Architecture
 
-| Contract | Address | Status |
+### System Overview
+
+![System Architecture](docs/diagrams/system-architecture.png)
+
+### Unified Oracle Integration
+
+![Unified Oracle Architecture](docs/diagrams/unified-oracle.png)
+
+The Unified Price Oracle combines two Reactive cross-chain oracle sources:
+
+| Source | Type | Coverage |
+|--------|------|----------|
+| **reactive-bounty-1** | MultiFeedDestinationV2 | ETH/USD, BTC/USD, LINK/USD |
+| **aggreatorv3-reactive-bridge-abstract** | AbstractFeedProxy | Any Chainlink feed from any supported chain |
+
+### Yield Optimization Flow
+
+![Yield Flow](docs/diagrams/yield-flow.png)
+
+### Self-Sustaining Gas Pattern
+
+![Gas Funding Flow](docs/diagrams/gas-funding.png)
+
+---
+
+## Deployed Contracts
+
+### Ethereum Sepolia (Chain ID: 11155111)
+
+| Contract | Address | Description |
+|----------|---------|-------------|
+| YieldVaultMultiAsset | `0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d` | Multi-asset vault (6 assets) |
+| YieldVaultCompound | `0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a` | Compound V3 USDC vault |
+| Funder | `0x9f7c78a50379dc4d9703b19c708088d5eac5c923` | Gas funding contract |
+| Callback Proxy | `0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA` | Cross-chain callback receiver |
+
+### Lasna Network (Chain ID: 5318007)
+
+| Contract | Address | Description |
+|----------|---------|-------------|
+| YieldOptimizerRsc | `0x98969559717c24b47A2E4365a569c947a88C4767` | Reactive yield optimizer |
+| ReactiveFunderRC | `0x1caC802c52Cd82b9988e1163aF46258539280E71` | Auto-refill RSC |
+
+### Oracle Contracts (Sepolia)
+
+| Contract | Address | Source |
 |----------|---------|--------|
-| YieldVaultDualAsset | `0xe6e06F94d1aaa2496b9e33afeE29f01436E9fA4A` | ✅ Deployed |
-| YieldVaultCompound | `0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a` | ✅ Deployed |
-| Funder | `0x9f7c78a50379dc4d9703b19c708088d5eac5c923` | ✅ Deployed |
-| Aave V3 Pool | `0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951` | ✅ Active |
-| Compound V3 cUSDCv3 | `0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238` | ✅ Active |
-| Callback Proxy | `0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA` | ✅ Active |
+| MultiFeedDestinationV2 | `0x889c32f46E273fBd0d5B1806F3f1286010cD73B3` | reactive-bounty-1 |
 
-### Reactive Network Lasna (Chain ID: 5318007)
+---
 
-| Contract | Address | Status |
-|----------|---------|--------|
-| YieldOptimizerReactive | `0xF040124007bd188F377c0058a58900F31c78B2b6` | ✅ Deployed |
-| ReactiveFunderRC | `0xf075E097d7219CC04cE25D659f04d4b1cbD42A7A` | ✅ Deployed |
-| System Contract | `0x0000000000000000000000000000000000fffFfF` | ✅ Active |
+## Supported Assets
 
-### ⚠️ Known Testnet Limitation
+| Asset | Protocol | Allocation | Oracle Source |
+|-------|----------|------------|---------------|
+| WETH | Aave V3 | 20% | MultiFeed ETH/USD |
+| LINK | Aave V3 | 20% | MultiFeed LINK/USD |
+| AAVE | Aave V3 | 20% | MultiFeed (upgradeable) |
+| EURS | Aave V3 | 10% | Fallback $1.05 |
+| WBTC | Aave V3 | 15% | MultiFeed BTC/USD |
+| USDT | Aave V3 | 15% | Fallback $1.00 |
 
-> **Aave V3 Sepolia Supply Caps = 0**
-> 
-> All Aave reserves on Sepolia have `Supply Cap = 0`, meaning new supplies are blocked (Error 51: SUPPLY_CAP_EXCEEDED). This is an Aave governance configuration, not a bug in our code.
->
-> **Mitigations:**
-> - Compound V3 deposit/withdraw is fully tested and working
-> - Aave APY queries work correctly (proves integration)
-> - 111 unit tests pass including Aave allocation logic
-> - Mainnet has active supply caps (7.5B USDC)
+---
 
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-- [Foundry](https://book.getfoundry.sh/getting-started/installation)
-- Node.js 18+
-- Sepolia ETH (for gas)
-- REACT tokens (for Lasna)
+- [Foundry](https://book.getfoundry.sh/getting-started/installation) - Solidity development framework
+- Node.js 18+ - For frontend and tooling
+- Sepolia ETH - For gas on Sepolia testnet
+- REACT tokens - For gas on Lasna Network
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/reactive-yield-optimizer.git
-cd reactive-yield-optimizer
+git clone https://github.com/guglxni/YieldOpt.git
+cd YieldOpt
 
 # Install dependencies
 forge install
 
-# Copy environment file
+# Copy environment configuration
 cp .env.example .env
-# Edit .env with your keys
+# Edit .env with your private key and RPC URLs
 
 # Run tests
 forge test -vvv
 
 # Deploy to Sepolia
-forge script script/DeployYieldVault.s.sol --rpc-url $SEPOLIA_RPC --broadcast
+forge script script/DeployMultiAssetVault.s.sol --rpc-url $SEPOLIA_RPC --broadcast
 
 # Deploy to Lasna
 forge script script/DeployYieldOptimizer.s.sol --rpc-url $REACTIVE_RPC --broadcast
 ```
 
-## 🏗️ Project Structure
+### Frontend
+
+```bash
+cd frontend
+python3 -m http.server 8080
+# Open http://localhost:8080
+```
+
+---
+
+## Project Structure
 
 ```
-reactive-yield-optimizer/
+YieldOpt/
 ├── src/
-│   ├── YieldVault.sol              # Main vault contract (Sepolia)
-│   ├── YieldOptimizerReactive.sol  # RSC for yield decisions (Lasna)
-│   ├── Funder.sol                  # Self-sustaining gas
-│   ├── ReactiveFunderRC.sol        # Reactive funder
-│   ├── interfaces/
-│   │   ├── IAavePool.sol           # Aave V3 interface
-│   │   ├── IComet.sol              # Compound V3 interface
-│   │   └── IYieldVault.sol
-│   └── libraries/
-│       └── YieldCalculator.sol
+│   ├── YieldVaultMultiAsset.sol    # Multi-asset vault (primary)
+│   ├── YieldVaultCompound.sol      # Compound V3 vault
+│   ├── YieldOptimizerReactive.sol  # Lasna RSC
+│   ├── UnifiedPriceOracle.sol      # Combined oracle
+│   ├── PriceOracle.sol             # Price oracle
+│   ├── Funder.sol                  # Gas funding
+│   ├── ReactiveFunderRC.sol        # Auto-refill RSC
+│   └── interfaces/
+│       ├── IAavePool.sol
+│       ├── IComet.sol
+│       └── IMultiFeedDestination.sol
 ├── script/
-│   ├── DeployYieldVault.s.sol
-│   ├── DeployYieldOptimizer.s.sol
-│   └── TriggerSnapshot.s.sol
+│   ├── DeployMultiAssetVault.s.sol
+│   ├── DeployUnifiedOracle.s.sol
+│   └── AddAssets.s.sol
 ├── test/
 │   ├── unit/
-│   ├── integration/
 │   └── fork/
+├── frontend/
+│   ├── index.html                  # Dashboard
+│   ├── multiasset.html             # Multi-asset vault UI
+│   ├── js/app.js                   # Frontend logic
+│   └── css/main.css
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── DEPLOYMENT.md
-│   └── COMPOUND_INTEGRATION.md
-├── foundry.toml
+│   ├── diagrams/                   # Architecture diagrams
+│   ├── COMPOUND_INTEGRATION.md
+│   └── ARCHITECTURE.md
 └── README.md
 ```
 
-## 📖 Documentation
+---
+
+## Oracle Integration
+
+The Unified Price Oracle provides live USD prices for all vault assets:
+
+```solidity
+// Simple price query
+uint256 price = oracle.getPrice(WETH_ADDRESS);
+
+// Detailed query with metadata
+(uint256 price, uint256 updatedAt, SourceType source, bool isLive, bool isFresh) 
+    = oracle.getPriceDetailed(WETH_ADDRESS);
+
+// Get all prices at once
+(address[] tokens, string[] symbols, uint256[] prices, bool[] isLive) 
+    = oracle.getAllPrices();
+```
+
+### Adding New Price Feeds
+
+To add support for additional assets via AbstractFeedProxy:
+
+```solidity
+oracle.addAbstractProxyFeed(
+    tokenAddress,
+    "SYMBOL",
+    abstractProxyAddress,
+    fallbackPrice
+);
+```
+
+---
+
+## Protocol Integrations
+
+### Aave V3
+
+- Pool Address: `0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`
+- Supply and earn yield on 6 different assets
+- Real-time APY from `getReserveData().currentLiquidityRate`
+
+### Compound V3
+
+- Comet Address: `0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238`
+- USDC lending market
+- APY from `getSupplyRate(utilization)`
+
+### Reactive Network
+
+- Event-driven automation via RSC subscriptions
+- CRON-based periodic yield checks
+- Cross-chain callbacks for rebalancing
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+forge test -vvv
+
+# Run specific test file
+forge test --match-path test/unit/YieldVaultMultiAsset.t.sol -vvv
+
+# Run fork tests
+forge test --fork-url $SEPOLIA_RPC -vvv
+```
+
+---
+
+## Documentation
 
 - [Compound V3 Integration](docs/COMPOUND_INTEGRATION.md)
-- [Architecture Overview](docs/ARCHITECTURE.md) (Coming Soon)
-- [Deployment Guide](docs/DEPLOYMENT.md) (Coming Soon)
+- [Frontend User Guide](FRONTEND_USER_GUIDE.md)
+- [Architecture Diagrams](docs/diagrams/)
 
-## 🔗 Related Resources
+---
 
-- [Reactive Network Docs](https://dev.reactive.network)
-- [Aave V3 Docs](https://docs.aave.com/developers/)
-- [Compound V3 (Comet) Docs](https://docs.compound.finance/v3/)
-- [Bounty 3 Specification](https://dorahacks.io/hackathon/bounty/1317)
+## Known Limitations
 
-## 🔄 Comparison with Bounty 2 (Auto-Looper)
+### Aave V3 Sepolia Supply Caps
 
-| Aspect | Bounty 2: Auto-Looper | Bounty 3: Yield Optimizer |
-|--------|----------------------|---------------------------|
-| **Goal** | Achieve target leverage | Maximize yield returns |
-| **Pools** | Aave V3 only | Aave V3 + Compound V3 |
-| **Decision** | Health factor + leverage | APY comparison |
-| **Action** | Supply/Borrow/Swap cycles | Withdraw/Deposit rebalancing |
-| **Complexity** | Higher (multi-step loops) | Lower (simple reallocation) |
+Some Aave V3 reserves on Sepolia have supply caps that may limit deposits. The Multi-Asset Vault uses assets with verified unlimited or high supply caps:
 
-## 📅 Bounty Timeline
+- WETH, LINK, AAVE, EURS: Verified unlimited supply caps
+- WBTC, USDT: High supply caps (suitable for testnet)
 
-- **Deadline:** December 28, 2024, 11:59 PM UTC
-- **Prize:** TBD
+---
 
-## 📄 License
+## Resources
+
+- [Reactive Network Documentation](https://dev.reactive.network)
+- [Aave V3 Documentation](https://docs.aave.com/developers/)
+- [Compound V3 Documentation](https://docs.compound.finance/v3/)
+
+---
+
+## License
 
 MIT License - see [LICENSE](LICENSE)
 
 ---
 
-*Built with ❤️ for Reactive Network Bounty 3*
+Built for Reactive Network Bounty Sprint

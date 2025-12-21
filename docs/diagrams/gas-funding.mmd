@@ -1,0 +1,28 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#667eea', 'secondaryColor': '#764ba2'}}}%%
+
+sequenceDiagram
+    participant User
+    participant Funder as Funder Contract<br/>(Sepolia)
+    participant FunderRC as ReactiveFunderRC<br/>(Lasna)
+    participant Callback as Callback Proxy<br/>(Sepolia)
+    participant RSC as YieldOptimizerRsc<br/>(Lasna)
+
+    Note over User,RSC: Self-Sustaining Gas Funding Pattern
+
+    User->>Funder: send ETH (fees)
+    Funder-->>FunderRC: emit FundsReceived(sender, amount)
+    
+    Note over FunderRC: Monitor balance thresholds
+    
+    alt Balance exceeds bridge threshold
+        FunderRC->>FunderRC: Calculate bridge amount
+        FunderRC->>Callback: emit Callback(coverDebt)
+        Callback->>Funder: coverDebt(reactiveContract)
+        Funder->>RSC: Bridge funds via depositTo()
+        Note over RSC: RSC gas balance replenished
+    end
+
+    Note over RSC: RSC continues operation with new funds
+    RSC->>RSC: Execute CRON checks
+    RSC->>RSC: Process yield events
+    RSC->>Callback: emit Callback(executeRebalance)

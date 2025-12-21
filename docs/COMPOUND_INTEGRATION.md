@@ -1,8 +1,8 @@
 # Compound V3 Integration on Sepolia
 
-> Technical guide for integrating Compound V3 (Comet) as the second yield pool
+> Technical guide for integrating Compound V3 (Comet) as a yield pool
 
-## 📍 Contract Addresses
+## Contract Addresses
 
 ### Compound V3 Sepolia USDC Market
 
@@ -24,7 +24,7 @@
 
 ---
 
-## 🔧 Comet Interface
+## Comet Interface
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -80,7 +80,7 @@ interface IComet {
 
 ---
 
-## 📊 APY Calculation
+## APY Calculation
 
 ### Getting Supply Rate
 
@@ -97,7 +97,7 @@ function getCompoundAPY(IComet comet) public view returns (uint256) {
     
     // Convert to annual rate
     // APY = (1 + rate_per_second)^(seconds_per_year) - 1
-    // Simplified: APY ≈ rate_per_second * seconds_per_year
+    // Simplified: APY = rate_per_second * seconds_per_year
     uint256 secondsPerYear = 365 days;
     uint256 apy = uint256(supplyRatePerSecond) * secondsPerYear;
     
@@ -137,7 +137,7 @@ function compareAPYs() public view returns (
 
 ---
 
-## 🔄 Supply & Withdraw Operations
+## Supply and Withdraw Operations
 
 ### Supplying to Compound V3
 
@@ -173,7 +173,7 @@ function _withdrawFromCompound(uint256 amount) internal returns (uint256) {
 
 ---
 
-## ⚠️ Key Differences from Aave
+## Key Differences from Aave
 
 | Aspect | Aave V3 | Compound V3 |
 |--------|---------|-------------|
@@ -186,7 +186,7 @@ function _withdrawFromCompound(uint256 amount) internal returns (uint256) {
 
 ---
 
-## 🧪 Testing Considerations
+## Testing Considerations
 
 ### Testnet Liquidity
 
@@ -235,7 +235,7 @@ contract MockComet {
 
 ---
 
-## 📚 Resources
+## Resources
 
 - [Compound V3 Documentation](https://docs.compound.finance/v3/)
 - [Comet GitHub Repository](https://github.com/compound-finance/comet)
@@ -244,7 +244,7 @@ contract MockComet {
 
 ---
 
-## ✅ Integration Checklist
+## Integration Checklist
 
 - [ ] Add IComet interface to `src/interfaces/`
 - [ ] Implement `_depositToCompound()` in YieldVault
