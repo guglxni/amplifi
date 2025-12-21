@@ -253,27 +253,29 @@ contract UnifiedPriceOracle is Ownable {
         );
         
         // ═══════════════════════════════════════════════════════════
-        //          FALLBACK FEEDS (Stablecoins & No Oracle)
+        //          ABSTRACT PROXY FEEDS (aggreatorv3-reactive-bridge-abstract)
         // ═══════════════════════════════════════════════════════════
         
-        // USDT → $1.00 (stablecoin)
+        // USDT → Uses USDC/USD feed from Base Sepolia (both are USD stablecoins)
+        // AbstractFeedProxy deployed at: 0x60d6a73a46b8bec9905a9f9e6289ea3e4d40be0d
         _configureFeed(
             0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0, // USDT Sepolia
             "USDT",
-            SourceType.FALLBACK,
+            SourceType.ABSTRACT_PROXY,
+            0x60d6a73A46b8bEC9905A9f9E6289EA3E4D40BE0D, // USDC/USD AbstractFeedProxy
             address(0),
-            address(0),
-            100000000 // $1.00
+            100000000 // $1.00 fallback
         );
         
-        // EURS → $1.05 (Euro stablecoin)
+        // EURS → Uses EUR/USD feed from Polygon Amoy
+        // AbstractFeedProxy deployed at: 0x12c343722303f4B53644661FDc9B8B5b77B10f36
         _configureFeed(
             0x6d906e526a4e2Ca02097BA9d0caA3c382F52278E, // EURS Sepolia
             "EURS",
-            SourceType.FALLBACK,
+            SourceType.ABSTRACT_PROXY,
+            0x12c343722303F4B53644661FDC9B8b5B77b10f36, // EUR/USD AbstractFeedProxy
             address(0),
-            address(0),
-            105000000 // $1.05
+            105000000 // $1.05 fallback
         );
         
         // AAVE → Derived from LINK price (AAVE typically trades at ~10x LINK)
