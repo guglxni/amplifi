@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldOpt | Reactive Bridge</title>
+    <meta name="description" content="Cross-chain gas funding and RSC management for Reactive Yield Optimizer.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <nav class="sidebar">
+        <div class="brand"><i class="ph-fill ph-plant"></i> YieldOpt</div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+            <a href="multiasset.html" class="nav-item"><i class="ph-bold ph-cube"></i> Multi-Asset Vault</a>
+            <a href="bridge.html" class="nav-item active"><i class="ph-bold ph-bridge"></i> Reactive Bridge</a>
+            <a href="settings.html" class="nav-item"><i class="ph-bold ph-gear"></i> Settings</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header>
+            <div class="page-title">
+                <h1>Reactive Bridge</h1>
+                <p>Cross-Chain Gas Management & RSC Funding</p>
+            </div>
+            <div class="wallet-status" id="wallet-btn">
+                <div class="status-dot offline" id="status-dot"></div>
+                <span id="wallet-text">Connect Wallet</span>
+            </div>
+        </header>
+
+        <!-- Row 1: Gas Tank & Bridge Visualization -->
+        <div class="dashboard-grid">
+            <!-- Funder Gas Tank -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-gas-pump"></i> FUNDER GAS TANK</span>
+                    <img src="assets/sepolia-logo.svg" style="width: 20px; height: 20px;">
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding: 2rem;">
+                    <div
+                        style="width: 150px; height: 150px; border-radius: 50%; border: 10px solid var(--color-border); position: relative; display: flex; align-items: center; justify-content: center;">
+                        <svg width="150" height="150" style="position: absolute; transform: rotate(-90deg);">
+                            <circle cx="75" cy="75" r="70" stroke="var(--color-primary)" stroke-width="10"
+                                fill="transparent" stroke-dasharray="440" stroke-dashoffset="220" id="gas-ring">
+                            </circle>
+                        </svg>
+                        <div style="text-align: center;">
+                            <div class="metric-value" style="font-size: 1.5rem;" id="funder-balance">...</div>
+                            <div style="font-size: 0.8rem; color: var(--color-text-muted);">ETH</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.85rem; margin-top: 1rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Can Bridge</span>
+                        <span id="can-bridge">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Bridgeable</span>
+                        <span id="bridgeable-amount">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                        <span style="color: var(--color-text-muted);">Gas Reserve</span>
+                        <span id="gas-reserve">--</span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="refillGas()">
+                    <i class="ph-bold ph-plus"></i> Refill (+0.1 ETH)
+                </button>
+            </div>
+
+            <!-- Bridge Visualizer -->
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-arrows-left-right"></i> LIVE BRIDGE ACTIVITY</span>
+                </div>
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; height: 200px; padding: 0 2rem;">
+                    <!-- Sepolia -->
+                    <div style="text-align: center;">
+                        <div
+                            style="background: rgba(255,255,255,0.1); border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <img src="assets/sepolia-logo.svg" style="width: 48px; height: auto;">
+                        </div>
+                        <div style="margin-top: 10px; font-weight: 700;">Sepolia</div>
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted);">Chain 11155111</div>
+                    </div>
+
+                    <!-- The Fiber Line -->
+                    <div style="flex: 1; margin: 0 2rem; position: relative;">
+                        <div
+                            style="height: 4px; background: rgba(56, 189, 248, 0.2); border-radius: 2px; overflow: hidden; position: relative;">
+                            <div id="particle"
+                                style="width: 40px; height: 100%; background: var(--color-primary); position: absolute; left: -10%; border-radius: 2px; box-shadow: 0 0 10px var(--color-primary);">
+                            </div>
+                        </div>
+                        <div
+                            style="text-align: center; margin-top: 10px; font-size: 0.8rem; color: var(--color-text-muted);">
+                            <span id="bridge-status">Idle</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 5px;">
+                            <span style="font-size: 0.7rem; color: var(--color-primary);" id="bridge-count-display">--
+                                bridges completed</span>
+                        </div>
+                    </div>
+
+                    <!-- Lasna -->
+                    <div style="text-align: center;">
+                        <div
+                            style="background: rgba(255,255,255,0.1); border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <img src="assets/lasna-logo.png" style="width: 48px; height: auto;">
+                        </div>
+                        <div style="margin-top: 10px; font-weight: 700;">Lasna</div>
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted);">Chain 5318007</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Funder Stats & Bridge Actions -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <!-- Funder Statistics -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-chart-bar"></i> FUNDER STATISTICS</span>
+                </div>
+                <div style="font-size: 0.9rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Total Received</span>
+                        <span id="total-received" style="color: var(--color-success);">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Total Bridged</span>
+                        <span id="total-bridged" style="color: var(--color-primary);">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Bridge Count</span>
+                        <span id="bridge-count">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Bridge Threshold</span>
+                        <span id="bridge-threshold">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                        <span style="color: var(--color-text-muted);">Target RSC</span>
+                        <span id="target-rsc" style="font-size: 0.75rem;">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bridge Actions -->
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-lightning"></i> BRIDGE ACTIONS</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <!-- Cover Debt -->
+                    <div
+                        style="padding: 1.5rem; background: rgba(56, 189, 248, 0.1); border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">
+                            <i class="ph-bold ph-wallet"></i> Cover Debt
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+                            Bridge available funds to the target RSC via Callback Proxy. Settles outstanding gas debt.
+                        </p>
+                        <button class="btn-primary" style="width: 100%;" onclick="coverDebt()">
+                            <i class="ph-bold ph-paper-plane-tilt"></i> Execute Bridge
+                        </button>
+                    </div>
+
+                    <!-- Faucet Bridge -->
+                    <div
+                        style="padding: 1.5rem; background: rgba(52, 211, 153, 0.1); border-radius: 12px; border: 1px solid rgba(52, 211, 153, 0.2);">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">
+                            <i class="ph-bold ph-drop"></i> Faucet Bridge
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.5rem;">
+                            Convert SepETH → REACT at 100:1 ratio via Reactive Faucet. Max 5 ETH per request.
+                        </p>
+                        <div class="input-group" style="margin-bottom: 0.75rem;">
+                            <input type="number" placeholder="0.1" id="faucet-amount" step="0.1" min="0.01" max="5"
+                                value="0.1">
+                            <span style="font-weight: 700;">ETH</span>
+                        </div>
+                        <button class="btn-primary"
+                            style="width: 100%; background: linear-gradient(135deg, #34d399, #059669);"
+                            onclick="bridgeToFaucet()">
+                            <i class="ph-bold ph-swap"></i> Convert to REACT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: ReactiveFunderRC Settings -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-robot"></i> AUTO-REFILL SETTINGS (ReactiveFunderRC - Lasna)</span>
+                    <img src="assets/lasna-logo.png" style="width: 20px; height: 20px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 1rem;">
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="color: var(--color-text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">Refill
+                            Threshold</div>
+                        <div style="font-weight: 700; font-size: 1.2rem;" id="refill-threshold">-- REACT</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="color: var(--color-text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">Faucet
+                            Amount</div>
+                        <div style="font-weight: 700; font-size: 1.2rem;" id="faucet-bridge-amount">-- ETH</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="color: var(--color-text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                            Auto-Refill</div>
+                        <div style="font-weight: 700; font-size: 1.2rem;" id="auto-refill-status">--</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="color: var(--color-text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">RC Bridge
+                            Count</div>
+                        <div style="font-weight: 700; font-size: 1.2rem;" id="rc-bridge-count">--</div>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top: 1.5rem; padding: 1rem; background: rgba(129, 140, 248, 0.1); border-radius: 8px; border: 1px solid rgba(129, 140, 248, 0.3);">
+                    <i class="ph-bold ph-info" style="color: #818cf8;"></i>
+                    <span style="font-size: 0.85rem; color: #a5b4fc;">
+                        <strong>How Auto-Refill Works:</strong> When RSC balance drops below threshold, ReactiveFunderRC
+                        automatically triggers a faucet bridge to convert SepETH to REACT tokens, keeping the system
+                        operational.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await App.init();
+            refreshBridgeStats();
+            setInterval(refreshBridgeStats, 10000);
+            animateParticle();
+        });
+
+        async function refreshBridgeStats() {
+            // Fetch Funder Data
+            const funderData = await App.fetchFunderData();
+            if (funderData) {
+                document.getElementById('funder-balance').innerText = parseFloat(funderData.balance).toFixed(4);
+                document.getElementById('can-bridge').innerText = funderData.canBridge ? "✅ Yes" : "❌ No";
+                document.getElementById('can-bridge').style.color = funderData.canBridge ? "var(--color-success)" : "#ef4444";
+                document.getElementById('bridgeable-amount').innerText = App.formatETH(funderData.bridgeableAmount);
+                document.getElementById('gas-reserve').innerText = App.formatETH(funderData.gasReserve);
+                document.getElementById('total-received').innerText = App.formatETH(funderData.totalReceived);
+                document.getElementById('total-bridged').innerText = App.formatETH(funderData.totalBridged);
+                document.getElementById('bridge-count').innerText = funderData.bridgeCount;
+                document.getElementById('bridge-count-display').innerText = funderData.bridgeCount + " bridges completed";
+                document.getElementById('bridge-threshold').innerText = App.formatETH(funderData.bridgeThreshold);
+                document.getElementById('target-rsc').innerText = funderData.targetRsc.slice(0, 10) + "..." + funderData.targetRsc.slice(-6);
+
+                // Update Gas Ring
+                const maxETH = 1.0;
+                const pct = Math.min(parseFloat(funderData.balance) / maxETH, 1);
+                const dashoffset = 440 - (440 * pct);
+                document.getElementById('gas-ring').style.strokeDashoffset = dashoffset;
+
+                // Update status
+                if (funderData.canBridge) {
+                    document.getElementById('bridge-status').innerText = "Ready to Bridge";
+                    document.getElementById('bridge-status').style.color = "var(--color-success)";
+                } else {
+                    document.getElementById('bridge-status').innerText = "Awaiting Funds";
+                    document.getElementById('bridge-status').style.color = "var(--color-text-muted)";
+                }
+            }
+
+            // Fetch RSC Data (Lasna)
+            const rscData = await App.fetchRscData();
+            if (rscData) {
+                document.getElementById('refill-threshold').innerText = rscData.refillThreshold + " REACT";
+                document.getElementById('faucet-bridge-amount').innerText = rscData.faucetBridgeAmount + " ETH";
+                document.getElementById('auto-refill-status').innerText = rscData.autoRefillEnabled ? "✅ Enabled" : "❌ Disabled";
+                document.getElementById('auto-refill-status').style.color = rscData.autoRefillEnabled ? "var(--color-success)" : "#ef4444";
+                document.getElementById('rc-bridge-count').innerText = rscData.bridgeCountRc;
+            } else {
+                document.getElementById('refill-threshold').innerText = "⚠️ Offline";
+                document.getElementById('auto-refill-status').innerText = "⚠️ Offline";
+            }
+        }
+
+        async function refillGas() {
+            if (!App.signer) {
+                await App.connectWallet();
+                if (!App.signer) return;
+            }
+
+            const tx = await App.refillFunder("0.1");
+            if (tx) setTimeout(refreshBridgeStats, 5000);
+        }
+
+        async function coverDebt() {
+            if (!App.signer) {
+                await App.connectWallet();
+                if (!App.signer) return;
+            }
+
+            const tx = await App.coverDebt();
+            if (tx) setTimeout(refreshBridgeStats, 5000);
+        }
+
+        async function bridgeToFaucet() {
+            if (!App.signer) {
+                await App.connectWallet();
+                if (!App.signer) return;
+            }
+
+            const amount = document.getElementById('faucet-amount').value || "0.1";
+            const tx = await App.bridgeToFaucet(amount);
+            if (tx) setTimeout(refreshBridgeStats, 5000);
+        }
+
+        function animateParticle() {
+            const p = document.getElementById('particle');
+            let pos = -10;
+            let speed = 0.5;
+
+            setInterval(async () => {
+                // Check if bridge happened recently
+                const funderData = await App.fetchFunderData();
+                if (funderData && funderData.canBridge) {
+                    speed = 2.0;
+                } else {
+                    speed = 0.5;
+                }
+            }, 5000);
+
+            setInterval(() => {
+                pos += speed;
+                if (pos > 110) pos = -10;
+                p.style.left = pos + '%';
+            }, 20);
+        }
+    </script>
+</body>
+
+</html>

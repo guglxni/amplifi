@@ -1,0 +1,9 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- DAI Maker Logo - Official Yellow -->
+  <circle cx="32" cy="32" r="30" fill="#F5AC37"/>
+  <g fill="white">
+    <polygon points="32,14 16,32 32,50 48,32"/>
+    <rect x="20" y="28" width="24" height="3"/>
+    <rect x="20" y="33" width="24" height="3"/>
+  </g>
+</svg>

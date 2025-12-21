@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldOpt | Reactive Yield Optimizer</title>
+    <meta name="description"
+        content="Cross-chain yield automation using Reactive Smart Contracts. Multi-asset optimization across Aave V3 and Compound V3.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand">
+            <i class="ph-fill ph-plant"></i> YieldOpt
+        </div>
+
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item active">
+                <i class="ph-bold ph-squares-four"></i> Dashboard
+            </a>
+            <a href="multiasset.html" class="nav-item">
+                <i class="ph-bold ph-cube"></i> Multi-Asset Vault
+            </a>
+            <a href="bridge.html" class="nav-item">
+                <i class="ph-bold ph-bridge"></i> Reactive Bridge
+            </a>
+            <a href="settings.html" class="nav-item">
+                <i class="ph-bold ph-gear"></i> Settings
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div class="page-title">
+                <h1>Yield Overview</h1>
+                <p>Real-time Yield Optimization across Sepolia & Lasna</p>
+            </div>
+            <div class="wallet-status" id="wallet-btn">
+                <div class="status-dot offline" id="status-dot"></div>
+                <span id="wallet-text">Connect Wallet</span>
+            </div>
+        </header>
+
+        <!-- Row 1: Key Metrics -->
+        <div class="dashboard-grid">
+            <!-- TVL Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span>TOTAL VALUE LOCKED</span>
+                    <i class="ph-bold ph-vault" style="color: var(--color-primary);"></i>
+                </div>
+                <div class="metric-value" id="tvl-value">Loading...</div>
+                <div class="metric-sub">
+                    <span class="live-indicator"></span>
+                    <span id="tvl-pools">across 5 assets</span>
+                </div>
+            </div>
+
+            <!-- Best APY Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span>BEST YIELD (REAL-TIME)</span>
+                    <i class="ph-bold ph-trend-up" style="color: var(--color-success);"></i>
+                </div>
+                <div class="metric-value" id="best-apy">--%</div>
+                <div class="metric-sub" id="best-pool" style="color: var(--color-success);">--</div>
+            </div>
+
+            <!-- Allocation Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <span>ASSET DISTRIBUTION</span>
+                    <i class="ph-bold ph-chart-pie" style="color: var(--color-accent);"></i>
+                </div>
+                <div style="height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Multi-Asset APYs -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <!-- WETH -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-currency-eth"></i> WETH</span>
+                    <span
+                        style="font-size: 0.7rem; background: rgba(34, 211, 238, 0.2); padding: 0.2rem 0.5rem; border-radius: 8px;">Aave
+                        V3</span>
+                </div>
+                <div class="metric-value" id="weth-apy">--%</div>
+                <div class="metric-sub" style="color: var(--color-text-muted);">
+                    Balance: <span id="weth-balance">0.0000</span>
+                </div>
+            </div>
+
+            <!-- LINK -->
+            <div class="card" style="border-color: var(--color-success);">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-link"></i> LINK 🏆</span>
+                    <span
+                        style="font-size: 0.7rem; background: rgba(52, 211, 153, 0.2); padding: 0.2rem 0.5rem; border-radius: 8px; color: var(--color-success);">Top
+                        Yield</span>
+                </div>
+                <div class="metric-value" style="color: var(--color-success);" id="link-apy">17.37%</div>
+                <div class="metric-sub" style="color: var(--color-text-muted);">
+                    Balance: <span id="link-balance">0.0000</span>
+                </div>
+            </div>
+
+            <!-- Compound USDC -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-currency-dollar"></i> USDC</span>
+                    <span
+                        style="font-size: 0.7rem; background: rgba(129, 140, 248, 0.2); padding: 0.2rem 0.5rem; border-radius: 8px;">Compound</span>
+                </div>
+                <div class="metric-value" id="compound-apy">--%</div>
+                <div class="metric-sub" style="color: var(--color-text-muted);">
+                    Util: <span id="compound-util">--%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Yield History & Reactive Status -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <!-- Yield History Chart -->
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span>YIELD COMPARISON</span>
+                    <i class="ph-bold ph-chart-line" style="color: var(--color-primary);"></i>
+                </div>
+                <div style="height: 200px;">
+                    <canvas id="yieldHistoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Reactive Status -->
+            <div class="card">
+                <div class="card-header">
+                    <span>REACTIVE STATUS</span>
+                    <img src="assets/lasna-logo.png" style="width: 20px; height: 20px;">
+                </div>
+                <div style="font-size: 0.9rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">CRON Monitoring</span>
+                        <span id="cron-status" style="color: var(--color-success);">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">CRON Interval</span>
+                        <span id="cron-interval">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Last Rebalance</span>
+                        <span id="last-rebal-block">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                        <span style="color: var(--color-text-muted);">Finality Mode</span>
+                        <span id="finality-mode">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: Funder & Quick Links -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <!-- Funder Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-gas-pump"></i> GAS FUNDER</span>
+                </div>
+                <div style="font-size: 0.9rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Balance</span>
+                        <span id="funder-balance" style="color: var(--color-primary);">--</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-muted);">Total Bridged</span>
+                        <span id="total-bridged">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                        <span style="color: var(--color-text-muted);">Bridge Count</span>
+                        <span id="bridge-count">--</span>
+                    </div>
+                </div>
+                <a href="bridge.html" class="btn-primary"
+                    style="text-decoration: none; display: block; text-align: center;">
+                    <i class="ph-bold ph-bridge"></i> Manage Bridge
+                </a>
+            </div>
+
+            <!-- Multi-Asset Summary -->
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-cube"></i> MULTI-ASSET VAULT</span>
+                    <span
+                        style="font-size: 0.7rem; background: rgba(52, 211, 153, 0.3); padding: 0.2rem 0.5rem; border-radius: 8px; color: var(--color-success);">✓
+                        Operational</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">WETH</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-weth-alloc">20%</div>
+                    </div>
+                    <div
+                        style="text-align: center; padding: 1rem; background: rgba(52, 211, 153, 0.1); border-radius: 12px; border: 1px solid rgba(52, 211, 153, 0.3);">
+                        <div style="font-size: 0.8rem; color: var(--color-success);">LINK 🏆</div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--color-success);"
+                            id="ma-link-alloc">20%</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">AAVE</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-aave-alloc">20%</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">EURS</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-eurs-alloc">10%</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted); color: #f7931a;">WBTC</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-wbtc-alloc">15%</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted); color: #26a17b;">USDT</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-usdt-alloc">15%</div>
+                    </div>
+                </div>
+                <a href="multiasset.html" class="btn-primary"
+                    style="text-decoration: none; display: block; text-align: center;">
+                    <i class="ph-bold ph-arrow-right"></i> Go to Multi-Asset Vault
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Chart instances
+        let allocChart = null;
+        let yieldChart = null;
+        let yieldHistory = { link: [], compound: [], weth: [] };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await App.init();
+            initCharts();
+            refreshDashboard();
+            setInterval(refreshDashboard, 15000);
+
+            // Wallet connection
+            document.getElementById('wallet-btn').addEventListener('click', async () => {
+                await App.connectWallet();
+                if (App.currentAccount) {
+                    document.getElementById('wallet-text').innerText = App.currentAccount.slice(0, 6) + '...' + App.currentAccount.slice(-4);
+                    document.getElementById('status-dot').classList.remove('offline');
+                }
+            });
+        });
+
+        function initCharts() {
+            // Allocation Pie Chart
+            const allocCtx = document.getElementById('allocationChart').getContext('2d');
+            allocChart = new Chart(allocCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['WETH', 'LINK', 'AAVE', 'EURS', 'WBTC', 'USDT', 'Compound'],
+                    datasets: [{
+                        data: [20, 20, 20, 10, 15, 15, 0], // Excluding compound from assumption or small slice
+                        backgroundColor: [
+                            'rgba(98, 126, 234, 0.8)',
+                            'rgba(52, 211, 153, 0.8)',
+                            'rgba(182, 80, 158, 0.8)',
+                            'rgba(0, 82, 180, 0.8)',
+                            '#f7931a', // WBTC
+                            '#26a17b', // USDT
+                            'rgba(129, 140, 248, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Yield History Line Chart
+            const yieldCtx = document.getElementById('yieldHistoryChart').getContext('2d');
+            yieldChart = new Chart(yieldCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'LINK',
+                            data: [],
+                            borderColor: '#34d399',
+                            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Compound',
+                            data: [],
+                            borderColor: '#818cf8',
+                            backgroundColor: 'rgba(129, 140, 248, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(56, 189, 248, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(56, 189, 248, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function refreshDashboard() {
+            try {
+                // Fetch Multi-Asset data
+                const multiAssetData = await App.fetchMultiAssetData();
+                const compoundData = await App.fetchCompoundData();
+                const funderData = await App.fetchFunderData();
+                const rscData = await App.fetchRscData();
+
+                // Calculate Total TVL
+                let totalTvl = 0;
+                if (multiAssetData) totalTvl += parseFloat(multiAssetData.tvlUSD) || 0;
+                if (compoundData) totalTvl += parseFloat(compoundData.tvl) || 0;
+                document.getElementById('tvl-value').innerText = App.formatUSD(totalTvl);
+                document.getElementById('tvl-pools').innerText = `across ${multiAssetData ? multiAssetData.assetCount + 1 : 5} assets`;
+
+                // Best APY
+                let allAPYs = [];
+                if (multiAssetData && multiAssetData.assets) {
+                    multiAssetData.assets.forEach(a => {
+                        allAPYs.push({ name: a.symbol, apy: a.apy });
+                    });
+                }
+                if (compoundData) {
+                    allAPYs.push({ name: 'Compound USDC', apy: compoundData.apy });
+                }
+                if (allAPYs.length > 0) {
+                    const best = allAPYs.reduce((a, b) => a.apy > b.apy ? a : b);
+                    document.getElementById('best-apy').innerText = App.formatAPY(best.apy);
+                    document.getElementById('best-pool').innerText = best.name;
+                }
+
+                // Update Multi-Asset displays
+                if (multiAssetData && multiAssetData.assets) {
+                    multiAssetData.assets.forEach(asset => {
+                        const sym = asset.symbol.toLowerCase();
+                        const apyEl = document.getElementById(`${sym}-apy`);
+                        const balEl = document.getElementById(`${sym}-balance`);
+                        const allocEl = document.getElementById(`ma-${sym}-alloc`);
+
+                        if (apyEl) apyEl.innerText = asset.apy.toFixed(2) + '%';
+                        if (balEl) balEl.innerText = asset.balanceFormatted;
+                        if (allocEl) allocEl.innerText = (asset.allocation / 100).toFixed(0) + '%';
+                    });
+
+                    // Add LINK APY to history
+                    const linkAsset = multiAssetData.assets.find(a => a.symbol === 'LINK');
+                    if (linkAsset) {
+                        yieldHistory.link.push(linkAsset.apy * 100);
+                        if (yieldHistory.link.length > 20) yieldHistory.link.shift();
+                    }
+                }
+
+                // Compound display
+                if (compoundData) {
+                    document.getElementById('compound-apy').innerText = App.formatAPY(compoundData.apy);
+                    document.getElementById('compound-util').innerText = compoundData.utilization.toFixed(2) + '%';
+
+                    yieldHistory.compound.push(compoundData.apy * 100);
+                    if (yieldHistory.compound.length > 20) yieldHistory.compound.shift();
+                }
+
+                // Update yield chart
+                updateYieldChart();
+
+                // Funder display
+                if (funderData) {
+                    document.getElementById('funder-balance').innerText = App.formatETH(funderData.balance);
+                    document.getElementById('total-bridged').innerText = App.formatETH(funderData.totalBridged);
+                    document.getElementById('bridge-count').innerText = funderData.bridgeCount;
+                }
+
+                // RSC Status
+                if (rscData) {
+                    document.getElementById('cron-status').innerText = rscData.cronMonitoringEnabled ? '✅ Active' : '❌ Inactive';
+                    document.getElementById('cron-interval').innerText = rscData.cronInterval + ' blocks';
+                    document.getElementById('last-rebal-block').innerText = rscData.lastRebalanceBlock > 0 ? '#' + rscData.lastRebalanceBlock : 'Never';
+                    document.getElementById('finality-mode').innerText = rscData.finalityAwareEnabled ? '✅ Enabled' : '❌ Disabled';
+                } else {
+                    document.getElementById('cron-status').innerText = '⚠️ Offline';
+                }
+
+            } catch (e) {
+                console.error('Dashboard refresh error:', e);
+            }
+        }
+
+        function updateYieldChart() {
+            const labels = yieldHistory.link.map((_, i) => i + 1);
+            yieldChart.data.labels = labels;
+            yieldChart.data.datasets[0].data = yieldHistory.link;
+            yieldChart.data.datasets[1].data = yieldHistory.compound;
+            yieldChart.update('none');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Aave Ghost Logo - Official Color -->
+  <defs>
+    <linearGradient id="aave-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#B6509E"/>
+      <stop offset="100%" style="stop-color:#2EBAC6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#aave-gradient)"/>
+  <path d="M32 14c-9.94 0-18 8.06-18 18 0 4.6 1.7 8.8 4.52 12h8.96c-3.28-2.3-5.48-6.06-5.48-10.27 0-7.67 5.48-12.73 10-12.73 4.52 0 10 5.06 10 12.73 0 4.21-2.2 7.97-5.48 10.27h8.96c2.82-3.2 4.52-7.4 4.52-12 0-9.94-8.06-18-18-18z" fill="white"/>
+  <circle cx="26" cy="30" r="2.5" fill="white"/>
+  <circle cx="38" cy="30" r="2.5" fill="white"/>
+</svg>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldOpt | Settings</title>
+    <meta name="description" content="Configuration and contract addresses for Reactive Yield Optimizer.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <nav class="sidebar">
+        <div class="brand"><i class="ph-fill ph-plant"></i> YieldOpt</div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+            <a href="multiasset.html" class="nav-item"><i class="ph-bold ph-cube"></i> Multi-Asset Vault</a>
+            <a href="bridge.html" class="nav-item"><i class="ph-bold ph-bridge"></i> Reactive Bridge</a>
+            <a href="settings.html" class="nav-item active"><i class="ph-bold ph-gear"></i> Settings</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header>
+            <div class="page-title">
+                <h1>Settings</h1>
+                <p>Network Configuration & Contract Addresses</p>
+            </div>
+            <div class="wallet-status" id="wallet-btn">
+                <div class="status-dot offline" id="status-dot"></div>
+                <span id="wallet-text">Connect Wallet</span>
+            </div>
+        </header>
+
+        <!-- Network Connections -->
+        <div class="dashboard-grid">
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-globe"></i> NETWORK CONNECTIONS</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem;">
+                    <!-- Sepolia -->
+                    <div
+                        style="padding: 1.5rem; background: rgba(56, 189, 248, 0.1); border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <img src="assets/sepolia-logo.svg" style="width: 32px; height: 32px;">
+                            <div>
+                                <div style="font-weight: 700;">Ethereum Sepolia</div>
+                                <div style="font-size: 0.75rem; color: var(--color-text-muted);">Chain ID: 11155111
+                                </div>
+                            </div>
+                            <div id="sepolia-status"
+                                style="margin-left: auto; padding: 0.25rem 0.75rem; background: var(--color-success); border-radius: 20px; font-size: 0.75rem;">
+                                Connected</div>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <input type="text" id="sepolia-rpc" value="https://ethereum-sepolia.publicnode.com"
+                                style="font-size: 0.8rem;">
+                        </div>
+                    </div>
+
+                    <!-- Lasna -->
+                    <div
+                        style="padding: 1.5rem; background: rgba(129, 140, 248, 0.1); border-radius: 12px; border: 1px solid rgba(129, 140, 248, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <img src="assets/lasna-logo.png" style="width: 32px; height: 32px;">
+                            <div>
+                                <div style="font-weight: 700;">Reactive Lasna</div>
+                                <div style="font-size: 0.75rem; color: var(--color-text-muted);">Chain ID: 5318007</div>
+                            </div>
+                            <div id="lasna-status"
+                                style="margin-left: auto; padding: 0.25rem 0.75rem; background: orange; border-radius: 20px; font-size: 0.75rem; color: black;">
+                                Checking...</div>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <input type="text" id="lasna-rpc" value="https://lasna-rpc.rnk.dev"
+                                style="font-size: 0.8rem;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interface Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-palette"></i> INTERFACE</span>
+                </div>
+
+                <div style="font-size: 0.9rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span>Turquoise Dark Theme</span>
+                        <label class="switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--color-border);">
+                        <span>Auto-Refresh Data</span>
+                        <label class="switch">
+                            <input type="checkbox" checked id="auto-refresh-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
+                        <span>Refresh Interval</span>
+                        <span style="color: var(--color-primary);">15 seconds</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployed Contracts -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <!-- Sepolia Contracts -->
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-code"></i> SEPOLIA CONTRACTS</span>
+                    <img src="assets/sepolia-logo.svg" style="width: 20px; height: 20px;">
+                </div>
+
+                <div style="font-size: 0.85rem;">
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-primary);">YieldVaultDualAsset</span>
+                            <a href="https://sepolia.etherscan.io/address/0xe6e06F94d1aaa2496b9e33afeE29f01436E9fA4A"
+                                target="_blank" style="color: var(--color-accent);">
+                                <i class="ph-bold ph-arrow-square-out"></i> Etherscan
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0xe6e06F94d1aaa2496b9e33afeE29f01436E9fA4A</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--color-text-muted);">Aave USDC
+                            vs DAI yield comparison</div>
+                    </div>
+
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-primary);">YieldVaultCompound</span>
+                            <a href="https://sepolia.etherscan.io/address/0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a"
+                                target="_blank" style="color: var(--color-accent);">
+                                <i class="ph-bold ph-arrow-square-out"></i> Etherscan
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--color-text-muted);">Compound V3
+                            USDC vault (fully operational)</div>
+                    </div>
+
+                    <div
+                        style="padding: 1rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(0,0,0,0.2)); border-radius: 8px; border: 1px solid rgba(100, 255, 218, 0.3);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: #64ffda;">⭐ YieldVaultMultiAsset</span>
+                            <a href="https://sepolia.etherscan.io/address/0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d"
+                                target="_blank" style="color: var(--color-accent);">
+                                <i class="ph-bold ph-arrow-square-out"></i> Etherscan
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #64ffda;">Multi-Asset vault (WETH,
+                            LINK, AAVE, EURS) - NO SUPPLY CAP</div>
+                    </div>
+
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-primary);">YieldVaultWethLink</span>
+                            <a href="https://sepolia.etherscan.io/address/0xB67500437583656160B9C6Da2139E5D4289458E2"
+                                target="_blank" style="color: var(--color-accent);">
+                                <i class="ph-bold ph-arrow-square-out"></i> Etherscan
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0xB67500437583656160B9C6Da2139E5D4289458E2</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--color-text-muted);">WETH/LINK
+                            dual-asset vault (fully operational)</div>
+                    </div>
+
+                    <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-primary);">Funder</span>
+                            <a href="https://sepolia.etherscan.io/address/0x9f7c78a50379dc4d9703b19c708088d5eac5c923"
+                                target="_blank" style="color: var(--color-accent);">
+                                <i class="ph-bold ph-arrow-square-out"></i> Etherscan
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0x9f7c78a50379dc4d9703b19c708088d5eac5c923</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--color-text-muted);">Cross-chain
+                            gas funding & bridge</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lasna Contracts -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-code"></i> LASNA RSCs</span>
+                    <img src="assets/lasna-logo.png" style="width: 20px; height: 20px;">
+                </div>
+
+                <div style="font-size: 0.85rem;">
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-weight: 600; color: #818cf8; margin-bottom: 0.5rem;">YieldOptimizerReactive
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0x98969559717c24b47A2E4365a569c947a88C4767</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-text-muted);">Monitors
+                            YieldSnapshot, triggers rebalance</div>
+                    </div>
+
+                    <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-weight: 600; color: #818cf8; margin-bottom: 0.5rem;">ReactiveFunderRC</div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0x1caC802c52Cd82b9988e1163aF46258539280E71</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-text-muted);">Auto-refill
+                            via faucet bridge</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protocol Info -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-book-open"></i> PROTOCOL INTEGRATIONS</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem;">
+                    <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏛️</div>
+                        <div style="font-weight: 700; margin-bottom: 0.25rem;">Aave V3</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">Pool:
+                            0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951</div>
+                        <div
+                            style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(239, 68, 68, 0.2); border-radius: 4px; font-size: 0.75rem; color: #fca5a5;">
+                            Supply Cap = 0</div>
+                    </div>
+
+                    <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💹</div>
+                        <div style="font-weight: 700; margin-bottom: 0.25rem;">Compound V3</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">cUSDCv3:
+                            0xAec1F48e02Cfb822Be958B68C7957156EB3F0b6e</div>
+                        <div
+                            style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(52, 211, 153, 0.2); border-radius: 4px; font-size: 0.75rem; color: #6ee7b7;">
+                            Fully Operational</div>
+                    </div>
+
+                    <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌉</div>
+                        <div style="font-weight: 700; margin-bottom: 0.25rem;">Reactive Faucet</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">1 SepETH = 100 REACT (Max 5 ETH)
+                        </div>
+                        <div
+                            style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(56, 189, 248, 0.2); border-radius: 4px; font-size: 0.75rem; color: #67e8f9;">
+                            Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-info"></i> ABOUT YIELDOPT</span>
+                </div>
+
+                <div style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
+                    <div style="flex: 1;">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Reactive Yield Optimizer</h2>
+                        <p style="color: var(--color-text-muted); margin-bottom: 1rem;">
+                            Cross-chain yield automation using Reactive Smart Contracts. Automatically routes funds
+                            across
+                            Aave V3 and Compound V3 to achieve optimal yields without user intervention.
+                        </p>
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="https://dorahacks.io/hackathon/bounty/1317" target="_blank" class="btn-primary"
+                                style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                                <i class="ph-bold ph-trophy"></i> Bounty 3
+                            </a>
+                            <a href="https://dev.reactive.network" target="_blank" class="btn-primary"
+                                style="display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; border: 1px solid var(--color-border);">
+                                <i class="ph-bold ph-book"></i> Docs
+                            </a>
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🌱</div>
+                        <div style="font-weight: 700; color: var(--color-primary);">v1.0.0</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">Bounty 3 Edition</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await App.init();
+            checkConnections();
+        });
+
+        async function checkConnections() {
+            // Check Sepolia
+            try {
+                const block = await App.providers.sepolia.getBlockNumber();
+                document.getElementById('sepolia-status').innerText = 'Block ' + block;
+                document.getElementById('sepolia-status').style.background = 'var(--color-success)';
+            } catch (e) {
+                document.getElementById('sepolia-status').innerText = 'Offline';
+                document.getElementById('sepolia-status').style.background = '#ef4444';
+            }
+
+            // Check Lasna
+            try {
+                const block = await App.providers.lasna.getBlockNumber();
+                document.getElementById('lasna-status').innerText = 'Block ' + block;
+                document.getElementById('lasna-status').style.background = 'var(--color-success)';
+                document.getElementById('lasna-status').style.color = 'white';
+            } catch (e) {
+                document.getElementById('lasna-status').innerText = 'Offline';
+                document.getElementById('lasna-status').style.background = '#ef4444';
+                document.getElementById('lasna-status').style.color = 'white';
+            }
+        }
+    </script>
+
+    <style>
+        /* Toggle Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-border);
+            transition: 0.3s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+        }
+
+        input:checked+.slider {
+            background-color: var(--color-primary);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        .slider.round {
+            border-radius: 26px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+</body>
+
+</html>

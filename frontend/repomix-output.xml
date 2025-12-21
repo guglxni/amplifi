@@ -1,0 +1,2261 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+<additional_info>
+
+</additional_info>
+
+</file_summary>
+
+<directory_structure>
+index.html
+script.js
+styles.css
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yield Optimizer | Cross-Chain DeFi Automation</title>
+    <meta name="description" content="Automated yield optimization across Aave V3 and Compound V3 powered by Reactive Network">
+    
+    <!-- Fonts: Nunito (DSi-inspired) + Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons (Symbol-based, no emoji) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- GSAP for smooth animations -->
+    <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated background orbs (Frutiger Aero feel) -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="ph ph-chart-line-up"></i>
+                </div>
+                <span class="logo-text">Yield<span class="accent">Opt</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">
+                    <i class="ph ph-sparkle"></i>
+                    Features
+                </a>
+                <a href="#how-it-works" class="nav-link">
+                    <i class="ph ph-flow-arrow"></i>
+                    How It Works
+                </a>
+                <a href="#architecture" class="nav-link">
+                    <i class="ph ph-cube-transparent"></i>
+                    Architecture
+                </a>
+                <a href="#stats" class="nav-link">
+                    <i class="ph ph-chart-bar"></i>
+                    Stats
+                </a>
+            </div>
+            <a href="#dashboard" class="btn-primary">
+                <i class="ph ph-rocket-launch"></i>
+                Launch App
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge glass-card-mini">
+                <i class="ph ph-lightning"></i>
+                <span>Reactive Network Bounty 3</span>
+            </div>
+            
+            <h1 class="hero-title">
+                Cross-Chain
+                <span class="gradient-text">Yield Optimizer</span>
+            </h1>
+            
+            <p class="hero-subtitle">
+                Automated fund routing between Aave V3 and Compound V3.
+                Maximize yields with reactive smart contracts that continuously monitor and rebalance.
+            </p>
+            
+            <div class="hero-stats">
+                <div class="stat-card glass-card">
+                    <i class="ph ph-arrows-split"></i>
+                    <div class="stat-content">
+                        <span class="stat-value">80/20</span>
+                        <span class="stat-label">Optimal Allocation</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card">
+                    <i class="ph ph-timer"></i>
+                    <div class="stat-content">
+                        <span class="stat-value">~12min</span>
+                        <span class="stat-label">CRON Intervals</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card">
+                    <i class="ph ph-shield-check"></i>
+                    <div class="stat-content">
+                        <span class="stat-value">64</span>
+                        <span class="stat-label">Finality Blocks</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-cta">
+                <a href="#dashboard" class="btn-primary btn-large">
+                    <i class="ph ph-wallet"></i>
+                    Connect Wallet
+                </a>
+                <a href="#how-it-works" class="btn-secondary btn-large">
+                    <i class="ph ph-book-open"></i>
+                    Learn More
+                </a>
+            </div>
+        </div>
+        
+        <div class="hero-visual">
+            <div class="dsi-frame glass-card">
+                <div class="dsi-screen">
+                    <div class="yield-display">
+                        <div class="pool-bar">
+                            <div class="pool-segment aave" style="width: 80%">
+                                <span>Aave V3</span>
+                                <span class="apy">3.5%</span>
+                            </div>
+                            <div class="pool-segment compound" style="width: 20%">
+                                <span>Compound</span>
+                                <span class="apy">2.8%</span>
+                            </div>
+                        </div>
+                        <div class="rebalance-indicator">
+                            <i class="ph ph-arrows-clockwise"></i>
+                            <span>Auto-rebalancing active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <span class="section-badge">
+                <i class="ph ph-star-four"></i>
+                Core Features
+            </span>
+            <h2>Intelligent Yield Management</h2>
+            <p>Powered by Reactive Network's cross-chain automation</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card glass-card">
+                <div class="feature-icon gradient-bg">
+                    <i class="ph ph-chart-line-up"></i>
+                </div>
+                <h3>APY Monitoring</h3>
+                <p>Continuous yield tracking across Aave V3 and Compound V3 with real-time comparisons.</p>
+                <div class="feature-meta">
+                    <span><i class="ph ph-clock"></i> Real-time</span>
+                </div>
+            </div>
+
+            <div class="feature-card glass-card">
+                <div class="feature-icon gradient-bg">
+                    <i class="ph ph-arrows-split"></i>
+                </div>
+                <h3>Smart Rebalancing</h3>
+                <p>80/20 allocation strategy moves funds to higher-yield pools while maintaining diversification.</p>
+                <div class="feature-meta">
+                    <span><i class="ph ph-lock"></i> Non-custodial</span>
+                </div>
+            </div>
+
+            <div class="feature-card glass-card">
+                <div class="feature-icon gradient-bg">
+                    <i class="ph ph-broadcast"></i>
+                </div>
+                <h3>CRON Automation</h3>
+                <p>Periodic yield checks every ~100 blocks ensure optimal allocation without manual intervention.</p>
+                <div class="feature-meta">
+                    <span><i class="ph ph-robot"></i> Autonomous</span>
+                </div>
+            </div>
+
+            <div class="feature-card glass-card">
+                <div class="feature-icon gradient-bg">
+                    <i class="ph ph-shield-checkered"></i>
+                </div>
+                <h3>Finality-Aware</h3>
+                <p>Large rebalances wait 64 blocks for transaction finality, preventing losses from reorgs.</p>
+                <div class="feature-meta">
+                    <span><i class="ph ph-shield-check"></i> Secure</span>
+                </div>
+            </div>
+
+            <div class="feature-card glass-card">
+                <div class="feature-icon gradient-bg">
+                    <i class="ph ph-gas-pump"></i>
+                </div>
+                <h3>Self-Sustaining Gas</h3>
+                <p>Reactivate pattern ensures continuous operation with automatic gas replenishment.</p>
+                <div class="feature-meta">
+                    <span><i class="ph ph-infinity"></i> Perpetual</span>
+                </div>
+            </div>
+
+            <div class="feature-card glass-card">
+                <div class="feature-icon gradient-bg">
+                    <i class="ph ph-speedometer"></i>
+                </div>
+                <h3>Rate Limited</h3>
+                <p>100-block minimum between rebalances prevents unnecessary gas consumption.</p>
+                <div class="feature-meta">
+                    <span><i class="ph ph-coin"></i> Gas-efficient</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="section-header">
+            <span class="section-badge">
+                <i class="ph ph-flow-arrow"></i>
+                Process
+            </span>
+            <h2>How It Works</h2>
+            <p>Reactive contracts automate cross-chain yield optimization</p>
+        </div>
+
+        <div class="flow-diagram">
+            <div class="flow-step glass-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <i class="ph ph-wallet"></i>
+                </div>
+                <h4>Deposit</h4>
+                <p>Deposit USDC into the YieldVault on Sepolia</p>
+            </div>
+            
+            <div class="flow-arrow">
+                <i class="ph ph-arrow-right"></i>
+            </div>
+
+            <div class="flow-step glass-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <i class="ph ph-split-vertical"></i>
+                </div>
+                <h4>Allocate</h4>
+                <p>Funds split 50/50 to Aave V3 and Compound V3</p>
+            </div>
+            
+            <div class="flow-arrow">
+                <i class="ph ph-arrow-right"></i>
+            </div>
+
+            <div class="flow-step glass-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <i class="ph ph-broadcast"></i>
+                </div>
+                <h4>Monitor</h4>
+                <p>RSC on Lasna monitors YieldSnapshot events</p>
+            </div>
+            
+            <div class="flow-arrow">
+                <i class="ph ph-arrow-right"></i>
+            </div>
+
+            <div class="flow-step glass-card">
+                <div class="step-number">4</div>
+                <div class="step-icon">
+                    <i class="ph ph-arrows-clockwise"></i>
+                </div>
+                <h4>Rebalance</h4>
+                <p>80/20 reallocation to higher-yield pool</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="architecture">
+        <div class="section-header">
+            <span class="section-badge">
+                <i class="ph ph-cube-transparent"></i>
+                Technical
+            </span>
+            <h2>Architecture</h2>
+            <p>Dual-chain reactive smart contract system</p>
+        </div>
+
+        <div class="arch-container">
+            <div class="chain-card glass-card sepolia">
+                <div class="chain-header">
+                    <div class="chain-icon">
+                        <i class="ph ph-cube"></i>
+                    </div>
+                    <div>
+                        <h3>Sepolia Testnet</h3>
+                        <span class="chain-id">Chain ID: 11155111</span>
+                    </div>
+                </div>
+                <div class="contracts-list">
+                    <div class="contract-item">
+                        <i class="ph ph-vault"></i>
+                        <div>
+                            <span class="contract-name">YieldVault.sol</span>
+                            <span class="contract-desc">User deposits, dual-pool integration</span>
+                        </div>
+                    </div>
+                    <div class="contract-item">
+                        <i class="ph ph-bank"></i>
+                        <div>
+                            <span class="contract-name">Aave V3 Pool</span>
+                            <span class="contract-desc">Supply/withdraw, APY queries</span>
+                        </div>
+                    </div>
+                    <div class="contract-item">
+                        <i class="ph ph-coins"></i>
+                        <div>
+                            <span class="contract-name">Compound V3 Comet</span>
+                            <span class="contract-desc">Supply/withdraw, utilization rates</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chain-bridge">
+                <div class="bridge-line"></div>
+                <div class="bridge-icon glass-card">
+                    <i class="ph ph-arrows-left-right"></i>
+                </div>
+                <div class="bridge-labels">
+                    <span>YieldSnapshot</span>
+                    <span>executeRebalance</span>
+                </div>
+            </div>
+
+            <div class="chain-card glass-card lasna">
+                <div class="chain-header">
+                    <div class="chain-icon reactive">
+                        <i class="ph ph-lightning"></i>
+                    </div>
+                    <div>
+                        <h3>Reactive Network (Lasna)</h3>
+                        <span class="chain-id">RSC Deployment</span>
+                    </div>
+                </div>
+                <div class="contracts-list">
+                    <div class="contract-item">
+                        <i class="ph ph-cpu"></i>
+                        <div>
+                            <span class="contract-name">YieldOptimizerReactive.sol</span>
+                            <span class="contract-desc">Decision engine, callbacks</span>
+                        </div>
+                    </div>
+                    <div class="contract-item">
+                        <i class="ph ph-clock-clockwise"></i>
+                        <div>
+                            <span class="contract-name">CRON Subscription</span>
+                            <span class="contract-desc">Periodic yield checks</span>
+                        </div>
+                    </div>
+                    <div class="contract-item">
+                        <i class="ph ph-calculator"></i>
+                        <div>
+                            <span class="contract-name">YieldCalculator.sol</span>
+                            <span class="contract-desc">APY comparison logic</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Stats / Dashboard Preview -->
+    <section id="stats" class="stats-section">
+        <div class="section-header">
+            <span class="section-badge">
+                <i class="ph ph-chart-bar"></i>
+                Dashboard Preview
+            </span>
+            <h2>Vault Statistics</h2>
+            <p>Real-time metrics from the yield optimizer</p>
+        </div>
+
+        <div id="dashboard" class="dashboard-preview glass-card">
+            <div class="dashboard-header">
+                <h3>
+                    <i class="ph ph-pulse"></i>
+                    Live Vault Status
+                </h3>
+                <div class="status-indicator online">
+                    <span class="pulse"></span>
+                    Operational
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="ph ph-vault"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value" id="tvl">$125,430</span>
+                        <span class="metric-label">Total Value Locked</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon aave-color">
+                        <i class="ph ph-bank"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value">3.52%</span>
+                        <span class="metric-label">Aave V3 APY</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon compound-color">
+                        <i class="ph ph-coins"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value">2.87%</span>
+                        <span class="metric-label">Compound V3 APY</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="ph ph-arrows-clockwise"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value">47</span>
+                        <span class="metric-label">Rebalances Executed</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="allocation-visual">
+                <h4>Current Allocation</h4>
+                <div class="allocation-bar">
+                    <div class="alloc-segment aave-bg" style="width: 80%">
+                        <span>Aave V3</span>
+                        <span>80%</span>
+                    </div>
+                    <div class="alloc-segment compound-bg" style="width: 20%">
+                        <span>Compound</span>
+                        <span>20%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-primary">
+                    <i class="ph ph-plus-circle"></i>
+                    Deposit
+                </button>
+                <button class="btn-secondary">
+                    <i class="ph ph-minus-circle"></i>
+                    Withdraw
+                </button>
+                <button class="btn-tertiary">
+                    <i class="ph ph-arrows-clockwise"></i>
+                    Trigger Snapshot
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Specs -->
+    <section class="tech-specs">
+        <div class="section-header">
+            <span class="section-badge">
+                <i class="ph ph-code"></i>
+                Specifications
+            </span>
+            <h2>Technical Details</h2>
+        </div>
+
+        <div class="specs-grid">
+            <div class="spec-card glass-card">
+                <h4><i class="ph ph-file-sol"></i> Contracts</h4>
+                <ul>
+                    <li>YieldVault.sol <span>525 LOC</span></li>
+                    <li>YieldOptimizerReactive.sol <span>480 LOC</span></li>
+                    <li>YieldCalculator.sol <span>205 LOC</span></li>
+                </ul>
+            </div>
+
+            <div class="spec-card glass-card">
+                <h4><i class="ph ph-test-tube"></i> Tests</h4>
+                <ul>
+                    <li>Unit Tests <span>34 passing</span></li>
+                    <li>Fork Tests <span>20 tests</span></li>
+                    <li>Fuzz Tests <span>6 scenarios</span></li>
+                </ul>
+            </div>
+
+            <div class="spec-card glass-card">
+                <h4><i class="ph ph-gear-six"></i> Parameters</h4>
+                <ul>
+                    <li>Min Yield Diff <span>0.5% (50 bps)</span></li>
+                    <li>Min Allocation <span>20%</span></li>
+                    <li>Rebalance Interval <span>100 blocks</span></li>
+                </ul>
+            </div>
+
+            <div class="spec-card glass-card">
+                <h4><i class="ph ph-link"></i> Integrations</h4>
+                <ul>
+                    <li>Aave V3 <span>Sepolia</span></li>
+                    <li>Compound V3 <span>Sepolia</span></li>
+                    <li>Reactive Network <span>Lasna</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer glass-card">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="ph ph-chart-line-up"></i>
+                    </div>
+                    <span class="logo-text">Yield<span class="accent">Opt</span></span>
+                </div>
+                <p>Cross-chain yield optimization powered by Reactive Network</p>
+            </div>
+            
+            <div class="footer-links">
+                <div class="link-group">
+                    <h5>Resources</h5>
+                    <a href="#"><i class="ph ph-file-doc"></i> Documentation</a>
+                    <a href="#"><i class="ph ph-github-logo"></i> GitHub</a>
+                    <a href="#"><i class="ph ph-article"></i> Blog Research</a>
+                </div>
+                <div class="link-group">
+                    <h5>Protocol</h5>
+                    <a href="#"><i class="ph ph-broadcast"></i> Reactive Network</a>
+                    <a href="#"><i class="ph ph-bank"></i> Aave V3</a>
+                    <a href="#"><i class="ph ph-coins"></i> Compound V3</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <span>Built for Reactive Network Bounty 3</span>
+            <span>December 2024</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+</file>
+
+<file path="script.js">
+/**
+ * YieldOpt Frontend - Animations & Interactions
+ * 
+ * Libraries Used:
+ * - GSAP (GreenSock) for smooth animations
+ * - ScrollTrigger for scroll-based animations
+ * - Phosphor Icons for symbols
+ */
+
+// Wait for DOM and GSAP to be ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Register ScrollTrigger plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Initialize all animations
+    initNavAnimation();
+    initHeroAnimations();
+    initScrollAnimations();
+    initCounterAnimations();
+    initPoolBarAnimation();
+    initInteractiveEffects();
+});
+
+/**
+ * Navigation - Blur effect on scroll
+ */
+function initNavAnimation() {
+    const nav = document.querySelector('.glass-nav');
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            nav.style.background = 'rgba(255, 255, 255, 0.95)';
+            nav.style.boxShadow = '0 8px 32px rgba(0, 188, 212, 0.15)';
+        } else {
+            nav.style.background = 'rgba(255, 255, 255, 0.85)';
+            nav.style.boxShadow = '0 8px 32px rgba(0, 188, 212, 0.1)';
+        }
+    });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('.nav-link, .hero-cta a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Hero Section - Entrance animations
+ */
+function initHeroAnimations() {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    // Animate elements in sequence
+    tl.from('.hero-badge', {
+        y: 20,
+        opacity: 0,
+        duration: 0.6
+    })
+        .from('.hero-title', {
+            y: 30,
+            opacity: 0,
+            duration: 0.8
+        }, '-=0.3')
+        .from('.hero-subtitle', {
+            y: 20,
+            opacity: 0,
+            duration: 0.6
+        }, '-=0.4')
+        .from('.stat-card', {
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.5
+        }, '-=0.3')
+        .from('.hero-cta a', {
+            y: 15,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.4
+        }, '-=0.2')
+        .from('.dsi-frame', {
+            x: 50,
+            opacity: 0,
+            duration: 0.8,
+            ease: 'power2.out'
+        }, '-=0.6');
+
+    // Floating animation for DSi frame
+    gsap.to('.dsi-frame', {
+        y: -10,
+        duration: 3,
+        ease: 'power1.inOut',
+        yoyo: true,
+        repeat: -1
+    });
+}
+
+/**
+ * Scroll-triggered animations for sections
+ */
+function initScrollAnimations() {
+    // Features cards
+    gsap.utils.toArray('.feature-card').forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: {
+                trigger: card,
+                start: 'top 85%',
+                toggleActions: 'play none none reverse'
+            },
+            y: 40,
+            opacity: 0,
+            duration: 0.6,
+            delay: i * 0.1
+        });
+    });
+
+    // Flow diagram steps
+    gsap.utils.toArray('.flow-step').forEach((step, i) => {
+        gsap.from(step, {
+            scrollTrigger: {
+                trigger: step,
+                start: 'top 85%',
+                toggleActions: 'play none none reverse'
+            },
+            scale: 0.9,
+            opacity: 0,
+            duration: 0.5,
+            delay: i * 0.15
+        });
+    });
+
+    // Flow arrows
+    gsap.utils.toArray('.flow-arrow').forEach((arrow, i) => {
+        gsap.from(arrow, {
+            scrollTrigger: {
+                trigger: arrow,
+                start: 'top 85%',
+                toggleActions: 'play none none reverse'
+            },
+            x: -20,
+            opacity: 0,
+            duration: 0.4,
+            delay: i * 0.15 + 0.2
+        });
+    });
+
+    // Architecture cards
+    gsap.from('.chain-card.sepolia', {
+        scrollTrigger: {
+            trigger: '.arch-container',
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+        },
+        x: -50,
+        opacity: 0,
+        duration: 0.7
+    });
+
+    gsap.from('.chain-card.lasna', {
+        scrollTrigger: {
+            trigger: '.arch-container',
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+        },
+        x: 50,
+        opacity: 0,
+        duration: 0.7
+    });
+
+    gsap.from('.chain-bridge', {
+        scrollTrigger: {
+            trigger: '.arch-container',
+            start: 'top 80%',
+            toggleActions: 'play none none reverse'
+        },
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.5,
+        delay: 0.3
+    });
+
+    // Dashboard preview
+    gsap.from('.dashboard-preview', {
+        scrollTrigger: {
+            trigger: '.dashboard-preview',
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+        },
+        y: 60,
+        opacity: 0,
+        duration: 0.8
+    });
+
+    // Spec cards
+    gsap.utils.toArray('.spec-card').forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: {
+                trigger: card,
+                start: 'top 90%',
+                toggleActions: 'play none none reverse'
+            },
+            y: 30,
+            opacity: 0,
+            duration: 0.5,
+            delay: i * 0.1
+        });
+    });
+
+    // Section headers
+    gsap.utils.toArray('.section-header').forEach(header => {
+        gsap.from(header, {
+            scrollTrigger: {
+                trigger: header,
+                start: 'top 85%',
+                toggleActions: 'play none none reverse'
+            },
+            y: 30,
+            opacity: 0,
+            duration: 0.6
+        });
+    });
+}
+
+/**
+ * Counter animations for metrics
+ */
+function initCounterAnimations() {
+    const tvlElement = document.getElementById('tvl');
+    if (!tvlElement) return;
+
+    // Animated counter
+    const finalValue = 125430;
+    let currentValue = 0;
+
+    ScrollTrigger.create({
+        trigger: '.metrics-grid',
+        start: 'top 80%',
+        onEnter: () => {
+            gsap.to({ val: currentValue }, {
+                val: finalValue,
+                duration: 2,
+                ease: 'power2.out',
+                onUpdate: function () {
+                    tvlElement.textContent = '$' + Math.round(this.targets()[0].val).toLocaleString();
+                }
+            });
+        },
+        once: true
+    });
+}
+
+/**
+ * Pool bar animation (simulates live allocation changes)
+ */
+function initPoolBarAnimation() {
+    const aaveSegment = document.querySelector('.pool-segment.aave');
+    const compoundSegment = document.querySelector('.pool-segment.compound');
+    const allocAave = document.querySelector('.aave-bg');
+    const allocCompound = document.querySelector('.compound-bg');
+
+    if (!aaveSegment || !compoundSegment) return;
+
+    // Subtle allocation pulse animation
+    function pulseAllocation() {
+        const variation = Math.random() * 5; // 0-5% variation
+        const aaveWidth = 80 + (Math.random() > 0.5 ? variation : -variation);
+        const compoundWidth = 100 - aaveWidth;
+
+        gsap.to(aaveSegment, {
+            width: `${aaveWidth}%`,
+            duration: 3,
+            ease: 'power2.inOut'
+        });
+
+        gsap.to(compoundSegment, {
+            width: `${compoundWidth}%`,
+            duration: 3,
+            ease: 'power2.inOut'
+        });
+
+        // Update dashboard allocation bar too
+        if (allocAave && allocCompound) {
+            gsap.to(allocAave, {
+                width: `${aaveWidth}%`,
+                duration: 3,
+                ease: 'power2.inOut'
+            });
+            gsap.to(allocCompound, {
+                width: `${compoundWidth}%`,
+                duration: 3,
+                ease: 'power2.inOut'
+            });
+        }
+    }
+
+    // Run every 5 seconds
+    setInterval(pulseAllocation, 5000);
+}
+
+/**
+ * Interactive hover effects and micro-interactions
+ */
+function initInteractiveEffects() {
+    // Button click ripple effect
+    document.querySelectorAll('.btn-primary, .btn-secondary, .btn-tertiary').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            // Create ripple element
+            const ripple = document.createElement('span');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.4);
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+            ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+
+    // Card hover 3D tilt effect
+    document.querySelectorAll('.feature-card, .stat-card, .flow-step, .metric-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+        });
+    });
+
+    // Icon hover animation
+    document.querySelectorAll('.feature-icon, .step-icon, .metric-icon').forEach(icon => {
+        icon.addEventListener('mouseenter', () => {
+            gsap.to(icon, {
+                scale: 1.1,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+        });
+
+        icon.addEventListener('mouseleave', () => {
+            gsap.to(icon, {
+                scale: 1,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+        });
+    });
+
+    // Rebalance indicator pulse
+    const rebalanceIcon = document.querySelector('.rebalance-indicator i');
+    if (rebalanceIcon) {
+        gsap.to(rebalanceIcon, {
+            rotation: 360,
+            duration: 2,
+            ease: 'none',
+            repeat: -1
+        });
+    }
+}
+
+// Add ripple animation keyframes dynamically
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Log initialization
+console.log('🌊 YieldOpt Frontend Initialized');
+console.log('📦 Libraries: GSAP, ScrollTrigger, Phosphor Icons');
+console.log('🎨 Design: Frutiger Aero / Nintendo DSi Inspired');
+</file>
+
+<file path="styles.css">
+/*
+ * YieldOpt Frontend - Frutiger Aero / Nintendo DSi Inspired Design
+ * 
+ * Design Principles:
+ * - Glassmorphism with soft transparency
+ * - Aqua/teal gradient palette
+ * - Soft shadows and glows
+ * - Rounded, friendly shapes
+ * - Smooth micro-animations
+ * - Clean Nunito typography (DSi-inspired)
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   CSS Variables - Color Palette & Design Tokens
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Primary Palette - Aqua/Teal (Frutiger Aero core) */
+    --primary-50: #e0f7fa;
+    --primary-100: #b2ebf2;
+    --primary-200: #80deea;
+    --primary-300: #4dd0e1;
+    --primary-400: #26c6da;
+    --primary-500: #00bcd4;
+    --primary-600: #00acc1;
+    --primary-700: #0097a7;
+    --primary-800: #00838f;
+    --primary-900: #006064;
+
+    /* Secondary - Soft Blue */
+    --secondary-400: #42a5f5;
+    --secondary-500: #2196f3;
+    --secondary-600: #1e88e5;
+
+    /* Accent - Warm Green (nature/eco feel) */
+    --accent-400: #66bb6a;
+    --accent-500: #4caf50;
+    --accent-600: #43a047;
+
+    /* Protocol Colors */
+    --aave-color: #b6509e;
+    --compound-color: #00d395;
+
+    /* Neutrals */
+    --white: #ffffff;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+
+    /* Glass Effect Variables */
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-bg-solid: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 188, 212, 0.15);
+    --glass-blur: blur(12px);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #00bcd4 0%, #26c6da 50%, #4dd0e1 100%);
+    --gradient-hero: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 50%, #80deea 100%);
+    --gradient-accent: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+
+    /* Typography */
+    --font-display: 'Nunito', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+    --transition-slow: 400ms ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Base Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--gradient-hero);
+    min-height: 100vh;
+    color: var(--gray-800);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Animated Background Orbs (Frutiger Aero signature)
+   ═══════════════════════════════════════════════════════════════ */
+
+.bg-orbs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.5;
+    animation: float 20s ease-in-out infinite;
+}
+
+.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--primary-200) 0%, transparent 70%);
+    top: -10%;
+    right: -5%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--accent-400) 0%, transparent 70%);
+    bottom: 10%;
+    left: -5%;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, var(--secondary-400) 0%, transparent 70%);
+    top: 50%;
+    right: 10%;
+    animation-delay: -10s;
+}
+
+.orb-4 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--primary-300) 0%, transparent 70%);
+    bottom: 30%;
+    left: 30%;
+    animation-delay: -15s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(30px, -30px) scale(1.05);
+    }
+
+    50% {
+        transform: translate(-20px, 20px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(20px, 10px) scale(1.02);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Glass Card Components
+   ═══════════════════════════════════════════════════════════════ */
+
+.glass-card {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(0, 188, 212, 0.2);
+}
+
+.glass-card-mini {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    padding: var(--space-sm) var(--space-md);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-700);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Navigation
+   ═══════════════════════════════════════════════════════════════ */
+
+.glass-nav {
+    position: fixed;
+    top: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--glass-shadow);
+    z-index: 1000;
+    padding: var(--space-sm) var(--space-md);
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.logo-text {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-800);
+}
+
+.logo-text .accent {
+    color: var(--primary-600);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--gray-600);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.nav-link i {
+    font-size: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Buttons
+   ═══════════════════════════════════════════════════════════════ */
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--gradient-primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-full);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 188, 212, 0.3);
+    transition: all var(--transition-base);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 188, 212, 0.4);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--white);
+    color: var(--primary-700);
+    border: 2px solid var(--primary-200);
+    border-radius: var(--radius-full);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-400);
+}
+
+.btn-tertiary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: transparent;
+    color: var(--gray-600);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-full);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-tertiary:hover {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.btn-large {
+    padding: var(--space-md) var(--space-xl);
+    font-size: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Hero Section
+   ═══════════════════════════════════════════════════════════════ */
+
+.hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--space-3xl);
+    padding: 120px var(--space-3xl) var(--space-3xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hero-badge {
+    margin-bottom: var(--space-lg);
+}
+
+.hero-badge i {
+    color: var(--primary-500);
+}
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--gray-900);
+    margin-bottom: var(--space-lg);
+}
+
+.gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--gray-600);
+    max-width: 500px;
+    margin-bottom: var(--space-xl);
+}
+
+.hero-stats {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+}
+
+.stat-card i {
+    font-size: 1.5rem;
+    color: var(--primary-500);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+.hero-cta {
+    display: flex;
+    gap: var(--space-md);
+}
+
+/* Hero Visual - DSi-Inspired Frame */
+.hero-visual {
+    display: flex;
+    justify-content: center;
+}
+
+.dsi-frame {
+    width: 100%;
+    max-width: 450px;
+    padding: var(--space-xl);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    border: 3px solid var(--primary-200);
+    border-radius: var(--radius-xl);
+    box-shadow:
+        0 20px 60px rgba(0, 188, 212, 0.2),
+        inset 0 2px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dsi-screen {
+    background: linear-gradient(180deg, var(--gray-800) 0%, var(--gray-900) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.yield-display {
+    color: var(--white);
+}
+
+.pool-bar {
+    display: flex;
+    height: 60px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--space-md);
+}
+
+.pool-segment {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 var(--space-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: width 0.5s ease;
+}
+
+.pool-segment.aave {
+    background: linear-gradient(135deg, var(--aave-color), #8e24aa);
+}
+
+.pool-segment.compound {
+    background: linear-gradient(135deg, var(--compound-color), #00a878);
+}
+
+.pool-segment .apy {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.rebalance-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: rgba(0, 188, 212, 0.2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--primary-300);
+}
+
+.rebalance-indicator i {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Section Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+section {
+    padding: var(--space-3xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--primary-50);
+    border: 1px solid var(--primary-200);
+    border-radius: var(--radius-full);
+    color: var(--primary-700);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+}
+
+.section-header h2 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: var(--space-sm);
+}
+
+.section-header p {
+    color: var(--gray-500);
+    font-size: 1.125rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Features Grid
+   ═══════════════════════════════════════════════════════════════ */
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+}
+
+.feature-card {
+    padding: var(--space-xl);
+    text-align: center;
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    font-size: 1.75rem;
+    color: var(--white);
+}
+
+.gradient-bg {
+    background: var(--gradient-primary);
+    box-shadow: 0 8px 24px rgba(0, 188, 212, 0.3);
+}
+
+.feature-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: var(--space-sm);
+}
+
+.feature-card p {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-md);
+}
+
+.feature-meta {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+}
+
+.feature-meta span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.75rem;
+    color: var(--primary-600);
+    background: var(--primary-50);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-full);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Flow Diagram (How It Works)
+   ═══════════════════════════════════════════════════════════════ */
+
+.flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.flow-step {
+    padding: var(--space-xl);
+    text-align: center;
+    position: relative;
+    min-width: 200px;
+}
+
+.step-number {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-primary);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.step-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto var(--space-md);
+    background: var(--primary-50);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary-600);
+}
+
+.flow-step h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: var(--space-xs);
+}
+
+.flow-step p {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.flow-arrow {
+    color: var(--primary-400);
+    font-size: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Architecture Section
+   ═══════════════════════════════════════════════════════════════ */
+
+.arch-container {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-lg);
+}
+
+.chain-card {
+    flex: 1;
+    padding: var(--space-xl);
+}
+
+.chain-card.sepolia {
+    border-left: 4px solid var(--aave-color);
+}
+
+.chain-card.lasna {
+    border-left: 4px solid var(--primary-500);
+}
+
+.chain-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.chain-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gray-100);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--gray-600);
+}
+
+.chain-icon.reactive {
+    background: var(--gradient-primary);
+    color: var(--white);
+}
+
+.chain-header h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.chain-id {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+.contracts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.contract-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.contract-item i {
+    font-size: 1.25rem;
+    color: var(--primary-600);
+}
+
+.contract-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+}
+
+.contract-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* Bridge connector */
+.chain-bridge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+}
+
+.bridge-line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--aave-color), var(--primary-500));
+}
+
+.bridge-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-600);
+    margin: var(--space-sm) 0;
+}
+
+.bridge-labels {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.65rem;
+    color: var(--gray-500);
+    text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Dashboard Preview
+   ═══════════════════════════════════════════════════════════════ */
+
+.dashboard-preview {
+    padding: var(--space-xl);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.dashboard-header h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-indicator.online {
+    color: var(--accent-500);
+}
+
+.pulse {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-500);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-50);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-600);
+}
+
+.metric-icon.aave-color {
+    background: rgba(182, 80, 158, 0.1);
+    color: var(--aave-color);
+}
+
+.metric-icon.compound-color {
+    background: rgba(0, 211, 149, 0.1);
+    color: var(--compound-color);
+}
+
+.metric-value {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+.allocation-visual {
+    margin-bottom: var(--space-xl);
+}
+
+.allocation-visual h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--gray-700);
+    margin-bottom: var(--space-md);
+}
+
+.allocation-bar {
+    display: flex;
+    height: 48px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.alloc-segment {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-md);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: width 0.5s ease;
+}
+
+.aave-bg {
+    background: linear-gradient(135deg, var(--aave-color), #8e24aa);
+}
+
+.compound-bg {
+    background: linear-gradient(135deg, var(--compound-color), #00a878);
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Tech Specs
+   ═══════════════════════════════════════════════════════════════ */
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+}
+
+.spec-card {
+    padding: var(--space-lg);
+}
+
+.spec-card h4 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.spec-card h4 i {
+    color: var(--primary-600);
+}
+
+.spec-card ul {
+    list-style: none;
+}
+
+.spec-card li {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-sm) 0;
+    border-bottom: 1px dashed var(--gray-200);
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.spec-card li:last-child {
+    border-bottom: none;
+}
+
+.spec-card li span {
+    color: var(--primary-700);
+    font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════════════════════════════ */
+
+.footer {
+    margin: var(--space-3xl) var(--space-lg);
+    border-radius: var(--radius-xl);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-xl);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.footer-brand {
+    max-width: 300px;
+}
+
+.footer-brand .logo {
+    margin-bottom: var(--space-md);
+}
+
+.footer-brand p {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--space-3xl);
+}
+
+.link-group h5 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: var(--space-md);
+}
+
+.link-group a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--gray-500);
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: var(--space-xs) 0;
+    transition: color var(--transition-fast);
+}
+
+.link-group a:hover {
+    color: var(--primary-600);
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    font-size: 0.75rem;
+    color: var(--gray-400);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Responsive Design
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1200px) {
+    .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .hero-subtitle {
+        margin: 0 auto var(--space-xl);
+    }
+
+    .hero-stats {
+        justify-content: center;
+    }
+
+    .hero-cta {
+        justify-content: center;
+    }
+
+    .hero-visual {
+        order: -1;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .arch-container {
+        flex-direction: column;
+    }
+
+    .chain-bridge {
+        flex-direction: row;
+        min-width: auto;
+    }
+
+    .bridge-line {
+        width: 40px;
+        height: 2px;
+    }
+}
+
+@media (max-width: 768px) {
+    .glass-nav {
+        width: calc(100% - 32px);
+        top: var(--space-sm);
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-stats {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .flow-diagram {
+        flex-direction: column;
+    }
+
+    .flow-arrow {
+        transform: rotate(90deg);
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .specs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: var(--space-xl);
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+}
+</file>
+
+</files>
