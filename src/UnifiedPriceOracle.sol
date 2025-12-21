@@ -383,6 +383,46 @@ contract UnifiedPriceOracle is Ownable {
         require(feedConfigs[token].active, "Token not configured");
         feedConfigs[token].fallbackPrice = newPrice;
     }
+    
+    /**
+     * @notice Upgrade a token from fallback to MultiFeed oracle
+     * @dev Use this when a new Chainlink feed becomes available via reactive-bounty-1
+     * @param token Token address on Sepolia
+     * @param originFeed Chainlink aggregator address on Base Sepolia
+     */
+    function upgradeFeedToMultiFeed(
+        address token,
+        address originFeed
+    ) external onlyOwner {
+        require(feedConfigs[token].active, "Token not configured");
+        require(originFeed != address(0), "Invalid origin feed");
+        
+        feedConfigs[token].primarySource = SourceType.MULTI_FEED;
+        feedConfigs[token].primaryOracle = MULTI_FEED_ORACLE;
+        feedConfigs[token].originFeed = originFeed;
+        
+        emit FeedConfigured(token, feedConfigs[token].symbol, SourceType.MULTI_FEED, MULTI_FEED_ORACLE);
+    }
+    
+    /**
+     * @notice Upgrade a token from fallback to AbstractFeedProxy
+     * @dev Use this when deploying a custom feed via aggreatorv3-reactive-bridge-abstract
+     * @param token Token address on Sepolia
+     * @param abstractProxy Deployed AbstractFeedProxy contract address
+     */
+    function upgradeFeedToAbstractProxy(
+        address token,
+        address abstractProxy
+    ) external onlyOwner {
+        require(feedConfigs[token].active, "Token not configured");
+        require(abstractProxy != address(0), "Invalid proxy");
+        
+        feedConfigs[token].primarySource = SourceType.ABSTRACT_PROXY;
+        feedConfigs[token].primaryOracle = abstractProxy;
+        feedConfigs[token].originFeed = address(0);
+        
+        emit FeedConfigured(token, feedConfigs[token].symbol, SourceType.ABSTRACT_PROXY, abstractProxy);
+    }
 
     // ═══════════════════════════════════════════════════════════════
     //                      PRICE QUERIES
