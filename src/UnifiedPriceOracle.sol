@@ -118,6 +118,7 @@ contract UnifiedPriceOracle is Ownable {
     enum SourceType {
         MULTI_FEED,       // reactive-bounty-1: Query by originFeed address
         ABSTRACT_PROXY,   // aggreatorv3-reactive-bridge-abstract: Direct AggregatorV3
+        CORRELATED,       // Derived from another token's price with multiplier
         FALLBACK          // Hardcoded fallback price
     }
     
@@ -127,6 +128,7 @@ contract UnifiedPriceOracle is Ownable {
         SourceType primarySource;
         address primaryOracle;      // MultiFeed contract OR AbstractProxy address
         address originFeed;         // For MULTI_FEED: origin Chainlink aggregator
+                                    // For CORRELATED: base token address
         
         // Secondary source (fallback)
         SourceType secondarySource;
@@ -135,6 +137,10 @@ contract UnifiedPriceOracle is Ownable {
         
         // Fallback price
         uint256 fallbackPrice;      // Price with 8 decimals
+        
+        // Correlation multiplier (for CORRELATED type)
+        // Stored as basis points: 10000 = 1x, 100000 = 10x
+        uint256 correlationMultiplierBps;
         
         // Metadata
         uint8 decimals;
@@ -270,14 +276,14 @@ contract UnifiedPriceOracle is Ownable {
             105000000 // $1.05
         );
         
-        // AAVE → $150 (fallback, can be upgraded)
-        _configureFeed(
+        // AAVE → Derived from LINK price (AAVE typically trades at ~10x LINK)
+        // Using CORRELATED source type with LINK as base
+        _configureCorrelatedFeed(
             0x88541670E55cC00bEEFD87eB59EDd1b7C511AC9a, // AAVE Sepolia
             "AAVE",
-            SourceType.FALLBACK,
-            address(0),
-            address(0),
-            15000000000 // $150
+            0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5, // LINK Sepolia (base token)
+            100000, // 10x multiplier (100000 bps = 10.0x)
+            15000000000 // $150 fallback
         );
     }
     
@@ -301,6 +307,7 @@ contract UnifiedPriceOracle is Ownable {
             secondaryOracle: address(0),
             secondaryOriginFeed: address(0),
             fallbackPrice: fallbackPrice,
+            correlationMultiplierBps: 0,
             decimals: 8,
             symbol: symbol,
             active: true
@@ -309,6 +316,44 @@ contract UnifiedPriceOracle is Ownable {
         symbolToToken[symbol] = token;
         
         emit FeedConfigured(token, symbol, sourceType, oracle);
+    }
+    
+    /**
+     * @notice Configure a correlated feed that derives price from another token
+     * @param token Token address to configure
+     * @param symbol Token symbol
+     * @param baseToken Token to derive price from (must already be configured)
+     * @param multiplierBps Correlation multiplier in basis points (10000 = 1x, 100000 = 10x)
+     * @param fallbackPrice Fallback price if correlation fails
+     */
+    function _configureCorrelatedFeed(
+        address token,
+        string memory symbol,
+        address baseToken,
+        uint256 multiplierBps,
+        uint256 fallbackPrice
+    ) internal {
+        if (!feedConfigs[token].active) {
+            supportedTokens.push(token);
+        }
+        
+        feedConfigs[token] = FeedConfig({
+            primarySource: SourceType.CORRELATED,
+            primaryOracle: address(0),
+            originFeed: baseToken, // Store base token address in originFeed
+            secondarySource: SourceType.FALLBACK,
+            secondaryOracle: address(0),
+            secondaryOriginFeed: address(0),
+            fallbackPrice: fallbackPrice,
+            correlationMultiplierBps: multiplierBps,
+            decimals: 8,
+            symbol: symbol,
+            active: true
+        });
+        
+        symbolToToken[symbol] = token;
+        
+        emit FeedConfigured(token, symbol, SourceType.CORRELATED, baseToken);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -348,6 +393,7 @@ contract UnifiedPriceOracle is Ownable {
             secondaryOracle: address(0),
             secondaryOriginFeed: address(0),
             fallbackPrice: fallbackPrice,
+            correlationMultiplierBps: 0,
             decimals: 8,
             symbol: symbol,
             active: true
@@ -456,6 +502,11 @@ contract UnifiedPriceOracle is Ownable {
         FeedConfig storage config = feedConfigs[token];
         require(config.active, "Token not supported");
         
+        // Handle CORRELATED source type
+        if (config.primarySource == SourceType.CORRELATED) {
+            return _getCorrelatedPrice(config);
+        }
+        
         // Try primary source
         (bool success, uint256 p, uint256 u) = _fetchPrice(
             config.primarySource,
@@ -493,6 +544,43 @@ contract UnifiedPriceOracle is Ownable {
         }
         
         // Use fallback
+        return (config.fallbackPrice, block.timestamp, SourceType.FALLBACK, false, true);
+    }
+    
+    /**
+     * @notice Get price derived from another token using correlation multiplier
+     * @dev AAVE price = LINK price * multiplier / 10000
+     */
+    function _getCorrelatedPrice(FeedConfig storage config) internal view returns (
+        uint256 price,
+        uint256 updatedAt,
+        SourceType source,
+        bool isLive,
+        bool isFresh
+    ) {
+        address baseToken = config.originFeed;
+        FeedConfig storage baseConfig = feedConfigs[baseToken];
+        
+        if (!baseConfig.active) {
+            return (config.fallbackPrice, block.timestamp, SourceType.FALLBACK, false, true);
+        }
+        
+        // Get base token price recursively
+        (uint256 basePrice, uint256 baseUpdatedAt, , bool baseIsLive, bool baseIsFresh) = getPriceDetailed(baseToken);
+        
+        if (baseIsLive && basePrice > 0) {
+            // Apply correlation multiplier: price = basePrice * multiplier / 10000
+            uint256 correlatedPrice = (basePrice * config.correlationMultiplierBps) / 10000;
+            return (
+                correlatedPrice,
+                baseUpdatedAt,
+                SourceType.CORRELATED,
+                true,
+                baseIsFresh
+            );
+        }
+        
+        // Use fallback if base price not available
         return (config.fallbackPrice, block.timestamp, SourceType.FALLBACK, false, true);
     }
     
