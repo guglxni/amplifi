@@ -20,8 +20,17 @@ const App = {
         VAULT_DUAL_ASSET: "0xe6e06F94d1aaa2496b9e33afeE29f01436E9fA4A",  // USDC/DAI (supply cap blocked)
         VAULT_WETH_LINK: "0xB67500437583656160B9C6Da2139E5D4289458E2",   // WETH/LINK (works!)
         VAULT_COMPOUND: "0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a",
-        VAULT_MULTI_ASSET: "0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d", // Multi-Asset (WETH, LINK, AAVE, EURS)
+        VAULT_MULTI_ASSET: "0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d", // Multi-Asset (WETH, LINK, AAVE, EURS, WBTC, USDT)
         FUNDER: "0x9f7c78a50379dc4d9703b19c708088d5eac5c923",
+
+        // Reactive Cross-Chain Oracle (reactive-bounty-1)
+        // MultiFeedDestinationV2 - Mirrors Chainlink prices from Base Sepolia → Sepolia
+        MULTI_FEED_ORACLE: "0x889c32f46E273fBd0d5B1806F3f1286010cD73B3",
+
+        // Chainlink Aggregator Addresses on Base Sepolia (for oracle queries)
+        CHAINLINK_ETH_USD: "0xa24A68DD788e1D7eb4CA517765CFb2b7e217e7a3",
+        CHAINLINK_BTC_USD: "0x961AD289351459A45fC90884eF3AB0278ea95DDE",
+        CHAINLINK_LINK_USD: "0xAc6DB6d5538Cd07f58afee9dA736ce192119017B",
 
         // Lasna Contracts (Reactive Network)
         YIELD_OPTIMIZER_RSC: "0x98969559717c24b47A2E4365a569c947a88C4767",
@@ -229,6 +238,14 @@ const App = {
             "function balanceOf(address account) view returns (uint256)",
             "function decimals() view returns (uint8)",
             "function symbol() view returns (string)"
+        ],
+
+        // MultiFeedDestination - Reactive Cross-Chain Oracle (reactive-bounty-1)
+        // Mirrors Chainlink prices from Base Sepolia → Ethereum Sepolia
+        MultiFeedOracle: [
+            "function latestRoundDataForFeed(address originFeed) view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)",
+            "function hasFeedData(address originFeed) view returns (bool)",
+            "function decimalsForFeed(address originFeed) view returns (uint8)"
         ]
     },
 
@@ -665,6 +682,78 @@ const App = {
         } catch (e) {
             console.warn("RSC Fetch Error (Lasna may be offline):", e);
             return null;
+        }
+    },
+
+    /**
+     * Fetch live prices from Reactive Cross-Chain Oracle (reactive-bounty-1)
+     * MultiFeedDestinationV2 mirrors Chainlink prices from Base Sepolia → Sepolia
+     * 
+     * Supported Feeds:
+     * - ETH/USD: 0xa24A68DD788e1D7eb4CA517765CFb2b7e217e7a3
+     * - BTC/USD: 0x961AD289351459A45fC90884eF3AB0278ea95DDE
+     * - LINK/USD: 0xAc6DB6d5538Cd07f58afee9dA736ce192119017B
+     */
+    fetchOraclePrices: async function () {
+        try {
+            const oracle = new ethers.Contract(
+                this.CONFIG.MULTI_FEED_ORACLE,
+                this.ABIs.MultiFeedOracle,
+                this.providers.sepolia
+            );
+
+            const feeds = {
+                ETH: this.CONFIG.CHAINLINK_ETH_USD,
+                BTC: this.CONFIG.CHAINLINK_BTC_USD,
+                LINK: this.CONFIG.CHAINLINK_LINK_USD
+            };
+
+            const prices = {};
+
+            for (const [symbol, feedAddress] of Object.entries(feeds)) {
+                try {
+                    const [, answer, , updatedAt,] = await oracle.latestRoundDataForFeed(feedAddress);
+                    prices[symbol] = {
+                        price: parseFloat(ethers.utils.formatUnits(answer, 8)),
+                        priceRaw: answer.toString(),
+                        updatedAt: updatedAt.toNumber(),
+                        isLive: true
+                    };
+                } catch (e) {
+                    console.warn(`Oracle price fetch failed for ${symbol}:`, e.message);
+                    prices[symbol] = { price: 0, isLive: false };
+                }
+            }
+
+            // Add fallback prices for assets without oracle feeds
+            prices.USDT = { price: 1.00, isLive: false, isFallback: true };
+            prices.EURS = { price: 1.05, isLive: false, isFallback: true };
+            prices.AAVE = { price: 150.00, isLive: false, isFallback: true };
+
+            // Map WETH and WBTC
+            prices.WETH = prices.ETH;
+            prices.WBTC = prices.BTC;
+
+            return prices;
+        } catch (e) {
+            console.error("Oracle Fetch Error:", e);
+            return null;
+        }
+    },
+
+    /**
+     * Check if oracle has live data for a feed
+     */
+    hasOracleData: async function (feedAddress) {
+        try {
+            const oracle = new ethers.Contract(
+                this.CONFIG.MULTI_FEED_ORACLE,
+                this.ABIs.MultiFeedOracle,
+                this.providers.sepolia
+            );
+            return await oracle.hasFeedData(feedAddress);
+        } catch (e) {
+            return false;
         }
     },
 
