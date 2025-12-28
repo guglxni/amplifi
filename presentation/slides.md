@@ -669,6 +669,111 @@ layout: center
 class: text-center
 ---
 
+# RSC State Machine Deep Dive
+
+<div class="grid grid-cols-2 gap-8 items-center">
+
+<div>
+
+## State Transitions
+
+The `YieldOptimizerRsc` manages complex cross-chain states to ensure atomicity and safety.
+
+1. **IDLE**: Waiting for CRON trigger or events.
+2. **SNAPSHOT_REQUESTED**: `YieldSnapshot` event captured.
+3. **CALCULATING**: Determining optimal rebalance.
+4. **CALLBACK_PENDING**: Waiting for destination chain execution.
+5. **CONFIRMED**: Transaction finalized.
+
+</div>
+
+<div>
+  <img src="/diagrams/rsc-state-machine.png" class="rounded-lg shadow-xl" />
+</div>
+
+</div>
+
+<div class="mt-4">
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Snapshot : YieldSnapshot Event
+    Snapshot --> Rebalance : APY Diff > Threshold
+    Rebalance --> Idle : Callback Success
+    Rebalance --> Retry : Callback Failure
+```
+
+</div>
+
+---
+
+# Cross-Chain Callback Safety
+
+## Verification Logic
+
+Reactive callbacks must be strictly verified to prevent spoofing.
+
+```solidity {all|4-5|7-11|13-16}
+function reactiveCallback(
+    uint256 chain_id,
+    address _contract,
+    uint256 topic_0,
+    uint256 topic_1,
+    bytes calldata data
+) external vmOnly {
+    // 1. Verify Origin
+    require(chain_id == SEPOLIA_CHAIN_ID, "Invalid chain");
+    require(_contract == VAULT_ADDRESS, "Invalid sender");
+
+    // 2. Decode Payload
+    (bool success, bytes memory returnData) = abi.decode(data, (bool, bytes));
+
+    // 3. Update State
+    if (success) {
+        lastRebalanceBlock = block.number;
+        emit RebalanceSuccess(block.timestamp);
+    }
+}
+```
+
+---
+
+# Future Roadmap
+
+<div class="grid grid-cols-3 gap-6 mt-8">
+
+<div class="p-6 border border-purple-500 rounded-lg bg-purple-900/10">
+  <div class="text-2xl mb-2">⚡️</div>
+  <div class="font-bold">L2 Integrations</div>
+  <div class="text-sm text-gray-400">Expanding to Arbitrum & Optimism</div>
+</div>
+
+<div class="p-6 border border-purple-500 rounded-lg bg-purple-900/10">
+  <div class="text-2xl mb-2">🤖</div>
+  <div class="font-bold">AI Strategy</div>
+  <div class="text-sm text-gray-400">ML-driven yield prediction models</div>
+</div>
+
+<div class="p-6 border border-purple-500 rounded-lg bg-purple-900/10">
+  <div class="text-2xl mb-2">🛡</div>
+  <div class="font-bold">Insurance</div>
+  <div class="text-sm text-gray-400">On-chain cover for protocol risks</div>
+</div>
+
+</div>
+
+<div class="mt-8 p-4 border border-gray-700 rounded-lg">
+
+### Ongoing Research
+- **Zero-Knowledge Proofs**: For private strategy execution
+- **Account Abstraction**: Gasless deposits for users
+- **Reactive Governance**: DAO-controlled strategy parameters
+
+</div>
+
+---
+
 # Why Amplifi is Best-in-Class
 
 <div class="grid grid-cols-3 gap-6 mt-8">
