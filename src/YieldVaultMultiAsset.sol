@@ -184,6 +184,9 @@ contract YieldVaultMultiAsset is Ownable, ReentrancyGuard, AbstractCallback {
             "Withdraw balance first"
         );
         
+        // Reset token mapping (allowing re-add)
+        delete tokenToAssetId[asset.token];
+        
         asset.active = false;
         totalAllocation -= asset.allocation;
         asset.allocation = 0;
@@ -198,6 +201,21 @@ contract YieldVaultMultiAsset is Ownable, ReentrancyGuard, AbstractCallback {
         }
         
         emit AssetRemoved(assetId, asset.token);
+    }
+
+    /**
+     * @notice Update aToken address for an asset
+     * @dev Only use to fix misconfigured assets. Balance must be 0.
+     */
+    function updateAssetAToken(uint256 assetId, address newAToken) external onlyOwner {
+        AssetInfo storage asset = assets[assetId];
+        require(asset.active, "Asset not active");
+        require(newAToken != address(0), "Invalid aToken");
+        require(
+            IERC20(asset.aToken).balanceOf(address(this)) == 0,
+            "Withdraw balance first"
+        );
+        asset.aToken = newAToken;
     }
 
     /**

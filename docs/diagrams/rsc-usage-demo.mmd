@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant V as Vault (Sepolia)
+    participant RN as Reactive Network
+    participant RSC as YieldOptimizerRsc (Lasna)
+    participant CB as Callback System
+    
+    Note over V,CB: Meaningful RSC Usage
+    
+    V->>RN: Emit YieldSnapshot event
+    RN->>RSC: Deliver event to react()
+    RSC->>RSC: Compare APYs across assets
+    RSC->>RSC: Calculate optimal allocation
+    RSC->>CB: Emit Callback with new allocations
+    CB->>V: Execute rebalance transaction

@@ -26,6 +26,9 @@ Monitor and manage cross-chain gas funding.
 ### 4. Settings (settings.html)
 View network connections and contract addresses.
 
+### 5. Legacy Vaults (vault.html)
+Monitor and manage Dual-Asset (USDC/DAI) and Compound vaults with True Auto-Replenishment status.
+
 ---
 
 ## Dashboard Features
@@ -92,6 +95,12 @@ Quick access to mint test WBTC and USDT tokens for testing.
 - Last Rebalance time
 - Total assets configured
 - Current allocation percentages
+
+### True Auto-Replenishment (New)
+The legacy Dual-Asset vault now features a self-sustaining mechanism:
+- **Service Fee** - Small fee (0.1% or min 0.0001 ETH) on deposits/withdrawals
+- **Auto-Replenish Stats** - Shows total fees collected and funding cycles
+- **Vault ETH Balance** - Monitors if vault has sufficient gas for callbacks
 
 ---
 
@@ -226,6 +235,13 @@ Rebalance timing shown as block numbers on Reactive Network.
 |  |  - Collects fees from users                    |               |
 |  |  - Bridges to RSC via Callback Proxy           |               |
 |  |  - Maintains gas reserve                       |               |
+|  +-----------------------+------------------------+               |
+|                          |                                        |
+|  +-----------------------v------------------------+               |
+|  |         VaultFeeCollector (New)                |               |
+|  |  - Collects 0.1% fee from DualAsset vault      |               |
+|  |  - Auto-funds vault via internal accounting    |               |
+|  |  - Triggers 'checkAndFundVault' callbacks      |               |
 |  +-----------------------+------------------------+               |
 |                          |                                        |
 +--------------------------|----------------------------------------+

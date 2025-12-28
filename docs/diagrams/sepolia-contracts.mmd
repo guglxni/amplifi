@@ -1,0 +1,18 @@
+graph TD
+    subgraph "Ethereum Sepolia Contracts"
+        VMV["YieldVaultMultiAsset<br/>0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d"]
+        VCP["YieldVaultCompound<br/>0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a"]
+        FND["Funder<br/>0x0CabFEE932171171d90D672160cC6939f93b2D39"]
+        CBP["Callback Proxy<br/>0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA"]
+    end
+    
+    subgraph "Oracle Proxies"
+        EP["ETH Proxy: 0xb1aD...691"]
+        BP["BTC Proxy: 0x736D...6b9"]
+        LP["LINK Proxy: 0x6B94...47b"]
+    end
+    
+    style VMV fill:#4ade80
+    style VCP fill:#60a5fa
+    style FND fill:#fbbf24
+    style CBP fill:#a78bfa

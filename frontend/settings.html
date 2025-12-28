@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YieldOpt | Settings</title>
+    <title>Amplifi | Settings</title>
     <meta name="description" content="Configuration and contract addresses for Reactive Yield Optimizer.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css?v=2">
 </head>
 
 <body>
@@ -18,10 +18,21 @@
     <div class="bg-orb orb-2"></div>
 
     <nav class="sidebar">
-        <div class="brand"><i class="ph-fill ph-plant"></i> YieldOpt</div>
+        <div class="brand">
+            <div class="brand-main">
+                <img src="assets/stickers/defi.png" alt="Amplifi"
+                    style="width: 26px; height: 26px; object-fit: contain;"> Amplifi
+            </div>
+            <div class="brand-sub">
+                <span>Powered by</span>
+                <img src="assets/lasna-logo.png" alt="Reactive" style="width: 12px; height: 12px; object-fit: contain;">
+                <span>Reactive Network</span>
+            </div>
+        </div>
         <div class="nav-menu">
             <a href="index.html" class="nav-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
             <a href="multiasset.html" class="nav-item"><i class="ph-bold ph-cube"></i> Multi-Asset Vault</a>
+            <a href="protection.html" class="nav-item"><i class="ph-bold ph-shield-check"></i> Protection</a>
             <a href="bridge.html" class="nav-item"><i class="ph-bold ph-bridge"></i> Reactive Bridge</a>
             <a href="settings.html" class="nav-item active"><i class="ph-bold ph-gear"></i> Settings</a>
         </div>
@@ -160,16 +171,17 @@
                     <div
                         style="padding: 1rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(0,0,0,0.2)); border-radius: 8px; border: 1px solid rgba(100, 255, 218, 0.3);">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-weight: 600; color: #64ffda;">⭐ YieldVaultMultiAsset</span>
-                            <a href="https://sepolia.etherscan.io/address/0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d"
+                            <span style="font-weight: 600; color: #64ffda;"><i class="ph-bold ph-star"
+                                    style="margin-right: 0.25rem;"></i> YieldVaultMultiAssetV2</span>
+                            <a href="https://sepolia.etherscan.io/address/0x38dB47900fb04Ff029Fcb77cD3e231790bf45a90"
                                 target="_blank" style="color: var(--color-accent);">
                                 <i class="ph-bold ph-arrow-square-out"></i> Etherscan
                             </a>
                         </div>
                         <code
-                            style="color: var(--color-text-muted); font-size: 0.8rem;">0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d</code>
-                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #64ffda;">Multi-Asset vault (WETH,
-                            LINK, AAVE, EURS) - NO SUPPLY CAP</div>
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0x38dB47900fb04Ff029Fcb77cD3e231790bf45a90</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #64ffda;">Multi-Asset V2 with
+                            AUTO-REPLENISHMENT (WETH, LINK, AAVE, EURS, WBTC)</div>
                     </div>
 
                     <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
@@ -186,7 +198,7 @@
                             dual-asset vault (fully operational)</div>
                     </div>
 
-                    <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span style="font-weight: 600; color: var(--color-primary);">Funder</span>
                             <a href="https://sepolia.etherscan.io/address/0x9f7c78a50379dc4d9703b19c708088d5eac5c923"
@@ -199,6 +211,23 @@
                         <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--color-text-muted);">Cross-chain
                             gas funding & bridge</div>
                     </div>
+
+
+                    <div
+                        style="padding: 1rem; background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(0,0,0,0.2)); border-radius: 8px; border: 1px solid rgba(34, 211, 238, 0.3);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-primary);"><i class="ph-bold ph-coins"
+                                    style="margin-right: 0.25rem;"></i> VaultFeeCollector</span>
+                            <a href="https://sepolia.etherscan.io/address/0x3777Afd270B483cAc21C3234fa72E34b9fed33Cf"
+                                target="_blank" style="color: var(--color-accent);">
+                                <i class="ph-bold ph-arrow-square-out"></i> Etherscan
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.8rem;">0x3777Afd270B483cAc21C3234fa72E34b9fed33Cf</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--color-primary);">Collects fees
+                            from Multi-Asset deposits for auto-replenishment</div>
+                    </div>
                 </div>
             </div>
 
@@ -206,12 +235,20 @@
             <div class="card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-code"></i> LASNA RSCs</span>
-                    <img src="assets/lasna-logo.png" style="width: 20px; height: 20px;">
+                    <a href="https://lasna.reactscan.net" target="_blank"
+                        style="font-size: 0.7rem; color: var(--color-accent);">
+                        <i class="ph-bold ph-arrow-square-out"></i> ReactScan
+                    </a>
                 </div>
 
                 <div style="font-size: 0.85rem;">
                     <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                        <div style="font-weight: 600; color: #818cf8; margin-bottom: 0.5rem;">YieldOptimizerReactive
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: #818cf8;">YieldOptimizerReactive</span>
+                            <a href="https://lasna.reactscan.net/address/0x98969559717c24b47A2E4365a569c947a88C4767"
+                                target="_blank" style="color: var(--color-accent); font-size: 0.75rem;">
+                                <i class="ph-bold ph-arrow-square-out"></i> View
+                            </a>
                         </div>
                         <code
                             style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0x98969559717c24b47A2E4365a569c947a88C4767</code>
@@ -219,12 +256,64 @@
                             YieldSnapshot, triggers rebalance</div>
                     </div>
 
-                    <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                        <div style="font-weight: 600; color: #818cf8; margin-bottom: 0.5rem;">ReactiveFunderRC</div>
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: #818cf8;">ReactiveFunderRC</span>
+                            <a href="https://lasna.reactscan.net/address/0x1caC802c52Cd82b9988e1163aF46258539280E71"
+                                target="_blank" style="color: var(--color-accent); font-size: 0.75rem;">
+                                <i class="ph-bold ph-arrow-square-out"></i> View
+                            </a>
+                        </div>
                         <code
                             style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0x1caC802c52Cd82b9988e1163aF46258539280E71</code>
                         <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-text-muted);">Auto-refill
                             via faucet bridge</div>
+                    </div>
+
+                    <div
+                        style="padding: 1rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(0,0,0,0.2)); border-radius: 8px; border: 1px solid rgba(34, 211, 238, 0.3);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: var(--color-primary);"><i
+                                    class="ph-bold ph-arrows-clockwise" style="margin-right: 0.25rem;"></i>
+                                VaultFunderRSC
+                                (Multi-Asset)</span>
+                            <a href="https://lasna.reactscan.net/address/0x6913adcF48352f2D863186e5B9B51c553b6dCF12"
+                                target="_blank" style="color: var(--color-accent); font-size: 0.75rem;">
+                                <i class="ph-bold ph-arrow-square-out"></i> View
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0x6913adcF48352f2D863186e5B9B51c553b6dCF12</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-primary);">Monitors
+                            FeeCollected from Multi-Asset vault, triggers cross-chain auto-funding</div>
+                    </div>
+
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: #818cf8;">ChainlinkMirror (USDC)</span>
+                            <a href="https://lasna.reactscan.net/address/0xA43DC30AfCbb1449278F014d6c4655ACE6883e45"
+                                target="_blank" style="color: var(--color-accent); font-size: 0.75rem;">
+                                <i class="ph-bold ph-arrow-square-out"></i> View
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0xA43DC30AfCbb1449278F014d6c4655ACE6883e45</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-text-muted);">Bridges
+                            USDC/USD price from Base Sepolia</div>
+                    </div>
+
+                    <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600; color: #818cf8;">ChainlinkMirror (EUR)</span>
+                            <a href="https://lasna.reactscan.net/address/0xd9a09674C4d86A44C2000e519CDcf33690A207a9"
+                                target="_blank" style="color: var(--color-accent); font-size: 0.75rem;">
+                                <i class="ph-bold ph-arrow-square-out"></i> View
+                            </a>
+                        </div>
+                        <code
+                            style="color: var(--color-text-muted); font-size: 0.75rem; word-break: break-all;">0xd9a09674C4d86A44C2000e519CDcf33690A207a9</code>
+                        <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-text-muted);">Bridges
+                            EUR/USD price from Polygon Amoy</div>
                     </div>
                 </div>
             </div>
@@ -239,7 +328,8 @@
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem;">
                     <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏛️</div>
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;"><i class="ph-bold ph-bank"
+                                style="color: #818cf8;"></i></div>
                         <div style="font-weight: 700; margin-bottom: 0.25rem;">Aave V3</div>
                         <div style="font-size: 0.8rem; color: var(--color-text-muted);">Pool:
                             0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951</div>
@@ -249,7 +339,8 @@
                     </div>
 
                     <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💹</div>
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;"><i class="ph-bold ph-chart-line-up"
+                                style="color: #34d399;"></i></div>
                         <div style="font-weight: 700; margin-bottom: 0.25rem;">Compound V3</div>
                         <div style="font-size: 0.8rem; color: var(--color-text-muted);">cUSDCv3:
                             0xAec1F48e02Cfb822Be958B68C7957156EB3F0b6e</div>
@@ -259,7 +350,8 @@
                     </div>
 
                     <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌉</div>
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;"><i class="ph-bold ph-bridge"
+                                style="color: #22d3ee;"></i></div>
                         <div style="font-weight: 700; margin-bottom: 0.25rem;">Reactive Faucet</div>
                         <div style="font-size: 0.8rem; color: var(--color-text-muted);">1 SepETH = 100 REACT (Max 5 ETH)
                         </div>
@@ -275,12 +367,12 @@
         <div class="dashboard-grid" style="margin-top: 1.5rem;">
             <div class="card col-span-3">
                 <div class="card-header">
-                    <span><i class="ph-bold ph-info"></i> ABOUT YIELDOPT</span>
+                    <span><i class="ph-bold ph-info"></i> ABOUT AMPLIFI</span>
                 </div>
 
                 <div style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
                     <div style="flex: 1;">
-                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Reactive Yield Optimizer</h2>
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Amplifi - Reactive Yield Optimizer</h2>
                         <p style="color: var(--color-text-muted); margin-bottom: 1rem;">
                             Cross-chain yield automation using Reactive Smart Contracts. Automatically routes funds
                             across
@@ -298,8 +390,9 @@
                         </div>
                     </div>
                     <div style="text-align: center; padding: 1rem;">
-                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🌱</div>
-                        <div style="font-weight: 700; color: var(--color-primary);">v1.0.0</div>
+                        <img src="assets/stickers/defi.png" alt=""
+                            style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 0.5rem;">
+                        <div style="font-weight: 700; color: var(--color-primary);">v2.0.0</div>
                         <div style="font-size: 0.8rem; color: var(--color-text-muted);">Bounty 3 Edition</div>
                     </div>
                 </div>
@@ -307,7 +400,7 @@
         </div>
     </main>
 
-    <script src="js/app.js"></script>
+    <script src="js/app_v2.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             await App.init();

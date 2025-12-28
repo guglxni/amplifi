@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amplifi | Oracle</title>
+    <meta name="description" content="Cross-chain price feeds powered by Reactive Network and Chainlink.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="css/main.css?v=3">
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand">
+            <div class="brand-main">
+                <img src="assets/stickers/defi.png" alt="Amplifi"
+                    style="width: 26px; height: 26px; object-fit: contain;"> Amplifi
+            </div>
+            <div class="brand-sub">
+                <span>Powered by</span>
+                <img src="assets/lasna-logo.png" alt="Reactive" style="width: 12px; height: 12px; object-fit: contain;">
+                <span>Reactive Network</span>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <i class="ph-bold ph-squares-four"></i> Dashboard
+            </a>
+            <a href="multiasset.html" class="nav-item">
+                <i class="ph-bold ph-cube"></i> Multi-Asset Vault
+            </a>
+            <a href="protection.html" class="nav-item">
+                <i class="ph-bold ph-shield-check"></i> Protection
+            </a>
+            <a href="bridge.html" class="nav-item">
+                <i class="ph-bold ph-bridge"></i> Reactive Bridge
+            </a>
+            <a href="oracle.html" class="nav-item active">
+                <i class="ph-bold ph-chart-line-up"></i> Oracle
+            </a>
+            <a href="settings.html" class="nav-item">
+                <i class="ph-bold ph-gear"></i> Settings
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div class="page-title">
+                <h1>Oracle Bridge</h1>
+                <p>Cross-chain Chainlink Price Feeds via Reactive Network</p>
+            </div>
+            <div class="wallet-status" id="wallet-btn">
+                <div class="status-dot offline" id="status-dot"></div>
+                <span id="wallet-text">Connect Wallet</span>
+            </div>
+        </header>
+
+        <!-- Key Stats -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <span>ACTIVE FEEDS</span>
+                    <i class="ph-bold ph-broadcast" style="color: var(--color-success);"></i>
+                </div>
+                <div class="metric-value">4</div>
+                <div class="metric-sub">
+                    <span class="live-indicator"></span>
+                    <span>ETH, LINK, EUR, BTC</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>AVG LATENCY</span>
+                    <i class="ph-bold ph-timer" style="color: var(--color-primary);"></i>
+                </div>
+                <div class="metric-value">&lt;1s</div>
+                <div class="metric-sub" style="color: var(--color-success);">Real-time updates</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>CHAINS SUPPORTED</span>
+                    <i class="ph-bold ph-link-simple" style="color: var(--color-accent);"></i>
+                </div>
+                <div class="metric-value">2</div>
+                <div class="metric-sub">Sepolia + Lasna</div>
+            </div>
+        </div>
+
+        <!-- Live Price Feeds -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-chart-line-up"></i> LIVE PRICE FEEDS</span>
+                    <span class="badge badge-live"><span class="live-dot"></span> LIVE</span>
+                </div>
+                <div id="prices-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="text-align: center; color: var(--color-text-muted);">Loading prices...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-flow-arrow"></i> HOW IT WORKS</span>
+                    <span class="badge badge-info">Cross-Chain</span>
+                </div>
+                <div class="tx-flow-visualizer">
+                    <div class="flow-node origin">
+                        <div class="node-icon">
+                            <img src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=040" alt="Chainlink">
+                        </div>
+                        <div class="node-label">Origin Chain</div>
+                        <div class="node-status">Chainlink Feeds</div>
+                    </div>
+
+                    <div class="flow-connection">
+                        <div class="flow-particle"></div>
+                        <div class="flow-label">Event Log</div>
+                    </div>
+
+                    <div class="flow-node reactive">
+                        <div class="node-icon">
+                            <img src="assets/lasna-logo.png" alt="Reactive">
+                        </div>
+                        <div class="node-label">Reactive Network</div>
+                        <div class="node-status">ChainlinkMirrorRC</div>
+                    </div>
+
+                    <div class="flow-connection">
+                        <div class="flow-particle"></div>
+                        <div class="flow-label">Callback</div>
+                    </div>
+
+                    <div class="flow-node destination">
+                        <div class="node-icon">
+                            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040" alt="Sepolia">
+                        </div>
+                        <div class="node-label">Destination</div>
+                        <div class="node-status">AbstractFeedProxy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credits -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3"
+                style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-color: rgba(99, 102, 241, 0.3);">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-heart"></i> BUILT WITH</span>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem;">
+                    <a href="https://github.com/tirth2004/aggreatorv3-reactive-bridge-abstract" target="_blank"
+                        style="background: var(--color-bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; color: var(--color-text-secondary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--color-border);">
+                        <i class="ph-bold ph-code"></i> AggregatorV3 Reactive Bridge
+                    </a>
+                    <a href="https://github.com/guglxni/reactive-bounty-1" target="_blank"
+                        style="background: var(--color-bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; color: var(--color-text-secondary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--color-border);">
+                        <i class="ph-bold ph-trophy"></i> Bounty 1 Submission
+                    </a>
+                    <a href="https://reactive.network" target="_blank"
+                        style="background: var(--color-bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; color: var(--color-text-secondary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--color-border);">
+                        <i class="ph-bold ph-broadcast"></i> Reactive Network
+                    </a>
+                    <a href="https://chain.link" target="_blank"
+                        style="background: var(--color-bg-secondary); padding: 0.75rem 1rem; border-radius: 8px; color: var(--color-text-secondary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--color-border);">
+                        <i class="ph-bold ph-link"></i> Chainlink
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Price Feed Addresses (Sepolia Chainlink)
+        const PRICE_FEEDS = {
+            ETH: { address: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691', pair: 'ETH/USD' },
+            LINK: { address: '0x6B94668442B97e7dCF1958044a21e42a73D3647b', pair: 'LINK/USD' },
+            EUR: { address: '0x955e94A600d059789d42ca533fe90c5187f520Af', pair: 'EUR/USD' },
+            BTC: { address: '0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9', pair: 'BTC/USD' }
+        };
+
+        const RPC_URL = 'https://eth-sepolia.g.alchemy.com/v2/gSGZUmZvUJI9GKs2xrpKl';
+
+        async function fetchPrice(feedAddress) {
+            try {
+                const response = await fetch(RPC_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_call',
+                        params: [{ to: feedAddress, data: '0xfeaf968c' }, 'latest'],
+                        id: Date.now()
+                    })
+                });
+                const data = await response.json();
+                if (data.result && data.result.length > 66) {
+                    return parseInt('0x' + data.result.slice(66, 130), 16) / 1e8;
+                }
+            } catch (e) {
+                console.error('Price fetch error:', e);
+            }
+            return 0;
+        }
+
+        function formatPrice(price) {
+            return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        async function updatePrices() {
+            const grid = document.getElementById('prices-grid');
+            let html = '';
+
+            for (const [symbol, feed] of Object.entries(PRICE_FEEDS)) {
+                const price = await fetchPrice(feed.address);
+                html += `
+                    <div style="background: var(--color-bg-secondary); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--color-border);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-weight: 600;">${symbol}</span>
+                            <span style="font-size: 0.75rem; color: var(--color-text-muted);">${feed.pair}</span>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary);">$${formatPrice(price)}</div>
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.5rem;">
+                            ${feed.address.slice(0, 10)}...${feed.address.slice(-6)}
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await updatePrices();
+            setInterval(updatePrices, 30000);
+
+            // Wallet connection
+            document.getElementById('wallet-btn').addEventListener('click', async () => {
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        if (accounts.length > 0) {
+                            document.getElementById('wallet-text').innerText = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
+                            document.getElementById('status-dot').classList.remove('offline');
+                        }
+                    } catch (e) {
+                        console.error('Wallet connection error:', e);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

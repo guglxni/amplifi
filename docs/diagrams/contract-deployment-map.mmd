@@ -1,0 +1,36 @@
+graph TB
+    subgraph "Contract Deployment Map"
+        subgraph SEP["Ethereum Sepolia - 11155111"]
+            VMV["YieldVaultMultiAsset<br/>0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d"]
+            VCP["YieldVaultCompound<br/>0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a"]
+            FND["Funder<br/>0x9f7c78a50379dc4d9703b19c708088d5eac5c923"]
+            CBP["Callback Proxy<br/>0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA"]
+            
+            subgraph ORACLES["Oracle Proxies"]
+                ETH_P["ETH/USD Proxy<br/>0xb1aDCca598051EfdaD48217D950EAFf2CA869691"]
+                BTC_P["BTC/USD Proxy<br/>0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9"]
+                LINK_P["LINK/USD Proxy<br/>0x6B94668442B97e7dCF1958044a21e42a73D3647b"]
+                USDC_P["USDC/USD Proxy<br/>0xdE87eC23198867B298E74d1a2c902Aa02381b6d8"]
+                EUR_P["EUR/USD Proxy<br/>0x955e94A600d059789d42ca533fe90c5187f520Af"]
+            end
+        end
+        
+        subgraph LAS["Lasna Network - 5318007"]
+            YOR["YieldOptimizerRsc<br/>0x98969559717c24b47A2E4365a569c947a88C4767"]
+            RFR["ReactiveFunderRC<br/>0x1caC802c52Cd82b9988e1163aF46258539280E71"]
+            
+            subgraph MIRRORS["Oracle Mirrors"]
+                ETH_M["ETH Mirror<br/>0x1CdD260983f23c2A29a91134442C499cd3cc29cF"]
+                BTC_M["BTC Mirror<br/>0xa17c0a6abac640ee401ff767efa1cbf31966a848"]
+                LINK_M["LINK Mirror<br/>0xdb0a8ab7ea10f2d9e1be242718699bee43131274"]
+            end
+        end
+    end
+    
+    ETH_M --> ETH_P
+    BTC_M --> BTC_P
+    LINK_M --> LINK_P
+    
+    YOR --> VMV
+    RFR --> FND
+    FND --> VMV

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amplifi | Liquidation Protection</title>
+    <meta name="description"
+        content="Automated liquidation protection powered by Reactive Smart Contracts. Protect your Aave positions.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="css/main.css?v=3">
+    <style>
+        /* Protection Page Specific Styles */
+        .health-factor-gauge {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(from 180deg,
+                    #ef4444 0deg,
+                    #fbbf24 90deg,
+                    #34d399 180deg,
+                    #34d399 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .health-factor-gauge::before {
+            content: '';
+            width: 160px;
+            height: 160px;
+            background: var(--color-bg-dark);
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .hf-value {
+            position: relative;
+            z-index: 1;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--color-text-main);
+        }
+
+        .hf-label {
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            margin-top: -1rem;
+        }
+
+        .protection-form {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-input,
+        .form-select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--color-text-main);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-select option {
+            background: var(--color-bg-dark);
+        }
+
+        .protection-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .protection-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .protection-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .protection-stat-label {
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .order-list {
+            margin-top: 2rem;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--color-warning);
+        }
+
+        .order-item.stop-loss {
+            border-left-color: #ef4444;
+        }
+
+        .order-item.take-profit {
+            border-left-color: var(--color-success);
+        }
+
+        .order-details {
+            flex: 1;
+        }
+
+        .order-type {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .order-info {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .order-status.pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--color-warning);
+        }
+
+        .order-status.executed {
+            background: rgba(52, 211, 153, 0.2);
+            color: var(--color-success);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text-main);
+        }
+
+        .tab.active {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .info-box {
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box-text {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand">
+            <div class="brand-main">
+                <img src="assets/stickers/defi.png" alt="Amplifi"
+                    style="width: 26px; height: 26px; object-fit: contain;"> Amplifi
+            </div>
+            <div class="brand-sub">
+                <span>Powered by</span>
+                <img src="assets/lasna-logo.png" alt="Reactive" style="width: 12px; height: 12px; object-fit: contain;">
+                <span>Reactive Network</span>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <i class="ph-bold ph-squares-four"></i> Dashboard
+            </a>
+            <a href="multiasset.html" class="nav-item">
+                <i class="ph-bold ph-cube"></i> Multi-Asset Vault
+            </a>
+            <a href="protection.html" class="nav-item active">
+                <i class="ph-bold ph-shield-check"></i> Protection
+            </a>
+            <a href="bridge.html" class="nav-item">
+                <i class="ph-bold ph-bridge"></i> Reactive Bridge
+            </a>
+            <a href="settings.html" class="nav-item">
+                <i class="ph-bold ph-gear"></i> Settings
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div class="page-title">
+                <h1>Liquidation Protection</h1>
+                <p>Automated Aave position protection powered by Reactive RSCs</p>
+            </div>
+            <div class="wallet-status" id="wallet-btn">
+                <div class="status-dot offline" id="status-dot"></div>
+                <span id="wallet-text">Connect Wallet</span>
+            </div>
+        </header>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <div class="info-box-title">
+                <i class="ph-bold ph-info"></i> How Protection Works
+            </div>
+            <div class="info-box-text">
+                The LiquidationProtectorRsc monitors your Aave health factor in real-time. When it drops below your
+                threshold, the RSC automatically triggers protective actions: adding collateral, repaying debt, or both.
+                This happens on-chain without any centralized servers.
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="protection">
+                <i class="ph-bold ph-shield-check"></i> Liquidation Protection
+            </button>
+            <button class="tab" data-tab="orders">
+                <i class="ph-bold ph-arrows-down-up"></i> Stop-Loss Orders
+            </button>
+        </div>
+
+        <!-- Protection Tab -->
+        <div class="tab-content active" id="protection-tab">
+            <div class="dashboard-grid">
+                <!-- Health Factor Gauge -->
+                <div class="card">
+                    <div class="card-header">
+                        <span><i class="ph-bold ph-heartbeat"></i> HEALTH FACTOR</span>
+                        <span class="badge badge-success" id="hf-status">SAFE</span>
+                    </div>
+                    <div class="health-factor-gauge">
+                        <span class="hf-value" id="health-factor">--</span>
+                    </div>
+                    <div class="hf-label">Current Health Factor</div>
+                    <div class="protection-stats">
+                        <div class="protection-stat">
+                            <div class="protection-stat-value" id="collateral-value">--</div>
+                            <div class="protection-stat-label">Collateral</div>
+                        </div>
+                        <div class="protection-stat">
+                            <div class="protection-stat-value" id="debt-value">--</div>
+                            <div class="protection-stat-label">Debt</div>
+                        </div>
+                        <div class="protection-stat">
+                            <div class="protection-stat-value" id="liquidation-threshold">--</div>
+                            <div class="protection-stat-label">Liq. Threshold</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Protection Configuration -->
+                <div class="card col-span-2">
+                    <div class="card-header">
+                        <span><i class="ph-bold ph-gear-six"></i> PROTECTION SETTINGS</span>
+                        <span class="badge badge-live" id="protection-badge">
+                            <span class="live-dot"></span> ACTIVE
+                        </span>
+                    </div>
+
+                    <div class="protection-form">
+                        <div class="form-group">
+                            <label class="form-label">Protection Threshold</label>
+                            <input type="number" class="form-input" id="threshold-input" placeholder="1.15" step="0.01"
+                                min="1.05" max="2.0" value="1.15">
+                            <small style="color: var(--color-text-muted); font-size: 0.7rem;">
+                                Protection triggers when health factor drops below this value (min: 1.05)
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Protection Strategy</label>
+                            <select class="form-select" id="strategy-select">
+                                <option value="0">Add Collateral</option>
+                                <option value="1">Repay Debt</option>
+                                <option value="2" selected>Hybrid (Recommended)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Reserve Amount (WETH)</label>
+                            <input type="number" class="form-input" id="reserve-input" placeholder="0.5" step="0.01"
+                                min="0.01" value="0.5">
+                            <small style="color: var(--color-text-muted); font-size: 0.7rem;">
+                                Funds set aside for emergency protection actions
+                            </small>
+                        </div>
+
+                        <button class="btn-primary" id="enable-protection-btn"
+                            style="width: 100%; justify-content: center;">
+                            <i class="ph-bold ph-shield-check"></i> Enable Protection
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Protection History -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-clock-counter-clockwise"></i> PROTECTION HISTORY</span>
+                </div>
+                <div id="protection-history">
+                    <div class="activity-item" style="border-left: 3px solid var(--color-text-muted)">
+                        <div class="activity-icon">
+                            <i class="ph-bold ph-hourglass" style="color: var(--color-text-muted)"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">No Protection Events</div>
+                            <div class="activity-details">Protection has not been triggered yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stop-Loss Orders Tab -->
+        <div class="tab-content" id="orders-tab">
+            <div class="dashboard-grid">
+                <!-- Create Order Form -->
+                <div class="card col-span-2">
+                    <div class="card-header">
+                        <span><i class="ph-bold ph-plus-circle"></i> CREATE ORDER</span>
+                    </div>
+
+                    <div class="protection-form">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Token to Sell</label>
+                                <select class="form-select" id="token-in-select">
+                                    <option value="weth">WETH</option>
+                                    <option value="link">LINK</option>
+                                    <option value="aave">AAVE</option>
+                                    <option value="wbtc">WBTC</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Amount</label>
+                                <input type="number" class="form-input" id="amount-input" placeholder="1.0" step="0.01"
+                                    min="0.001">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Order Type</label>
+                                <select class="form-select" id="order-type-select">
+                                    <option value="0">Stop-Loss</option>
+                                    <option value="1">Take-Profit</option>
+                                    <option value="2">Trailing Stop</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Trigger Price (USD)</label>
+                                <input type="number" class="form-input" id="trigger-price-input" placeholder="3000"
+                                    step="1" min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="trailing-percent-group" style="display: none;">
+                            <label class="form-label">Trailing Percentage (%)</label>
+                            <input type="number" class="form-input" id="trailing-percent-input" placeholder="5"
+                                step="0.5" min="1" max="50" value="5">
+                        </div>
+
+                        <button class="btn-primary" id="create-order-btn" style="width: 100%; justify-content: center;">
+                            <i class="ph-bold ph-plus"></i> Create Order
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Stats -->
+                <div class="card">
+                    <div class="card-header">
+                        <span><i class="ph-bold ph-chart-bar"></i> ORDER STATS</span>
+                    </div>
+                    <div class="protection-stats" style="grid-template-columns: 1fr;">
+                        <div class="protection-stat">
+                            <div class="protection-stat-value" id="active-orders">0</div>
+                            <div class="protection-stat-label">Active Orders</div>
+                        </div>
+                        <div class="protection-stat">
+                            <div class="protection-stat-value" id="executed-orders">0</div>
+                            <div class="protection-stat-label">Executed</div>
+                        </div>
+                        <div class="protection-stat">
+                            <div class="protection-stat-value" id="total-volume">$0</div>
+                            <div class="protection-stat-label">Protected Volume</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Orders -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-list-bullets"></i> ACTIVE ORDERS</span>
+                </div>
+                <div class="order-list" id="order-list">
+                    <div class="order-item stop-loss">
+                        <div class="order-details">
+                            <div class="order-type">Stop-Loss: WETH → USDC</div>
+                            <div class="order-info">Trigger at $2,800 • Amount: 1.5 WETH</div>
+                        </div>
+                        <span class="order-status pending">Pending</span>
+                    </div>
+                    <div class="order-item take-profit">
+                        <div class="order-details">
+                            <div class="order-type">Take-Profit: LINK → USDC</div>
+                            <div class="order-info">Trigger at $25 • Amount: 100 LINK</div>
+                        </div>
+                        <span class="order-status pending">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app_v2.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await App.init();
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    const tabId = tab.dataset.tab + '-tab';
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Order type change handler
+            document.getElementById('order-type-select').addEventListener('change', (e) => {
+                const trailingGroup = document.getElementById('trailing-percent-group');
+                if (e.target.value === '2') {
+                    trailingGroup.style.display = 'block';
+                } else {
+                    trailingGroup.style.display = 'none';
+                }
+            });
+
+            // Wallet connection
+            document.getElementById('wallet-btn').addEventListener('click', async () => {
+                await App.connectWallet();
+                if (App.currentAccount) {
+                    document.getElementById('wallet-text').innerText = App.currentAccount.slice(0, 6) + '...' + App.currentAccount.slice(-4);
+                    document.getElementById('status-dot').classList.remove('offline');
+                    loadHealthFactor();
+                }
+            });
+
+            // Enable protection button
+            document.getElementById('enable-protection-btn').addEventListener('click', () => {
+                const threshold = document.getElementById('threshold-input').value;
+                const strategy = document.getElementById('strategy-select').value;
+                const reserve = document.getElementById('reserve-input').value;
+
+                alert(`Protection would be enabled with:\nThreshold: ${threshold}\nStrategy: ${['Add Collateral', 'Repay Debt', 'Hybrid'][strategy]}\nReserve: ${reserve} WETH`);
+            });
+
+            // Create order button
+            document.getElementById('create-order-btn').addEventListener('click', () => {
+                const tokenIn = document.getElementById('token-in-select').value;
+                const amount = document.getElementById('amount-input').value;
+                const orderType = document.getElementById('order-type-select').value;
+                const triggerPrice = document.getElementById('trigger-price-input').value;
+
+                alert(`Order would be created:\nToken: ${tokenIn.toUpperCase()}\nAmount: ${amount}\nType: ${['Stop-Loss', 'Take-Profit', 'Trailing Stop'][orderType]}\nTrigger: $${triggerPrice}`);
+            });
+
+            // Simulate health factor
+            function loadHealthFactor() {
+                document.getElementById('health-factor').textContent = '1.85';
+                document.getElementById('collateral-value').textContent = '$5,230';
+                document.getElementById('debt-value').textContent = '$2,150';
+                document.getElementById('liquidation-threshold').textContent = '82%';
+            }
+
+            loadHealthFactor();
+        });
+    </script>
+</body>
+
+</html>

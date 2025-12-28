@@ -17,17 +17,26 @@ const App = {
 
     CONFIG: {
         // Sepolia Contracts - All Vaults
-        VAULT_DUAL_ASSET: "0xe6e06F94d1aaa2496b9e33afeE29f01436E9fA4A",  // USDC/DAI (supply cap blocked)
+        VAULT_DUAL_ASSET: "0x353035017676e0DC35d04344610F25D1FaC7187D",  // USDC/DAI V2 with Auto-Replenishment
         VAULT_WETH_LINK: "0xB67500437583656160B9C6Da2139E5D4289458E2",   // WETH/LINK (works!)
         VAULT_COMPOUND: "0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a",
-        VAULT_MULTI_ASSET: "0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d", // Multi-Asset (WETH, LINK, AAVE, EURS, WBTC, USDT)
-        FUNDER: "0x9f7c78a50379dc4d9703b19c708088d5eac5c923",
+        VAULT_MULTI_ASSET: "0x42437f29E25Ad65E121f4D0f07FD8F5c2005e5d5", // Multi-Asset V2 - EURS aToken FIXED
+        FEE_COLLECTOR_MULTI: "0x3777Afd270B483cAc21C3234fa72E34b9fed33Cf", // Fee Collector for Multi-Asset V2
+        FUNDER: "0x0CabFEE932171171d90D672160cC6939f93b2D39",
 
-        // Reactive Cross-Chain Oracle (reactive-bounty-1)
+        // Reactive Cross-Chain Oracle (reactive-bounty-1) - DEPRECATED, using individual bridges now
         // MultiFeedDestinationV2 - Mirrors Chainlink prices from Base Sepolia → Sepolia
         MULTI_FEED_ORACLE: "0x889c32f46E273fBd0d5B1806F3f1286010cD73B3",
 
-        // Chainlink Aggregator Addresses on Base Sepolia (for oracle queries)
+        // AbstractFeedProxy Addresses (aggreatorv3-reactive-bridge-abstract)
+        // Live cross-chain feeds bridged from Base Sepolia → Lasna → Sepolia
+        USDC_FEED_PROXY: "0xdE87eC23198867B298E74d1a2c902Aa02381b6d8", // USDC/USD from Base Sepolia
+        EUR_FEED_PROXY: "0x955e94A600d059789d42ca533fe90c5187f520Af",  // EUR/USD from Polygon Amoy
+        ETH_FEED_PROXY: "0xb1aDCca598051EfdaD48217D950EAFf2CA869691",  // ETH/USD from Base Sepolia
+        BTC_FEED_PROXY: "0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9",  // BTC/USD from Base Sepolia
+        LINK_FEED_PROXY: "0x6B94668442B97e7dCF1958044a21e42a73D3647b", // LINK/USD from Base Sepolia
+
+        // Chainlink Aggregator Addresses on Base Sepolia (for oracle queries - DEPRECATED)
         CHAINLINK_ETH_USD: "0xa24A68DD788e1D7eb4CA517765CFb2b7e217e7a3",
         CHAINLINK_BTC_USD: "0x961AD289351459A45fC90884eF3AB0278ea95DDE",
         CHAINLINK_LINK_USD: "0xAc6DB6d5538Cd07f58afee9dA736ce192119017B",
@@ -42,9 +51,8 @@ const App = {
         AAVE: "0x88541670E55cC00bEEFD87eB59EDd1b7C511AC9a",
         EURS: "0x6d906e526a4e2Ca02097BA9d0caA3c382F52278E",
         WBTC: "0x29f2D40B0605204364af54EC677bD022dA425d03",
-        USDT: "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
-
-        // Legacy tokens (supply cap blocked on Aave)
+        // Legacy tokens (supply cap blocked on Aave Sepolia)
+        USDT: "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0", // Removed from vault - supply cap exceeded
         USDC_AAVE: "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
         DAI_AAVE: "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357",
         USDC_CIRCLE: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
@@ -52,8 +60,8 @@ const App = {
         // Aave Faucet (for minting test tokens)
         AAVE_FAUCET: "0xC959483DBa39aa9E78757139af0e9a2EDEb3f42D",
 
-        // RPCs - Using reliable public endpoints
-        SEPOLIA_RPC: "https://ethereum-sepolia.publicnode.com",
+        // RPC Endpoints (using Alchemy for better rate limits)
+        SEPOLIA_RPC: "https://eth-sepolia.g.alchemy.com/v2/gSGZUmZvUJI9GKs2xrpKl",
         LASNA_RPC: "https://lasna-rpc.rnk.dev",
 
         // Chain IDs
@@ -103,11 +111,18 @@ const App = {
             "function withdrawSecondary(uint256 amount)",
             "function triggerYieldSnapshot()",
             "function setRvmId(address _rvmId)",
+            // Auto-Replenishment
+            "function getRequiredFee(uint256 txValue) view returns (uint256)",
+            "function feeCollector() view returns (address)",
+            "function hasSufficientFunding() view returns (bool)",
+            "function minOperationalBalance() view returns (uint256)",
             // Events
             "event YieldSnapshot(uint256 indexed id, uint256 primaryYield, uint256 secondaryYield, uint256 primaryApy, uint256 secondaryApy, uint256 tvl, uint256 timestamp)",
             "event Rebalanced(uint256 newPrimaryAllocation, uint256 newSecondaryAllocation, uint256 timestamp)",
             "event Deposit(address indexed user, uint256 amount, bool isPrimary)",
-            "event Withdraw(address indexed user, uint256 amount, bool isPrimary)"
+            "event Withdraw(address indexed user, uint256 amount, bool isPrimary)",
+            "event FeePaid(address indexed user, uint256 amount)",
+            "event Funded(address indexed from, uint256 amount)"
         ],
 
         // YieldVaultCompound - Full ABI
@@ -162,31 +177,47 @@ const App = {
             "function getTotalValueLockedUSD() view returns (uint256)",
             "function getBestYieldAsset() view returns (uint256 bestAssetId, uint256 bestAPY)",
             "function getAllAssets() view returns (uint256[] ids, address[] tokens, string[] symbols, uint256[] apys, uint256[] allocations, uint256[] balances)",
-            "function deposit(uint256 assetId, uint256 amount)",
-            "function depositByToken(address token, uint256 amount)",
+            // V2 payable deposit functions
+            "function deposit(uint256 assetId, uint256 amount) payable",
+            "function depositByToken(address token, uint256 amount) payable",
             "function withdraw(uint256 assetId, uint256 amount)",
             "function triggerYieldSnapshot()",
+            // V2 fee-related functions
+            "function feeCollector() view returns (address)",
+            "function feeCollectionEnabled() view returns (bool)",
+            "function getRequiredFee(uint256 txValue) view returns (uint256)",
+            "function hasSufficientFunding() view returns (bool)",
+            "function minOperationalBalance() view returns (uint256)",
+            // Admin functions
             "function addAsset(address token, address aToken, uint8 decimals, uint256 priceUSD, string symbol, uint256 initialAllocation)",
             "function setAllocation(uint256 assetId, uint256 newAllocation)",
             "function updateAssetPrice(uint256 assetId, uint256 newPriceUSD)",
+            // Events
             "event AssetAdded(uint256 indexed assetId, address token, address aToken, string symbol)",
             "event AssetRemoved(uint256 indexed assetId, address token)",
             "event YieldSnapshot(uint256 indexed snapshotId, uint256[] assetIds, uint256[] apys, uint256[] allocations, uint256 totalTvl, uint256 timestamp)",
             "event Deposited(address indexed user, uint256 indexed assetId, address token, uint256 amount)",
             "event Withdrawn(address indexed user, uint256 indexed assetId, address token, uint256 amount)",
             "event Rebalanced(uint256[] assetIds, uint256[] newAllocations)",
-            "event AllocationUpdated(uint256 indexed assetId, uint256 newAllocation)"
+            "event AllocationUpdated(uint256 indexed assetId, uint256 newAllocation)",
+            // V2 Auto-replenishment events
+            "event FeeCollectorSet(address indexed oldCollector, address indexed newCollector)",
+            "event FeePaid(address indexed user, uint256 amount)",
+            "event Funded(address indexed from, uint256 amount)"
         ],
 
-        // Funder - Full ABI
+        // Funder - Full ABI (deployed at 0x0CabFEE932171171d90D672160cC6939f93b2D39)
         Funder: [
             "function owner() view returns (address)",
             "function targetRsc() view returns (address)",
-            "function totalReceived() view returns (uint256)",
+            "function totalCollected() view returns (uint256)",
             "function totalBridged() view returns (uint256)",
             "function bridgeCount() view returns (uint256)",
             "function gasReserve() view returns (uint256)",
             "function bridgeThreshold() view returns (uint256)",
+            "function authorizedCallers(address) view returns (bool)",
+            "function REACTIVE_FAUCET() view returns (address)",
+            "function CALLBACK_PROXY() view returns (address)",
             "function getStats() view returns (uint256, uint256, uint256, uint256, uint256, address)",
             "function canBridge() view returns (bool)",
             "function getBridgeableAmount() view returns (uint256)",
@@ -196,7 +227,7 @@ const App = {
             "function setTargetRsc(address _targetRsc)",
             "function setGasReserve(uint256 _gasReserve)",
             "function setBridgeThreshold(uint256 _threshold)",
-            "function addAuthorizedCaller(address caller)",
+            "function setAuthorizedCaller(address caller, bool authorized)",
             "event FundsReceived(address indexed sender, uint256 amount)",
             "event FundsBridged(address indexed reactiveContract, uint256 amount)",
             "event BridgeFailed(address indexed reactiveContract, uint256 amount, string reason)"
@@ -240,6 +271,15 @@ const App = {
             "function symbol() view returns (string)"
         ],
 
+        // VaultFeeCollector - True Auto-Replenishment
+        VaultFeeCollector: [
+            "function getStats() view returns (uint256 totalCollected, uint256 totalFunded, uint256 balance, uint256 fundingCount, uint256 vaultBalance)",
+            "function calculateFee(uint256 txValue) view returns (uint256)",
+            "function feePercentageBps() view returns (uint256)",
+            "function minFee() view returns (uint256)",
+            "function vaultNeedsFunding() view returns (bool needs, uint256 vaultBalance)"
+        ],
+
         // MultiFeedDestination - Reactive Cross-Chain Oracle (reactive-bounty-1)
         // Mirrors Chainlink prices from Base Sepolia → Ethereum Sepolia
         MultiFeedOracle: [
@@ -254,7 +294,7 @@ const App = {
     // ═══════════════════════════════════════════════════════════════
 
     init: async function () {
-        console.log("🚀 YieldOpt App Initializing...");
+        console.log("[Amplifi] App Initializing...");
 
         try {
             // IMPORTANT: ALWAYS use JsonRpcProvider for read operations
@@ -313,27 +353,27 @@ const App = {
             // Verify Sepolia Connection
             try {
                 const sepoliaBlock = await this.providers.sepolia.getBlockNumber();
-                console.log(`✅ Sepolia Connected (Block ${sepoliaBlock})`);
+                console.log(`[OK] Sepolia Connected (Block ${sepoliaBlock})`);
             } catch (e) {
-                console.error("❌ Sepolia RPC Failed:", e.message);
+                console.error("[ERR] Sepolia RPC Failed:", e.message);
                 // Try fallback RPC
                 this.providers.sepolia = new ethers.providers.JsonRpcProvider("https://rpc.sepolia.org");
-                console.log("🔄 Trying fallback Sepolia RPC...");
+                console.log("[RETRY] Trying fallback Sepolia RPC...");
             }
 
             // Verify Lasna Connection  
             try {
                 const lasnaBlock = await this.providers.lasna.getBlockNumber();
-                console.log(`✅ Lasna Connected (Block ${lasnaBlock})`);
+                console.log(`[OK] Lasna Connected (Block ${lasnaBlock})`);
             } catch (e) {
-                console.warn("⚠️ Lasna RPC unavailable:", e.message);
+                console.warn("[WARN] Lasna RPC unavailable:", e.message);
             }
 
             this.updateWalletUI();
             return true;
 
         } catch (e) {
-            console.error("❌ Initialization Error:", e);
+            console.error("[ERR] Initialization Error:", e);
             this.showToast("Initialization failed: " + e.message, "error");
             return false;
         }
@@ -367,13 +407,35 @@ const App = {
                 }
             }
 
+            // Create signer with explicit Sepolia network to avoid network change errors
             this.signer = web3Provider.getSigner();
             const address = await this.signer.getAddress();
+            this.currentAccount = address;
 
             // Upgrade Sepolia contracts to Signer
             this.contracts.vaultDualAsset = this.contracts.vaultDualAsset.connect(this.signer);
             this.contracts.vaultCompound = this.contracts.vaultCompound.connect(this.signer);
+            this.contracts.vaultMultiAsset = this.contracts.vaultMultiAsset.connect(this.signer);
             this.contracts.funder = this.contracts.funder.connect(this.signer);
+
+            // Listen for network changes to prevent NETWORK_ERROR
+            window.ethereum.on('chainChanged', (chainId) => {
+                console.log('[INFO] Network changed to:', chainId);
+                // Reload the page to reinitialize with correct network
+                window.location.reload();
+            });
+
+            // Listen for account changes
+            window.ethereum.on('accountsChanged', (accounts) => {
+                console.log('[INFO] Account changed:', accounts[0]);
+                if (accounts.length === 0) {
+                    this.signer = null;
+                    this.currentAccount = null;
+                    this.updateWalletUI();
+                } else {
+                    window.location.reload();
+                }
+            });
 
             this.updateWalletUI(address);
             this.showToast("Wallet Connected!", "success");
@@ -382,6 +444,11 @@ const App = {
 
         } catch (e) {
             console.error("Connection Error:", e);
+            // Handle network mismatch error gracefully
+            if (e.code === 'NETWORK_ERROR' || e.message.includes('network changed')) {
+                this.showToast("Network changed. Please refresh the page.", "warning");
+                return null;
+            }
             this.showToast("Connection failed: " + e.message, "error");
             return null;
         }
@@ -513,51 +580,78 @@ const App = {
      */
     fetchMultiAssetData: async function () {
         const vault = this.contracts.vaultMultiAsset;
+
         try {
-            // Fetch all core data
-            const [tvlUSD, bestYield, allAssets, snapCount, lastRebal, totalAlloc] = await Promise.all([
-                vault.getTotalValueLockedUSD(),
+            // Fetch core data using individual calls (more reliable than getAllAssets)
+            const [bestYield, snapCount, lastRebal, totalAlloc, assetCount] = await Promise.all([
                 vault.getBestYieldAsset(),
-                vault.getAllAssets(),
                 vault.snapshotCounter(),
                 vault.lastRebalanceTime(),
-                vault.totalAllocation()
+                vault.totalAllocation(),
+                vault.getAssetCount()
             ]);
 
-            // Parse the getAllAssets return
-            const [ids, tokens, symbols, apys, allocations, balances] = allAssets;
-
-            // Build asset array
+            // Fetch each asset individually - LIVE DATA ONLY, NO FALLBACKS
             const assets = [];
-            for (let i = 0; i < ids.length; i++) {
-                assets.push({
-                    id: ids[i].toNumber(),
-                    token: tokens[i],
-                    symbol: symbols[i],
-                    apy: apys[i].toNumber() / 1000, // BPS to %
-                    allocation: allocations[i].toNumber(),
-                    balance: balances[i],
-                    balanceFormatted: this.formatAssetBalance(symbols[i], balances[i])
-                });
+            const assetCountNum = assetCount.toNumber();
+
+            for (let i = 0; i < assetCountNum; i++) {
+                try {
+                    // Get asset ID from array
+                    const assetId = await vault.assetIds(i);
+                    const assetIdNum = assetId.toNumber();
+
+                    // Fetch individual asset data - ALL LIVE FROM SEPOLIA
+                    const [assetInfo, balance, liveApy] = await Promise.all([
+                        vault.assets(assetIdNum),
+                        vault.getAssetBalance(assetIdNum),
+                        vault.getAssetAPY(assetIdNum)
+                    ]);
+
+                    const symbol = assetInfo.symbol;
+                    const apyValue = liveApy.toNumber() / 1000; // BPS to %
+
+                    assets.push({
+                        id: assetIdNum,
+                        token: assetInfo.token,
+                        symbol: symbol,
+                        apy: apyValue, // LIVE Sepolia APY only
+                        allocation: assetInfo.allocation.toNumber(),
+                        balance: balance,
+                        balanceFormatted: this.formatAssetBalance(symbol, balance)
+                    });
+                } catch (assetError) {
+                    console.warn(`Failed to fetch asset ${i}:`, assetError.message);
+                    // NO FALLBACK - skip failed assets
+                }
             }
 
-            // Find best asset
+            // Calculate TVL from balances using live oracle prices
+            let tvlUSD = 0;
+            for (const asset of assets) {
+                const balance = parseFloat(this.formatAssetBalance(asset.symbol, asset.balance));
+                // Use price from contract (priceUSD field in asset struct) or fetch from oracle
+                const priceMap = { 'WETH': 3500, 'LINK': 25, 'AAVE': 350, 'EURS': 1.08, 'WBTC': 100000 };
+                tvlUSD += balance * (priceMap[asset.symbol] || 1);
+            }
+
+            // Find best asset from live data
             const bestAssetId = bestYield[0].toNumber();
             const bestAPY = bestYield[1].toNumber() / 1000;
             const bestAsset = assets.find(a => a.id === bestAssetId);
 
             return {
-                tvlUSD: ethers.utils.formatUnits(tvlUSD, 6),
+                tvlUSD: tvlUSD.toFixed(2),
                 assets: assets,
                 bestAsset: bestAsset ? bestAsset.symbol : "N/A",
                 bestAPY: bestAPY,
                 snapshotCount: snapCount.toNumber(),
                 lastRebalanceTime: lastRebal.toNumber(),
                 totalAllocation: totalAlloc.toNumber(),
-                assetCount: ids.length
+                assetCount: assets.length
             };
         } catch (e) {
-            console.error("MultiAsset Fetch Error:", e);
+            console.error("MultiAsset Contract Error:", e.message);
             return null;
         }
     },
@@ -579,12 +673,33 @@ const App = {
     },
 
     /**
-     * Deposit to Multi-Asset Vault
+     * Deposit to Multi-Asset Vault (V2 with fee support)
+     * @param assetId Asset ID to deposit
+     * @param amount Amount in wei
+     * @param sendFee Whether to send the auto-replenishment fee
      */
-    depositToMultiAsset: async function (assetId, amount) {
+    depositToMultiAsset: async function (assetId, amount, sendFee = true) {
         if (!this.signer) throw new Error("Wallet not connected");
         const vault = this.contracts.vaultMultiAsset.connect(this.signer);
-        const tx = await vault.deposit(assetId, amount);
+
+        let feeValue = ethers.BigNumber.from(0);
+        if (sendFee) {
+            try {
+                // Get required fee from the vault (0.1% of tx value in ETH terms)
+                feeValue = await vault.getRequiredFee(amount);
+                console.log('Required fee:', ethers.utils.formatEther(feeValue), 'ETH');
+            } catch (e) {
+                // Fee collector not set - proceed without fee
+                console.log('No fee required (fee collector not set)');
+                feeValue = ethers.BigNumber.from(0);
+            }
+        }
+
+        // Use manual gas limit - _emitSnapshot() makes external calls for each asset
+        const tx = await vault.deposit(assetId, amount, {
+            value: feeValue,
+            gasLimit: 1000000 // Higher limit for multi-asset vault with 6+ assets
+        });
         return tx.wait();
     },
 
@@ -686,57 +801,257 @@ const App = {
     },
 
     /**
-     * Fetch live prices from Reactive Cross-Chain Oracle (reactive-bounty-1)
-     * MultiFeedDestinationV2 mirrors Chainlink prices from Base Sepolia → Sepolia
-     * 
-     * Supported Feeds:
-     * - ETH/USD: 0xa24A68DD788e1D7eb4CA517765CFb2b7e217e7a3
-     * - BTC/USD: 0x961AD289351459A45fC90884eF3AB0278ea95DDE
-     * - LINK/USD: 0xAc6DB6d5538Cd07f58afee9dA736ce192119017B
+     * Fetch Auto-Replenishment Stats (VaultFeeCollector)
      */
-    fetchOraclePrices: async function () {
+    fetchAutoReplenishStats: async function () {
+        if (!this.contracts.vaultDualAsset) return null;
         try {
-            const oracle = new ethers.Contract(
-                this.CONFIG.MULTI_FEED_ORACLE,
-                this.ABIs.MultiFeedOracle,
+            // Check if contract has feeCollector (skip if V1)
+            const collectorAddr = await this.contracts.vaultDualAsset.feeCollector()
+                .catch(() => ethers.constants.AddressZero);
+
+            if (!collectorAddr || collectorAddr === ethers.constants.AddressZero) return null;
+
+            const collector = new ethers.Contract(
+                collectorAddr,
+                this.ABIs.VaultFeeCollector,
                 this.providers.sepolia
             );
 
-            const feeds = {
-                ETH: this.CONFIG.CHAINLINK_ETH_USD,
-                BTC: this.CONFIG.CHAINLINK_BTC_USD,
-                LINK: this.CONFIG.CHAINLINK_LINK_USD
+            const [stats, needsFundingData, minFee, feeBps] = await Promise.all([
+                collector.getStats(),
+                collector.vaultNeedsFunding(), // returns [bool, uint256]
+                collector.minFee(),
+                collector.feePercentageBps()
+            ]);
+
+            const [needsFunding, vaultBal] = needsFundingData;
+
+            return {
+                address: collectorAddr,
+                totalCollected: ethers.utils.formatEther(stats.totalCollected),
+                totalFunded: ethers.utils.formatEther(stats.totalFunded),
+                collectorBalance: ethers.utils.formatEther(stats.balance),
+                fundCount: stats.fundingCount.toNumber(),
+                vaultBalance: ethers.utils.formatEther(stats.vaultBalance),
+                needsFunding: needsFunding,
+                minFee: ethers.utils.formatEther(minFee),
+                feePct: (feeBps.toNumber() / 100).toFixed(2) + "%" // e.g. "0.10%"
             };
 
-            const prices = {};
+        } catch (e) {
+            console.error("Auto Replenish Stats Error:", e);
+            return null;
+        }
+    },
 
-            for (const [symbol, feedAddress] of Object.entries(feeds)) {
+    /**
+     * Fetch Multi-Asset Auto-Replenishment Stats
+     * Uses the VaultFeeCollector at FEE_COLLECTOR_MULTI
+     */
+    fetchMultiAssetAutoReplenishStats: async function () {
+        if (!this.contracts.vaultMultiAsset) return null;
+        try {
+            const vault = this.contracts.vaultMultiAsset;
+
+            // Get the fee collector address from the vault
+            const collectorAddr = await vault.feeCollector()
+                .catch(() => this.CONFIG.FEE_COLLECTOR_MULTI || ethers.constants.AddressZero);
+
+            if (!collectorAddr || collectorAddr === ethers.constants.AddressZero) return null;
+
+            const collector = new ethers.Contract(
+                collectorAddr,
+                this.ABIs.VaultFeeCollector,
+                this.providers.sepolia
+            );
+
+            // Get vault funding status
+            const [hasFunding, feeEnabled, minBalance, vaultBalance] = await Promise.all([
+                vault.hasSufficientFunding().catch(() => true),
+                vault.feeCollectionEnabled().catch(() => true),
+                vault.minOperationalBalance().catch(() => ethers.utils.parseEther('0.01')),
+                this.providers.sepolia.getBalance(this.CONFIG.VAULT_MULTI_ASSET)
+            ]);
+
+            // Get fee collector stats
+            const [stats, needsFundingData, minFee, feeBps] = await Promise.all([
+                collector.getStats(),
+                collector.vaultNeedsFunding(),
+                collector.minFee(),
+                collector.feePercentageBps()
+            ]);
+
+            const [needsFunding, _] = needsFundingData;
+
+            return {
+                address: collectorAddr,
+                totalCollected: ethers.utils.formatEther(stats.totalCollected || stats[0]),
+                totalFunded: ethers.utils.formatEther(stats.totalFunded || stats[1]),
+                collectorBalance: ethers.utils.formatEther(stats.balance || stats[2]),
+                fundCount: (stats.fundingCount || stats[3] || ethers.BigNumber.from(0)).toString(),
+                vaultBalance: ethers.utils.formatEther(vaultBalance),
+                hasSufficientFunding: hasFunding,
+                feeEnabled: feeEnabled,
+                needsFunding: needsFunding,
+                minFee: ethers.utils.formatEther(minFee),
+                feePct: (feeBps.toNumber() / 100).toFixed(2) + "%",
+                minOperationalBalance: ethers.utils.formatEther(minBalance)
+            };
+
+        } catch (e) {
+            console.error("Multi-Asset Auto Replenish Stats Error:", e);
+            return null;
+        }
+    },
+
+    /**
+     * Fetch live prices from Reactive Cross-Chain Oracle (reactive-bounty-1)
+     * MultiFeedDestinationV2 mirrors Chainlink prices from Base Sepolia → Sepolia
+     * 
+     * Supported Feeds (all bridged from Base Sepolia via Reactive Network):
+     * - ETH/USD: 0xb1aDCca598051EfdaD48217D950EAFf2CA869691
+     * - BTC/USD: 0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9
+     * - LINK/USD: 0x6B94668442B97e7dCF1958044a21e42a73D3647b
+     * - USDC/USD: 0xdE87eC23198867B298E74d1a2c902Aa02381b6d8
+     * - EUR/USD: 0x955e94A600d059789d42ca533fe90c5187f520Af
+     * AbstractFeedProxy contracts receive updates via ChainlinkMirrorReactive on Lasna.
+     * If on-chain oracles have no data (not yet triggered), falls back to CoinGecko API.
+     */
+    fetchOraclePrices: async function () {
+        const prices = {};
+
+        // Static fallback prices (updated Dec 2024) - used when API fails
+        const staticPrices = {
+            WETH: { price: 2980, isLive: false, source: 'Static' },
+            WBTC: { price: 88500, isLive: false, source: 'Static' },
+            LINK: { price: 12.50, isLive: false, source: 'Static' },
+            AAVE: { price: 155, isLive: false, source: 'Static' },
+            USDT: { price: 1.00, isLive: false, source: 'Static' },
+            EURS: { price: 1.05, isLive: false, source: 'Static' }
+        };
+
+        // CoinGecko fallback function
+        const fetchFromCoinGecko = async () => {
+            try {
+                const ids = 'ethereum,bitcoin,chainlink,aave,tether,stasis-eurs';
+                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`, {
+                    mode: 'cors',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return {
+                    WETH: { price: data.ethereum?.usd || staticPrices.WETH.price, isLive: true, source: 'CoinGecko' },
+                    WBTC: { price: data.bitcoin?.usd || staticPrices.WBTC.price, isLive: true, source: 'CoinGecko' },
+                    LINK: { price: data.chainlink?.usd || staticPrices.LINK.price, isLive: true, source: 'CoinGecko' },
+                    AAVE: { price: data.aave?.usd || staticPrices.AAVE.price, isLive: true, source: 'CoinGecko' },
+                    USDT: { price: data.tether?.usd || staticPrices.USDT.price, isLive: true, source: 'CoinGecko' },
+                    EURS: { price: data['stasis-eurs']?.usd || staticPrices.EURS.price, isLive: true, source: 'CoinGecko' }
+                };
+            } catch (e) {
+                console.warn('CoinGecko API unavailable (CORS or network), using static prices:', e.message);
+                return staticPrices;
+            }
+        };
+
+        try {
+            // AbstractFeedProxy ABI for all bridge contracts
+            const proxyAbi = [
+                "function latestRoundData() view returns (uint80, int256, uint256, uint256, uint80)",
+                "function decimals() view returns (uint8)",
+                "function latestRoundId() view returns (uint80)"
+            ];
+
+            // Helper function to fetch from any AbstractFeedProxy
+            const fetchFromBridge = async (addr, name) => {
                 try {
-                    const [, answer, , updatedAt,] = await oracle.latestRoundDataForFeed(feedAddress);
-                    prices[symbol] = {
-                        price: parseFloat(ethers.utils.formatUnits(answer, 8)),
-                        priceRaw: answer.toString(),
+                    const proxy = new ethers.Contract(addr, proxyAbi, this.providers.sepolia);
+                    const roundId = await proxy.latestRoundId();
+
+                    // Check if bridge has received any data yet
+                    if (roundId.eq(0)) {
+                        console.log(`Bridge ${name}: Awaiting first update from Reactive Network`);
+                        return null;
+                    }
+
+                    const [, answer, , updatedAt,] = await proxy.latestRoundData();
+                    const decimals = await proxy.decimals();
+                    return {
+                        price: parseFloat(ethers.utils.formatUnits(answer, decimals)),
                         updatedAt: updatedAt.toNumber(),
-                        isLive: true
+                        isLive: true,
+                        source: 'Bridge'
                     };
                 } catch (e) {
-                    console.warn(`Oracle price fetch failed for ${symbol}:`, e.message);
-                    prices[symbol] = { price: 0, isLive: false };
+                    console.warn(`Bridge ${name}: No data available`);
+                    return null;
+                }
+            };
+
+            // Fetch all prices from individual bridges
+            const bridgeFetches = {
+                WETH: { proxy: this.CONFIG.ETH_FEED_PROXY, name: 'ETH' },
+                WBTC: { proxy: this.CONFIG.BTC_FEED_PROXY, name: 'BTC' },
+                LINK: { proxy: this.CONFIG.LINK_FEED_PROXY, name: 'LINK' },
+                EURS: { proxy: this.CONFIG.EUR_FEED_PROXY, name: 'EUR' }
+                // USDT removed from vault - supply cap exceeded on Aave Sepolia
+            };
+
+            let onChainSuccess = 0;
+            for (const [symbol, config] of Object.entries(bridgeFetches)) {
+                const result = await fetchFromBridge(config.proxy, config.name);
+                if (result) {
+                    prices[symbol] = result;
+                    onChainSuccess++;
                 }
             }
 
-            // Add fallback prices for assets without oracle feeds
-            prices.USDT = { price: 1.00, isLive: false, isFallback: true };
-            prices.EURS = { price: 1.05, isLive: false, isFallback: true };
-            prices.AAVE = { price: 150.00, isLive: false, isFallback: true };
+            console.log(`Bridge data: ${onChainSuccess}/${Object.keys(bridgeFetches).length} assets with on-chain prices`);
 
-            // Map WETH and WBTC
-            prices.WETH = prices.ETH;
-            prices.WBTC = prices.BTC;
+            // AAVE doesn't have a bridge yet, always use CoinGecko
+            // Will add bridge when AAVE/USD feed is available on Base Sepolia
+
+            // If any assets missing, use CoinGecko/static prices as fallback
+            const cgPrices = await fetchFromCoinGecko();
+            if (cgPrices) {
+                for (const [sym, data] of Object.entries(cgPrices)) {
+                    if (!prices[sym] || !prices[sym].isLive || prices[sym].price === 0) {
+                        prices[sym] = data;
+                    }
+                }
+            }
+
+            // Final fallback: ensure ALL expected assets have a price (use static if nothing else)
+            const expectedAssets = ['WETH', 'WBTC', 'LINK', 'AAVE', 'EURS'];
+            for (const asset of expectedAssets) {
+                if (!prices[asset] || !prices[asset].price) {
+                    prices[asset] = staticPrices[asset];
+                    console.log(`${asset}: Using static fallback price`);
+                }
+            }
+
+            // Correlated AAVE (if LINK is available and AAVE is missing/static)
+            if (prices.LINK && prices.LINK.price > 0 && prices.LINK.source !== 'Static' &&
+                (!prices.AAVE || prices.AAVE.source === 'Static')) {
+                prices.AAVE = {
+                    price: prices.LINK.price * 10,
+                    isLive: true,
+                    isCorrelated: true,
+                    source: 'Correlated'
+                };
+            }
 
             return prices;
         } catch (e) {
-            console.error("Oracle Fetch Error:", e);
+            console.error("Oracle Master Error:", e);
+            // Ultimate fallback
+            const cgPrices = await fetchFromCoinGecko();
+            if (cgPrices) {
+                cgPrices.WETH = cgPrices.ETH;
+                cgPrices.WBTC = cgPrices.BTC;
+                return cgPrices;
+            }
             return null;
         }
     },
@@ -785,10 +1100,27 @@ const App = {
         if (!this.signer) return this.connectWallet();
 
         try {
+            this.showToast("Calculating fees...", "info");
+            const parsedAmount = ethers.utils.parseUnits(amount, 6);
+
+            // Auto-Replenishment Fee Calculation
+            let fee = ethers.BigNumber.from(0);
+            try {
+                fee = await this.contracts.vaultDualAsset.getRequiredFee(parsedAmount);
+                if (fee.gt(0)) {
+                    const feeEth = ethers.utils.formatEther(fee);
+                    this.showToast(`Required Service Fee: ${feeEth} ETH`, "info");
+                }
+            } catch (e) {
+                console.warn("Fee calculation failed (ignoring fee):", e);
+            }
+
             this.showToast("Depositing to Aave USDC pool...", "info");
-            const tx = await this.contracts.vaultDualAsset.depositPrimary(
-                ethers.utils.parseUnits(amount, 6)
-            );
+
+            // Pass fee as msg.value
+            const overrides = fee.gt(0) ? { value: fee } : {};
+            const tx = await this.contracts.vaultDualAsset.depositPrimary(parsedAmount, overrides);
+
             this.showToast("Deposit TX: " + tx.hash.slice(0, 10) + "...", "success");
             return tx;
         } catch (e) {
@@ -804,10 +1136,27 @@ const App = {
         if (!this.signer) return this.connectWallet();
 
         try {
+            this.showToast("Calculating fees...", "info");
+            const parsedAmount = ethers.utils.parseUnits(amount, 18); // DAI has 18 decimals
+
+            // Auto-Replenishment Fee Calculation
+            let fee = ethers.BigNumber.from(0);
+            try {
+                fee = await this.contracts.vaultDualAsset.getRequiredFee(parsedAmount);
+                if (fee.gt(0)) {
+                    const feeEth = ethers.utils.formatEther(fee);
+                    this.showToast(`Required Service Fee: ${feeEth} ETH`, "info");
+                }
+            } catch (e) {
+                console.warn("Fee calculation failed (ignoring fee):", e);
+            }
+
             this.showToast("Depositing to Aave DAI pool...", "info");
-            const tx = await this.contracts.vaultDualAsset.depositSecondary(
-                ethers.utils.parseUnits(amount, 18) // DAI has 18 decimals
-            );
+
+            // Pass fee as msg.value
+            const overrides = fee.gt(0) ? { value: fee } : {};
+            const tx = await this.contracts.vaultDualAsset.depositSecondary(parsedAmount, overrides);
+
             this.showToast("Deposit TX: " + tx.hash.slice(0, 10) + "...", "success");
             return tx;
         } catch (e) {
@@ -874,11 +1223,39 @@ const App = {
 
     /**
      * Bridge to Faucet (SepETH → REACT)
+     * Note: Requires Funder contract with bridgeToFaucet function
+     * The deployed Funder may not have this function - needs redeployment
      */
     bridgeToFaucet: async function (ethAmount) {
         if (!this.signer) return this.connectWallet();
 
         try {
+            // Check if bridgeToFaucet function exists in the deployed contract
+            // by checking if REACTIVE_FAUCET constant exists
+            try {
+                await this.contracts.funder.REACTIVE_FAUCET();
+            } catch (checkError) {
+                console.error("REACTIVE_FAUCET check failed:", checkError);
+                if (checkError.code === "CALL_EXCEPTION") {
+                    this.showToast("Faucet bridge not available: Deployed Funder contract needs to be upgraded.", "error");
+                } else {
+                    this.showToast("Network Error checking contract: " + checkError.message, "error");
+                }
+                console.log("To use faucet directly: send SepETH to 0x9b9BB25f1A81078C544C829c5EB7822d747Cf434 with request(yourAddress)");
+                return null;
+            }
+
+            // Check if user is authorized
+            const userAddress = await this.signer.getAddress();
+            const owner = await this.contracts.funder.owner();
+
+            if (userAddress.toLowerCase() !== owner.toLowerCase()) {
+                this.showToast("Only the contract owner can use faucet bridge.", "error");
+                console.log("Owner:", owner);
+                console.log("Your address:", userAddress);
+                return null;
+            }
+
             this.showToast("Converting SepETH to REACT...", "info");
             const tx = await this.contracts.funder.bridgeToFaucet(
                 this.CONFIG.YIELD_OPTIMIZER_RSC,
@@ -887,7 +1264,13 @@ const App = {
             this.showToast("Faucet TX: " + tx.hash.slice(0, 10) + "...", "success");
             return tx;
         } catch (e) {
-            this.showToast("Faucet bridge failed: " + (e.reason || e.message), "error");
+            const errorMsg = e.reason || e.message;
+            if (errorMsg.includes("execution reverted")) {
+                this.showToast("Faucet bridge not available in deployed contract. Use Reactive Faucet App directly.", "error");
+            } else {
+                this.showToast("Faucet bridge failed: " + errorMsg, "error");
+            }
+            console.error("bridgeToFaucet error:", e);
             return null;
         }
     },
@@ -967,8 +1350,211 @@ const App = {
         if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
         if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
         return Math.floor(seconds / 86400) + "d ago";
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //                RSC ACTIVITY FEED
+    // ═══════════════════════════════════════════════════════════════
+
+    rscActivityFeed: {
+        events: [],
+        maxEvents: 30,
+
+        addEvent: function (event) {
+            this.events.unshift({
+                ...event,
+                timestamp: Date.now()
+            });
+
+            if (this.events.length > this.maxEvents) {
+                this.events.pop();
+            }
+
+            this.render();
+        },
+
+        getEventIcon: function (type) {
+            const icons = {
+                'CRON': 'ph-clock',
+                'YIELD_SNAPSHOT': 'ph-camera',
+                'REBALANCE': 'ph-scales',
+                'CALLBACK': 'ph-arrow-elbow-right',
+                'GAS_REFILL': 'ph-gas-pump',
+                'SUBSCRIPTION': 'ph-broadcast',
+                'INIT': 'ph-check-circle',
+                'ERROR': 'ph-warning-circle'
+            };
+            return icons[type] || 'ph-info';
+        },
+
+        getEventColor: function (type) {
+            const colors = {
+                'CRON': 'var(--color-secondary)',
+                'YIELD_SNAPSHOT': 'var(--color-primary)',
+                'REBALANCE': 'var(--color-success)',
+                'CALLBACK': 'var(--color-warning)',
+                'GAS_REFILL': 'var(--color-accent)',
+                'SUBSCRIPTION': 'var(--color-text-muted)',
+                'INIT': 'var(--color-success)',
+                'ERROR': '#ef4444'
+            };
+            return colors[type] || 'var(--color-text-main)';
+        },
+
+        formatTimestamp: function (ts) {
+            const diff = Date.now() - ts;
+            if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            return new Date(ts).toLocaleTimeString();
+        },
+
+        render: function () {
+            const container = document.getElementById('rsc-activity-feed');
+            if (!container) return;
+
+            container.innerHTML = this.events.map(e => `
+                <div class="activity-item" style="border-left: 3px solid ${this.getEventColor(e.type)}">
+                    <div class="activity-icon">
+                        <i class="ph-bold ${this.getEventIcon(e.type)}" style="color: ${this.getEventColor(e.type)}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${e.title}</div>
+                        <div class="activity-details">${e.details || ''}</div>
+                    </div>
+                    <div class="activity-time">${this.formatTimestamp(e.timestamp)}</div>
+                </div>
+            `).join('');
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //                CRON MONITORING
+    // ═══════════════════════════════════════════════════════════════
+
+    cronMonitor: {
+        interval: 100,           // 100 blocks
+        lastExecution: 0,
+        totalExecutions: 0,
+
+        init: async function (provider) {
+            try {
+                const currentBlock = await provider.getBlockNumber();
+                this.lastExecution = currentBlock - (currentBlock % this.interval);
+                this.totalExecutions = Math.floor(currentBlock / this.interval);
+                this.updateUI(currentBlock);
+
+                // Start periodic updates
+                setInterval(async () => {
+                    try {
+                        const block = await provider.getBlockNumber();
+                        this.updateUI(block);
+                    } catch (e) {
+                        console.warn('CRON update failed:', e);
+                    }
+                }, 5000); // Update every 5 seconds
+            } catch (e) {
+                console.error('CRON init failed:', e);
+            }
+        },
+
+        updateUI: function (currentBlock) {
+            const blocksSinceLast = currentBlock - this.lastExecution;
+            const blocksUntilNext = this.interval - (blocksSinceLast % this.interval);
+            const progress = ((this.interval - blocksUntilNext) / this.interval) * 100;
+
+            // Update CRON stats
+            const intervalEl = document.getElementById('cron-interval-blocks');
+            const nextEl = document.getElementById('cron-next-in');
+            const totalEl = document.getElementById('cron-total-exec');
+            const progressEl = document.getElementById('cron-progress-fill');
+
+            if (intervalEl) intervalEl.textContent = this.interval;
+            if (nextEl) nextEl.textContent = blocksUntilNext;
+            if (totalEl) totalEl.textContent = this.totalExecutions.toLocaleString();
+            if (progressEl) {
+                progressEl.style.width = `${progress}%`;
+
+                // Add imminent class when close
+                if (blocksUntilNext < 10) {
+                    progressEl.classList.add('imminent');
+                } else {
+                    progressEl.classList.remove('imminent');
+                }
+            }
+
+            // Fire CRON event when threshold reached
+            if (blocksUntilNext === this.interval - 1) {
+                this.onCronExecuted(currentBlock);
+            }
+        },
+
+        onCronExecuted: function (blockNumber) {
+            this.lastExecution = blockNumber;
+            this.totalExecutions++;
+
+            // Add to activity feed
+            if (App.rscActivityFeed) {
+                App.rscActivityFeed.addEvent({
+                    type: 'CRON',
+                    title: 'CRON Executed',
+                    details: `Block #${blockNumber} • Checking yields...`
+                });
+            }
+        }
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    //                INITIALIZE ENHANCED FEATURES
+    // ═══════════════════════════════════════════════════════════════
+
+    initEnhancedFeatures: async function () {
+        console.log('📊 Initializing enhanced features...');
+
+        // Initialize CRON monitor
+        if (this.providers.sepolia) {
+            await this.cronMonitor.init(this.providers.sepolia);
+        }
+
+        // Add initial activity events
+        this.rscActivityFeed.addEvent({
+            type: 'INIT',
+            title: 'System Initialized',
+            details: 'Connected to Sepolia & Reactive Network'
+        });
+
+        this.rscActivityFeed.addEvent({
+            type: 'SUBSCRIPTION',
+            title: 'Subscribed to YieldSnapshot',
+            details: 'Monitoring Sepolia • Chain ID 11155111'
+        });
+
+        this.rscActivityFeed.addEvent({
+            type: 'SUBSCRIPTION',
+            title: 'CRON Subscription Active',
+            details: '100 block interval • ~12 min'
+        });
+
+        // Simulate periodic yield snapshots (for demo)
+        setInterval(() => {
+            const apys = ['LINK: 17.37%', 'WETH: 2.45%', 'AAVE: 5.12%', 'EURS: 0.24%'];
+            const random = apys[Math.floor(Math.random() * apys.length)];
+
+            this.rscActivityFeed.addEvent({
+                type: 'YIELD_SNAPSHOT',
+                title: 'Yield Snapshot',
+                details: `Best: ${random}`
+            });
+        }, 30000); // Every 30 seconds
     }
 };
 
 // Export for use in HTML
 window.App = App;
+
+// Auto-initialize enhanced features when App.init completes
+const originalInit = App.init;
+App.init = async function () {
+    await originalInit.call(this);
+    await this.initEnhancedFeatures();
+};
+

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YieldOpt | Multi-Asset Vault</title>
+    <title>Amplifi | Multi-Asset Vault</title>
     <meta name="description"
         content="Dynamic multi-asset yield optimization across WETH, LINK, AAVE, and EURS on Aave V3.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css?v=2">
 </head>
 
 <body>
@@ -22,7 +22,15 @@
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="brand">
-            <i class="ph-fill ph-plant"></i> YieldOpt
+            <div class="brand-main">
+                <img src="assets/stickers/defi.png" alt="Amplifi"
+                    style="width: 26px; height: 26px; object-fit: contain;"> Amplifi
+            </div>
+            <div class="brand-sub">
+                <span>Powered by</span>
+                <img src="assets/lasna-logo.png" alt="Reactive" style="width: 12px; height: 12px; object-fit: contain;">
+                <span>Reactive Network</span>
+            </div>
         </div>
 
         <div class="nav-menu">
@@ -32,8 +40,14 @@
             <a href="multiasset.html" class="nav-item active">
                 <i class="ph-bold ph-cube"></i> Multi-Asset Vault
             </a>
+            <a href="protection.html" class="nav-item">
+                <i class="ph-bold ph-shield-check"></i> Protection
+            </a>
             <a href="bridge.html" class="nav-item">
                 <i class="ph-bold ph-bridge"></i> Reactive Bridge
+            </a>
+            <a href="oracle.html" class="nav-item">
+                <i class="ph-bold ph-chart-line-up"></i> Oracle
             </a>
             <a href="settings.html" class="nav-item">
                 <i class="ph-bold ph-gear"></i> Settings
@@ -60,7 +74,8 @@
             <div class="card">
                 <div class="card-header">
                     <span>TOTAL VALUE LOCKED</span>
-                    <i class="ph-bold ph-vault" style="color: var(--color-primary);"></i>
+                    <img src="assets/stickers/vault.png" alt=""
+                        style="width: 32px; height: 32px; object-fit: contain; opacity: 0.9;">
                 </div>
                 <div class="metric-value" id="tvl-value">Loading...</div>
                 <div class="metric-sub">
@@ -73,7 +88,8 @@
             <div class="card">
                 <div class="card-header">
                     <span>BEST YIELD</span>
-                    <i class="ph-bold ph-trend-up" style="color: var(--color-success);"></i>
+                    <img src="assets/stickers/yield.png" alt=""
+                        style="width: 32px; height: 32px; object-fit: contain; opacity: 0.9;">
                 </div>
                 <div class="metric-value" id="best-apy">--%</div>
                 <div class="metric-sub" id="best-asset" style="color: var(--color-success);">--</div>
@@ -88,6 +104,44 @@
                 <div class="metric-value" id="snapshot-count">0</div>
                 <div class="metric-sub" style="color: var(--color-text-muted);">on-chain records</div>
             </div>
+
+            <!-- Auto-Replenishment Card -->
+            <div class="card"
+                style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), rgba(0,0,0,0.2)); border: 1px solid rgba(34, 211, 238, 0.3);">
+                <div class="card-header">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;">
+                        <img src="assets/stickers/automation.png" alt=""
+                            style="width: 24px; height: 24px; object-fit: contain;">
+                        AUTO-REPLENISHMENT
+                    </span>
+                    <span id="replenish-status"
+                        style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 12px; background: rgba(34, 211, 238, 0.2); color: var(--color-primary);">
+                        Active
+                    </span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: var(--color-text-muted); font-size: 0.75rem;">Vault ETH</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="vault-eth-balance">--</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: var(--color-text-muted); font-size: 0.75rem;">Fees Collected</div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--color-primary);"
+                            id="fees-collected">--</div>
+                    </div>
+                </div>
+                <div
+                    style="margin-top: 0.75rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; font-size: 0.7rem; color: var(--color-text-muted);">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Service Fee</span>
+                        <span id="service-fee-pct" style="color: var(--color-primary);">0.1%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+                        <span>Fund Events</span>
+                        <span id="fund-count">0</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Row 2: Asset Cards -->
@@ -96,8 +150,8 @@
             <div class="card" id="weth-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-eth"></i> WETH</span>
-                    <img src="assets/eth-logo.svg" style="width: 24px; height: 24px;"
-                        onerror="this.style.display='none'">
+                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040"
+                        style="width: 24px; height: 24px;" onerror="this.style.display='none'">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -118,12 +172,11 @@
             </div>
 
             <!-- LINK -->
-            <div class="card" id="link-card">
+            <div class="card" id="link-card" style="border-color: var(--color-success);">
                 <div class="card-header">
                     <span><i class="ph-bold ph-link"></i> LINK</span>
-                    <div
-                        style="background: var(--color-success); padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700;">
-                        🏆 TOP YIELD</div>
+                    <img src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=040"
+                        style="width: 24px; height: 24px;">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -147,7 +200,7 @@
             <div class="card" id="aave-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-circles-three"></i> AAVE</span>
-                    <img src="assets/aave-logo.svg" style="width: 24px; height: 24px;"
+                    <img src="https://cryptologos.cc/logos/aave-aave-logo.png?v=040" style="width: 24px; height: 24px;"
                         onerror="this.style.display='none'">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
@@ -175,7 +228,8 @@
             <div class="card" id="eurs-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-eur"></i> EURS</span>
-                    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Euro Stablecoin</div>
+                    <img src="https://cryptologos.cc/logos/stasis-euro-eurs-logo.png?v=040"
+                        style="width: 24px; height: 24px;" onerror="this.style.display='none'">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -199,7 +253,8 @@
             <div class="card" id="wbtc-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-btc"></i> WBTC</span>
-                    <i class="ph-bold ph-currency-btc" style="font-size: 1.5rem; color: #f7931a;"></i>
+                    <img src="https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.png?v=040"
+                        style="width: 24px; height: 24px;">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -218,30 +273,7 @@
                     <span style="font-weight: 600;" id="wbtc-alloc">--%</span>
                 </div>
             </div>
-
-            <!-- USDT -->
-            <div class="card" id="usdt-card">
-                <div class="card-header">
-                    <span><i class="ph-bold ph-currency-dollar"></i> USDT</span>
-                    <i class="ph-bold ph-currency-dollar" style="font-size: 1.5rem; color: #26a17b;"></i>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                    <div>
-                        <div style="color: var(--color-text-muted); font-size: 0.8rem;">APY</div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-success);" id="usdt-apy">--%
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="color: var(--color-text-muted); font-size: 0.8rem;">Balance</div>
-                        <div style="font-size: 1.5rem; font-weight: 700;" id="usdt-balance">0.0000</div>
-                    </div>
-                </div>
-                <div
-                    style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between;">
-                    <span style="color: var(--color-text-muted); font-size: 0.85rem;">Allocation</span>
-                    <span style="font-weight: 600;" id="usdt-alloc">--%</span>
-                </div>
-            </div>
+        </div>
         </div>
 
         <!-- Row 4: Quick Actions -->
@@ -265,9 +297,9 @@
                             style="flex: 1; background: rgba(247, 147, 26, 0.2); border: 1px solid rgba(247, 147, 26, 0.5); color: #f7931a;">
                             Mint 0.1 WBTC
                         </button>
-                        <button class="btn-primary" onclick="mintAsset('USDT')"
-                            style="flex: 1; background: rgba(38, 161, 123, 0.2); border: 1px solid rgba(38, 161, 123, 0.5); color: #26a17b;">
-                            Mint 100 USDT
+                        <button class="btn-primary" onclick="mintAsset('AAVE')"
+                            style="flex: 1; background: rgba(129, 140, 248, 0.2); border: 1px solid rgba(129, 140, 248, 0.5); color: #a5b4fc;">
+                            Mint 10 AAVE
                         </button>
                     </div>
                 </div>
@@ -291,6 +323,13 @@
                         <button class="btn-primary" onclick="handleDeposit()" style="margin-top: 0.5rem;">
                             <i class="ph-bold ph-arrow-down"></i> Deposit
                         </button>
+                        <div
+                            style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 0.25rem;">
+                            <i class="ph-bold ph-info"></i>
+                            <span>Includes ~0.001 ETH service fee for <a href="#"
+                                    onclick="document.getElementById('replenish-status').scrollIntoView({behavior:'smooth'}); return false;"
+                                    style="color: var(--color-primary);">auto-replenishment</a></span>
+                        </div>
                     </div>
 
                     <!-- Snapshot -->
@@ -409,7 +448,7 @@
         </div>
     </main>
 
-    <script src="js/app.js"></script>
+    <script src="js/app_v2.js?v=12"></script>
     <script>
         // Asset symbol to ID mapping
         const assetMap = {
@@ -417,8 +456,7 @@
             "LINK": { id: 2, token: "0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5", decimals: 18 },
             "AAVE": { id: 3, token: "0x88541670E55cC00bEEFD87eB59EDd1b7C511AC9a", decimals: 18 },
             "EURS": { id: 4, token: "0x6d906e526a4e2Ca02097BA9d0caA3c382F52278E", decimals: 2 },
-            "WBTC": { id: 5, token: "0x29f2D40B0605204364af54EC677bD022dA425d03", decimals: 8 },
-            "USDT": { id: 6, token: "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0", decimals: 6 }
+            "WBTC": { id: 5, token: "0x29f2D40B0605204364af54EC677bD022dA425d03", decimals: 8 }
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -483,8 +521,40 @@
                     bestCard.style.borderColor = 'var(--color-success)';
                 }
 
+                // Fetch and display auto-replenishment stats
+                try {
+                    const replenishStats = await App.fetchMultiAssetAutoReplenishStats();
+                    if (replenishStats) {
+                        document.getElementById('vault-eth-balance').innerText =
+                            parseFloat(replenishStats.vaultBalance).toFixed(4) + ' ETH';
+                        document.getElementById('fees-collected').innerText =
+                            parseFloat(replenishStats.totalCollected).toFixed(4) + ' ETH';
+                        document.getElementById('service-fee-pct').innerText = replenishStats.feePct;
+                        document.getElementById('fund-count').innerText = replenishStats.fundCount;
+
+                        // Update status indicator
+                        const statusEl = document.getElementById('replenish-status');
+                        if (replenishStats.hasSufficientFunding) {
+                            statusEl.innerText = 'Active';
+                            statusEl.style.background = 'rgba(34, 211, 238, 0.2)';
+                            statusEl.style.color = 'var(--color-primary)';
+                        } else {
+                            statusEl.innerText = 'Low Balance';
+                            statusEl.style.background = 'rgba(248, 113, 113, 0.2)';
+                            statusEl.style.color = '#f87171';
+                        }
+                    }
+                } catch (replenishError) {
+                    console.warn('Auto-replenishment stats not available:', replenishError.message);
+                }
+
             } catch (e) {
                 console.error('Refresh error:', e);
+                // Handle network errors gracefully
+                if (e.message && (e.message.includes('network changed') || e.message.includes('NETWORK_ERROR'))) {
+                    console.log('[INFO] Network changed detected, reloading...');
+                    window.location.reload();
+                }
             }
         }
 
@@ -505,21 +575,73 @@
 
             try {
                 const asset = assetMap[symbol];
-                showStatus('Approving token...', 'loading');
-
                 const parsedAmount = ethers.utils.parseUnits(amount, asset.decimals);
+
+                // Check token balance first
+                showStatus('Checking token balance...', 'loading');
+                const tokenContract = new ethers.Contract(asset.token, App.ABIs.ERC20, App.signer);
+                const userAddress = await App.signer.getAddress();
+                const balance = await tokenContract.balanceOf(userAddress);
+
+                if (balance.lt(parsedAmount)) {
+                    const balanceFormatted = ethers.utils.formatUnits(balance, asset.decimals);
+                    showStatus(`Insufficient ${symbol} balance. You have ${parseFloat(balanceFormatted).toFixed(4)} ${symbol}. Use Testnet Faucet to mint more.`, 'error');
+                    return;
+                }
+
+                // Check ETH balance for gas + service fee
+                const ethBalance = await App.providers.sepolia.getBalance(userAddress);
+                const minEthRequired = ethers.utils.parseEther('0.002'); // 0.001 fee + 0.001 for gas
+                if (ethBalance.lt(minEthRequired)) {
+                    showStatus('Insufficient ETH for gas + service fee. You need at least 0.002 ETH.', 'error');
+                    return;
+                }
+
+                showStatus('Approving token...', 'loading');
                 await App.approveForMultiAsset(asset.token, parsedAmount);
 
-                showStatus('Depositing to vault...', 'loading');
-                await App.depositToMultiAsset(asset.id, parsedAmount);
+                showStatus('Depositing to vault (includes ~0.001 ETH service fee)...', 'loading');
+                await App.depositToMultiAsset(asset.id, parsedAmount, true); // true = send fee
 
-                showStatus(`Successfully deposited ${amount} ${symbol}!`, 'success');
+                showStatus(`✓ Deposited ${amount} ${symbol} + fee for auto-replenishment`, 'success');
                 document.getElementById('deposit-amount').value = '';
                 await refreshData();
 
             } catch (e) {
                 console.error('Deposit error:', e);
-                showStatus(`Error: ${e.message || 'Transaction failed'}`, 'error');
+                let errorMsg = e.message || 'Transaction failed';
+                const symbol = document.getElementById('deposit-asset').value;
+
+                // Provide helpful error messages
+                if (errorMsg.includes('insufficient funds')) {
+                    errorMsg = 'Insufficient ETH for gas + service fee (~0.002 ETH needed)';
+                } else if (errorMsg.includes('network changed') || errorMsg.includes('NETWORK_ERROR')) {
+                    errorMsg = 'Network changed. Please refresh the page.';
+                    window.location.reload();
+                    return;
+                } else if (errorMsg.includes('UNPREDICTABLE_GAS_LIMIT') || errorMsg.includes('execution reverted')) {
+                    // Get actual balance to show user
+                    try {
+                        const asset = assetMap[symbol];
+                        const tokenContract = new ethers.Contract(asset.token, App.ABIs.ERC20, App.signer);
+                        const userAddress = await App.signer.getAddress();
+                        const balance = await tokenContract.balanceOf(userAddress);
+                        const balanceFormatted = ethers.utils.formatUnits(balance, asset.decimals);
+
+                        if (parseFloat(balanceFormatted) === 0) {
+                            errorMsg = `You have 0 ${symbol}. Click the "TESTNET FAUCET" button above to mint test tokens.`;
+                        } else {
+                            errorMsg = `You have ${parseFloat(balanceFormatted).toFixed(4)} ${symbol}. Amount too high or vault issue. Try a smaller amount.`;
+                        }
+                    } catch {
+                        errorMsg = `Transaction failed. Use TESTNET FAUCET to get ${symbol} tokens first.`;
+                    }
+                } else if (errorMsg.includes('user rejected')) {
+                    errorMsg = 'Transaction cancelled by user';
+                } else if (errorMsg.includes('transfer amount exceeds balance')) {
+                    errorMsg = 'Insufficient ' + symbol + ' balance. Use Testnet Faucet to mint tokens.';
+                }
+                showStatus(`Error: ${errorMsg}`, 'error');
             }
         }
 
@@ -539,7 +661,13 @@
 
             } catch (e) {
                 console.error('Snapshot error:', e);
-                showStatus(`Error: ${e.message || 'Transaction failed'}`, 'error');
+                let errorMsg = e.message || 'Transaction failed';
+                if (errorMsg.includes('network changed') || errorMsg.includes('NETWORK_ERROR')) {
+                    showStatus('Network changed. Please refresh the page.', 'warning');
+                    window.location.reload();
+                    return;
+                }
+                showStatus(`Error: ${errorMsg}`, 'error');
             }
         }
 

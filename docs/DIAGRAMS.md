@@ -7,10 +7,12 @@
 ## Table of Contents
 
 1. [System Overview](#system-overview)
-2. [Oracle Infrastructure](#oracle-infrastructure)
-3. [Vault Operations](#vault-operations)
-4. [Reactive Smart Contracts](#reactive-smart-contracts)
-5. [Self-Sustaining Gas](#self-sustaining-gas)
+2. [Cross-Chain Architecture](#cross-chain-architecture)
+3. [Oracle Infrastructure](#oracle-infrastructure)
+4. [Vault Operations](#vault-operations)
+5. [Reactive Smart Contracts](#reactive-smart-contracts)
+6. [Self-Sustaining Gas](#self-sustaining-gas)
+7. [Contract Deployment](#contract-deployment)
 
 ---
 
@@ -23,16 +25,38 @@
 The YieldOpt system spans multiple blockchains:
 - **Ethereum Sepolia**: Main DeFi operations, Aave V3 integration
 - **Lasna (Reactive Network)**: Autonomous monitoring and callbacks
-- **Base Sepolia & Polygon Amoy**: Chainlink price feed sources
+- **Base Sepolia**: Chainlink price feed sources
 
 ### Contract Relationships
 
 ![Contract Classes](./diagrams/contract-classes.png)
 
 Key contract interactions:
-- `YieldVaultMultiAsset` ← monitors → `YieldOptimizerRsc`
-- `UnifiedPriceOracle` ← queries → `AbstractFeedProxy`
-- `Funder` ← monitors → `ReactiveFunderRC`
+- `YieldVaultMultiAsset` monitors `YieldOptimizerRsc`
+- `AbstractFeedProxy` queries from `ChainlinkMirrorReactive`
+- `Funder` monitors `ReactiveFunderRC`
+
+---
+
+## Cross-Chain Architecture
+
+### Complete System Flow
+
+![Cross-Chain Architecture](./diagrams/cross-chain-architecture.png)
+
+The cross-chain architecture shows:
+1. Chainlink aggregators on Base Sepolia emit price updates
+2. ChainlinkMirrorReactive contracts on Lasna detect and process events
+3. Callbacks update AbstractFeedProxy contracts on Sepolia
+4. Vault consumes price data for TVL calculations
+
+### Contract Deployment Map
+
+![Contract Deployment Map](./diagrams/contract-deployment-map.png)
+
+Complete deployment map showing all contracts across:
+- Ethereum Sepolia (8 contracts)
+- Lasna Network (4 contracts)
 
 ---
 
@@ -42,32 +66,53 @@ Key contract interactions:
 
 ![Unified Oracle](./diagrams/unified-oracle.png)
 
-The `UnifiedPriceOracle` aggregates prices from multiple sources:
-- **MultiFeed** (reactive-bounty-1): ETH, BTC, LINK from Base Sepolia
-- **AbstractFeedProxy** (aggreatorv3-bridge): USDC, EUR from multiple chains
-- **Correlated**: AAVE derived from LINK × 10x
+The price oracle aggregates from multiple sources:
+- **AbstractFeedProxy**: ETH, BTC, LINK, USDC, EUR from bridge
+- **CoinGecko**: AAVE fallback price
+- **Correlated**: Derived prices when needed
 
 ### Oracle Bridge Flow
 
 ![Oracle Bridge Flow](./diagrams/oracle-bridge-flow.png)
 
 Cross-chain price bridging architecture:
-1. Chainlink emits `AnswerUpdated` on origin chain
+1. Chainlink emits `AnswerUpdated` on Base Sepolia
 2. `ChainlinkMirrorReactive` on Lasna detects event
 3. Callback triggers `updateFromBridge` on `AbstractFeedProxy`
-4. `UnifiedPriceOracle` queries updated price
+4. Frontend queries updated price
+
+### Oracle Bridge Sequence
+
+![Oracle Bridge Sequence](./diagrams/oracle-bridge-sequence.png)
+
+Detailed sequence diagram showing:
+- Phase 1: Event Detection
+- Phase 2: Reactive Processing
+- Phase 3: Cross-Chain Delivery
+- Phase 4: Data Consumption
 
 ### Multi-Asset Support
 
 ![Multi-Asset Support](./diagrams/multi-asset-support.png)
 
-All 6 supported assets with their oracle sources and live prices.
+All 5 supported assets with their oracle sources and allocations.
 
 ---
 
 ## Vault Operations
 
-### Deposit & Withdraw Flow
+### Deposit Flow Detailed
+
+![Deposit Flow Detailed](./diagrams/deposit-flow-detailed.png)
+
+Complete deposit sequence showing:
+1. User interaction with frontend
+2. MetaMask approval and signing
+3. Token transfer to vault
+4. Aave supply operation
+5. Share issuance
+
+### Vault Operations Overview
 
 ![Vault Operations](./diagrams/vault-operations.png)
 
@@ -114,9 +159,9 @@ Periodic yield monitoring flow:
 ![Rebalancing Logic](./diagrams/rebalancing-logic.png)
 
 Detailed rebalancing sequence:
-1. Collect APYs from both pools
-2. Compare yield difference
-3. Skip if < 0.5% difference
+1. Collect APYs from all assets
+2. Compare yield differences
+3. Skip if below threshold
 4. Queue large rebalances for finality
 5. Execute via callback for normal rebalances
 
@@ -131,7 +176,7 @@ Detailed rebalancing sequence:
 The Reactivate pattern ensures RSCs never run out of gas:
 1. Users pay fees to `Funder` contract
 2. `ReactiveFunderRC` detects fee payments
-3. Triggers bridge to convert SepETH → REACT
+3. Triggers bridge to convert SepETH to REACT
 4. Auto-refills RSC when balance drops below threshold
 
 ### Gas Funding Flow
@@ -142,26 +187,31 @@ Complete gas funding sequence ensuring continuous autonomous operation.
 
 ---
 
-## Deployed Contracts
+## Contract Deployment
 
-### Sepolia (11155111)
+### Ethereum Sepolia (Chain ID: 11155111)
 
-| Contract | Address | Purpose |
-|----------|---------|---------|
-| YieldVaultMultiAsset | `0x...` | Multi-asset vault |
-| UnifiedPriceOracle | `0x...` | Price aggregation |
-| Funder | `0x...` | Fee collection |
-| AbstractFeedProxy (USDC) | `0x60d6a73A46b8bEC9905A9f9E6289EA3E4D40BE0D` | USDC/USD prices |
-| AbstractFeedProxy (EUR) | `0x12c343722303F4B53644661FDC9B8b5B77b10f36` | EUR/USD prices |
+| Contract | Address |
+|----------|---------|
+| YieldVaultMultiAsset | 0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d |
+| YieldVaultCompound | 0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a |
+| Funder | 0x9f7c78a50379dc4d9703b19c708088d5eac5c923 |
+| Callback Proxy | 0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA |
+| ETH AbstractFeedProxy | 0xb1aDCca598051EfdaD48217D950EAFf2CA869691 |
+| BTC AbstractFeedProxy | 0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9 |
+| LINK AbstractFeedProxy | 0x6B94668442B97e7dCF1958044a21e42a73D3647b |
+| USDC AbstractFeedProxy | 0xdE87eC23198867B298E74d1a2c902Aa02381b6d8 |
+| EUR AbstractFeedProxy | 0x955e94A600d059789d42ca533fe90c5187f520Af |
 
-### Lasna (5318007)
+### Lasna Network (Chain ID: 5318007)
 
-| Contract | Address | Purpose |
-|----------|---------|---------|
-| YieldOptimizerRsc | `0x98969559717c24b47A2E4365a569c947a88C4767` | Yield monitoring |
-| ReactiveFunderRC | `0x...` | Gas funding |
-| ChainlinkMirrorReactive (USDC) | `0xA43DC30AfCbb1449278F014d6c4655ACE6883e45` | USDC/USD bridge |
-| ChainlinkMirrorReactive (EUR) | `0xd9a09674C4d86A44C2000e519CDcf33690A207a9` | EUR/USD bridge |
+| Contract | Address |
+|----------|---------|
+| YieldOptimizerRsc | 0x98969559717c24b47A2E4365a569c947a88C4767 |
+| ReactiveFunderRC | 0x1caC802c52Cd82b9988e1163aF46258539280E71 |
+| ETH ChainlinkMirrorReactive | 0x1CdD260983f23c2A29a91134442C499cd3cc29cF |
+| BTC ChainlinkMirrorReactive | 0xa17c0a6abac640ee401ff767efa1cbf31966a848 |
+| LINK ChainlinkMirrorReactive | 0xdb0a8ab7ea10f2d9e1be242718699bee43131274 |
 
 ---
 
@@ -169,23 +219,47 @@ Complete gas funding sequence ensuring continuous autonomous operation.
 
 All diagrams are created using Mermaid and can be found in `docs/diagrams/`:
 
-| Diagram | Source File |
-|---------|-------------|
-| System Architecture | `system-architecture.mmd` |
-| Unified Oracle | `unified-oracle.mmd` |
-| Oracle Bridge Flow | `oracle-bridge-flow.mmd` |
-| Multi-Asset Support | `multi-asset-support.mmd` |
-| Vault Operations | `vault-operations.mmd` |
-| Yield Flow | `yield-flow.mmd` |
-| RSC State Machine | `rsc-state-machine.mmd` |
-| CRON Monitoring | `cron-monitoring.mmd` |
-| Rebalancing Logic | `rebalancing-logic.mmd` |
-| Reactivate Pattern | `reactivate-pattern.mmd` |
-| Gas Funding | `gas-funding.mmd` |
-| Contract Classes | `contract-classes.mmd` |
+| Diagram | Source File | PNG File |
+|---------|-------------|----------|
+| System Architecture | system-architecture.mmd | system-architecture.png |
+| Cross-Chain Architecture | cross-chain-architecture.mmd | cross-chain-architecture.png |
+| Unified Oracle | unified-oracle.mmd | unified-oracle.png |
+| Oracle Bridge Flow | oracle-bridge-flow.mmd | oracle-bridge-flow.png |
+| Oracle Bridge Sequence | oracle-bridge-sequence.mmd | oracle-bridge-sequence.png |
+| Multi-Asset Support | multi-asset-support.mmd | multi-asset-support.png |
+| Deposit Flow Detailed | deposit-flow-detailed.mmd | deposit-flow-detailed.png |
+| Vault Operations | vault-operations.mmd | vault-operations.png |
+| Yield Flow | yield-flow.mmd | yield-flow.png |
+| RSC State Machine | rsc-state-machine.mmd | rsc-state-machine.png |
+| CRON Monitoring | cron-monitoring.mmd | cron-monitoring.png |
+| Rebalancing Logic | rebalancing-logic.mmd | rebalancing-logic.png |
+| Reactivate Pattern | reactivate-pattern.mmd | reactivate-pattern.png |
+| Gas Funding | gas-funding.mmd | gas-funding.png |
+| Contract Classes | contract-classes.mmd | contract-classes.png |
+| Contract Deployment Map | contract-deployment-map.mmd | contract-deployment-map.png |
 
-To regenerate PNGs from Mermaid source:
+---
+
+## Regenerating PNG Files
+
+To regenerate PNGs from Mermaid source files:
+
 ```bash
+# Install mermaid-cli if needed
+npm install -g @mermaid-js/mermaid-cli
+
+# Navigate to diagrams directory
 cd docs/diagrams
+
+# Regenerate single diagram
 mmdc -i diagram-name.mmd -o diagram-name.png -b transparent
+
+# Regenerate all diagrams
+for file in *.mmd; do
+    mmdc -i "$file" -o "${file%.mmd}.png" -b transparent
+done
 ```
+
+---
+
+*Last updated: December 27, 2024*

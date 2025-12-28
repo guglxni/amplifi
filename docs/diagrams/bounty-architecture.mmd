@@ -1,0 +1,24 @@
+flowchart TB
+    subgraph "Implemented Architecture"
+        subgraph ORIGIN["Origin (Base Sepolia)"]
+            CL["Chainlink Price Feeds"]
+        end
+        
+        subgraph REACTIVE["Reactive Layer (Lasna)"]
+            CMR["ChainlinkMirrorReactive"]
+            YOR["YieldOptimizerRsc"]
+        end
+        
+        subgraph DEST["Destination (Sepolia)"]
+            AFP["AbstractFeedProxy"]
+            VMV["YieldVaultMultiAsset"]
+            AAVE["Aave V3 Pools"]
+        end
+    end
+    
+    CL -->|Event| CMR
+    CMR -->|Callback| AFP
+    AFP -->|Price| VMV
+    VMV -->|YieldSnapshot| YOR
+    YOR -->|Rebalance| VMV
+    VMV <-->|Supply/Withdraw| AAVE

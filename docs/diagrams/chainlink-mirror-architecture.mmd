@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph "Base Sepolia"
+        ETH_AGG["ETH/USD Aggregator"]
+        BTC_AGG["BTC/USD Aggregator"]
+        LINK_AGG["LINK/USD Aggregator"]
+    end
+    
+    subgraph "Lasna Network"
+        ETH_M["ETH Mirror<br/>0x1CdD260983..."]
+        BTC_M["BTC Mirror<br/>0xa17c0a6aba..."]
+        LINK_M["LINK Mirror<br/>0xdb0a8ab7ea..."]
+    end
+    
+    subgraph "Sepolia"
+        ETH_P2["ETH Proxy"]
+        BTC_P2["BTC Proxy"]
+        LINK_P2["LINK Proxy"]
+    end
+    
+    ETH_AGG -->|Subscribe| ETH_M -->|Callback| ETH_P2
+    BTC_AGG -->|Subscribe| BTC_M -->|Callback| BTC_P2
+    LINK_AGG -->|Subscribe| LINK_M -->|Callback| LINK_P2

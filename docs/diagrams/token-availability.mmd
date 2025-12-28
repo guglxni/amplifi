@@ -1,0 +1,30 @@
+graph TD
+    subgraph "Token Availability on Aave V3 Sepolia"
+        subgraph BLOCKED["Supply Cap Exceeded"]
+            DAI["DAI - Cap: 2,000"]
+            USDC["USDC - Cap: 2,000"]
+            USDT["USDT - Cap: 2,000"]
+        end
+        
+        subgraph AVAILABLE["No Supply Cap - Available"]
+            LINK["LINK - Unlimited"]
+            WBTC["WBTC - Unlimited"]
+            WETH["WETH - Unlimited"]
+            AAVE["AAVE - Unlimited"]
+            EURS["EURS - Unlimited"]
+        end
+        
+        subgraph ISSUES["Has Issues"]
+            GHO["GHO - Arithmetic Overflow"]
+        end
+    end
+    
+    style DAI fill:#f87171
+    style USDC fill:#f87171
+    style USDT fill:#f87171
+    style LINK fill:#4ade80
+    style WBTC fill:#4ade80
+    style WETH fill:#4ade80
+    style AAVE fill:#4ade80
+    style EURS fill:#4ade80
+    style GHO fill:#fbbf24

@@ -1,0 +1,36 @@
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Wallet as MetaMask
+    participant Token as ERC20 Token
+    participant Vault as YieldVaultMultiAsset
+    participant Aave as Aave V3 Pool
+    participant Oracle as AbstractFeedProxy
+    
+    Note over User,Oracle: Deposit Flow
+    
+    User->>Frontend: Select asset and amount
+    Frontend->>Oracle: Fetch current price
+    Oracle-->>Frontend: Return USD price
+    Frontend->>Frontend: Display value estimate
+    
+    User->>Frontend: Click Deposit
+    Frontend->>Wallet: Request approval signature
+    Wallet-->>User: Confirm approval
+    User->>Wallet: Approve
+    Wallet->>Token: approve(vault, amount)
+    Token-->>Wallet: Approval confirmed
+    
+    Frontend->>Wallet: Request deposit signature
+    Wallet-->>User: Confirm deposit
+    User->>Wallet: Approve
+    Wallet->>Vault: depositByToken(token, amount)
+    
+    Vault->>Token: transferFrom(user, vault, amount)
+    Vault->>Token: approve(aavePool, amount)
+    Vault->>Aave: supply(token, amount, vault, 0)
+    Aave-->>Vault: Mint aToken to vault
+    
+    Vault->>Vault: Update user shares
+    Vault-->>Frontend: Emit Deposit event
+    Frontend-->>User: Display success

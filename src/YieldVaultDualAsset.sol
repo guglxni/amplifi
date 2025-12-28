@@ -68,6 +68,18 @@ contract YieldVaultDualAsset is Ownable, ReentrancyGuard, AbstractCallback {
     //                        CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════════
 
+    /// @notice Minimum ETH required for callback payments
+    uint256 public constant MIN_CALLBACK_FUNDING = 0.05 ether;
+    
+    /**
+     * @param _primaryAsset USDC token address
+     * @param _secondaryAsset DAI token address
+     * @param _aavePool Aave V3 Pool address
+     * @param _primaryAToken aUSDC token address
+     * @param _secondaryAToken aDAI token address
+     * @param _callbackProxy Reactive Network callback proxy on this chain
+     * @dev Must be deployed with at least 0.05 ETH for callback payment
+     */
     constructor(
         address _primaryAsset,    // USDC
         address _secondaryAsset,  // DAI
@@ -75,7 +87,9 @@ contract YieldVaultDualAsset is Ownable, ReentrancyGuard, AbstractCallback {
         address _primaryAToken,   // aUSDC
         address _secondaryAToken, // aDAI
         address _callbackProxy
-    ) Ownable(msg.sender) AbstractCallback(_callbackProxy) {
+    ) payable Ownable(msg.sender) AbstractCallback(_callbackProxy) {
+        // Require minimum ETH for callback fees to prevent blocklisting
+        require(msg.value >= MIN_CALLBACK_FUNDING, "Insufficient callback funding: need >= 0.05 ETH");
         primaryAsset = IERC20(_primaryAsset);
         secondaryAsset = IERC20(_secondaryAsset);
         aavePool = IAavePool(_aavePool);

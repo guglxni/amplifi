@@ -1,0 +1,16 @@
+graph TB
+    subgraph "Reactive Approach"
+        R1["Vault emits YieldSnapshot event<br/>(on-chain)"]
+        R2["RSC evaluates APY data<br/>(on-chain, trustless)"]
+        R3["RSC triggers Callback to Vault<br/>(cross-chain)"]
+        R4["Vault rebalances funds<br/>(autonomous)"]
+        
+        R1 -->|Reactive Network detects| R2
+        R2 -->|Automatic| R3
+        R3 --> R4
+    end
+    
+    style R1 fill:#4ade80
+    style R2 fill:#4ade80
+    style R3 fill:#4ade80
+    style R4 fill:#4ade80

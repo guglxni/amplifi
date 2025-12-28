@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YieldOpt | Reactive Yield Optimizer</title>
+    <title>Amplifi | Reactive Yield Optimizer</title>
     <meta name="description"
-        content="Cross-chain yield automation using Reactive Smart Contracts. Multi-asset optimization across Aave V3 and Compound V3.">
+        content="Cross-chain yield automation using Reactive Smart Contracts. Multi-asset optimization on Aave V3 with WETH, LINK, AAVE, EURS, and WBTC.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@400;700&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css?v=3">
 </head>
 
 <body>
@@ -22,18 +22,32 @@
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="brand">
-            <i class="ph-fill ph-plant"></i> YieldOpt
+            <div class="brand-main">
+                <img src="assets/stickers/defi.png" alt="Amplifi"
+                    style="width: 26px; height: 26px; object-fit: contain;"> Amplifi
+            </div>
+            <div class="brand-sub">
+                <span>Powered by</span>
+                <img src="assets/lasna-logo.png" alt="Reactive" style="width: 12px; height: 12px; object-fit: contain;">
+                <span>Reactive Network</span>
+            </div>
         </div>
 
         <div class="nav-menu">
-            <a href="index.html" class="nav-item active">
+            <a href="index.html" class="nav-item">
                 <i class="ph-bold ph-squares-four"></i> Dashboard
             </a>
             <a href="multiasset.html" class="nav-item">
                 <i class="ph-bold ph-cube"></i> Multi-Asset Vault
             </a>
+            <a href="protection.html" class="nav-item">
+                <i class="ph-bold ph-shield-check"></i> Protection
+            </a>
             <a href="bridge.html" class="nav-item">
                 <i class="ph-bold ph-bridge"></i> Reactive Bridge
+            </a>
+            <a href="oracle.html" class="nav-item">
+                <i class="ph-bold ph-chart-line-up"></i> Oracle
             </a>
             <a href="settings.html" class="nav-item">
                 <i class="ph-bold ph-gear"></i> Settings
@@ -60,7 +74,8 @@
             <div class="card">
                 <div class="card-header">
                     <span>TOTAL VALUE LOCKED</span>
-                    <i class="ph-bold ph-vault" style="color: var(--color-primary);"></i>
+                    <img src="assets/stickers/vault.png" alt=""
+                        style="width: 32px; height: 32px; object-fit: contain; opacity: 0.9;">
                 </div>
                 <div class="metric-value" id="tvl-value">Loading...</div>
                 <div class="metric-sub">
@@ -73,7 +88,8 @@
             <div class="card">
                 <div class="card-header">
                     <span>BEST YIELD (REAL-TIME)</span>
-                    <i class="ph-bold ph-trend-up" style="color: var(--color-success);"></i>
+                    <img src="assets/stickers/yield.png" alt=""
+                        style="width: 32px; height: 32px; object-fit: contain; opacity: 0.9;">
                 </div>
                 <div class="metric-value" id="best-apy">--%</div>
                 <div class="metric-sub" id="best-pool" style="color: var(--color-success);">--</div>
@@ -97,9 +113,8 @@
             <div class="card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-eth"></i> WETH</span>
-                    <span
-                        style="font-size: 0.7rem; background: rgba(34, 211, 238, 0.2); padding: 0.2rem 0.5rem; border-radius: 8px;">Aave
-                        V3</span>
+                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040"
+                        style="width: 20px; height: 20px;">
                 </div>
                 <div class="metric-value" id="weth-apy">--%</div>
                 <div class="metric-sub" style="color: var(--color-text-muted);">
@@ -110,10 +125,9 @@
             <!-- LINK -->
             <div class="card" style="border-color: var(--color-success);">
                 <div class="card-header">
-                    <span><i class="ph-bold ph-link"></i> LINK 🏆</span>
-                    <span
-                        style="font-size: 0.7rem; background: rgba(52, 211, 153, 0.2); padding: 0.2rem 0.5rem; border-radius: 8px; color: var(--color-success);">Top
-                        Yield</span>
+                    <span><i class="ph-bold ph-link"></i> LINK</span>
+                    <img src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=040"
+                        style="width: 20px; height: 20px;">
                 </div>
                 <div class="metric-value" style="color: var(--color-success);" id="link-apy">17.37%</div>
                 <div class="metric-sub" style="color: var(--color-text-muted);">
@@ -121,16 +135,15 @@
                 </div>
             </div>
 
-            <!-- Compound USDC -->
+            <!-- AAVE Token -->
             <div class="card">
                 <div class="card-header">
-                    <span><i class="ph-bold ph-currency-dollar"></i> USDC</span>
-                    <span
-                        style="font-size: 0.7rem; background: rgba(129, 140, 248, 0.2); padding: 0.2rem 0.5rem; border-radius: 8px;">Compound</span>
+                    <span><i class="ph-bold ph-coin"></i> AAVE</span>
+                    <img src="https://cryptologos.cc/logos/aave-aave-logo.png?v=040" style="width: 20px; height: 20px;">
                 </div>
-                <div class="metric-value" id="compound-apy">--%</div>
+                <div class="metric-value" id="aave-apy">--%</div>
                 <div class="metric-sub" style="color: var(--color-text-muted);">
-                    Util: <span id="compound-util">--%</span>
+                    Balance: <span id="aave-balance">0.0000</span>
                 </div>
             </div>
         </div>
@@ -222,7 +235,8 @@
                     </div>
                     <div
                         style="text-align: center; padding: 1rem; background: rgba(52, 211, 153, 0.1); border-radius: 12px; border: 1px solid rgba(52, 211, 153, 0.3);">
-                        <div style="font-size: 0.8rem; color: var(--color-success);">LINK 🏆</div>
+                        <div style="font-size: 0.8rem; color: var(--color-success);">LINK <i
+                                class="ph-bold ph-trophy"></i></div>
                         <div style="font-size: 1.2rem; font-weight: 700; color: var(--color-success);"
                             id="ma-link-alloc">20%</div>
                     </div>
@@ -236,11 +250,7 @@
                     </div>
                     <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
                         <div style="font-size: 0.8rem; color: var(--color-text-muted); color: #f7931a;">WBTC</div>
-                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-wbtc-alloc">15%</div>
-                    </div>
-                    <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
-                        <div style="font-size: 0.8rem; color: var(--color-text-muted); color: #26a17b;">USDT</div>
-                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-usdt-alloc">15%</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;" id="ma-wbtc-alloc">20%</div>
                     </div>
                 </div>
                 <a href="multiasset.html" class="btn-primary"
@@ -249,14 +259,132 @@
                 </a>
             </div>
         </div>
+
+        <!-- Row 5: RSC Activity Feed & CRON Monitoring -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <!-- RSC Activity Feed -->
+            <div class="card col-span-2">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-activity"></i> RSC ACTIVITY FEED</span>
+                    <span class="badge badge-live"><span class="live-dot"></span> LIVE</span>
+                </div>
+                <div class="activity-feed" id="rsc-activity-feed">
+                    <!-- Activity items will be populated by JavaScript -->
+                    <div class="activity-item" style="border-left: 3px solid var(--color-primary)">
+                        <div class="activity-icon">
+                            <i class="ph-bold ph-clock" style="color: var(--color-primary)"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">System Initialized</div>
+                            <div class="activity-details">Waiting for RSC events...</div>
+                        </div>
+                        <div class="activity-time">now</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRON Monitoring Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-timer"></i> CRON MONITORING</span>
+                    <span class="badge badge-success" id="cron-active-badge">ACTIVE</span>
+                </div>
+                <div class="cron-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="cron-interval-blocks">100</div>
+                        <div class="stat-label">Block Interval</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="cron-next-in">--</div>
+                        <div class="stat-label">Blocks Until Next</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="cron-total-exec">--</div>
+                        <div class="stat-label">Executions</div>
+                    </div>
+                </div>
+                <div class="cron-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="cron-progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Last CRON</span>
+                        <span>Next CRON</span>
+                    </div>
+                </div>
+                <div class="subscription-list">
+                    <div class="sub-heading">Active Subscriptions</div>
+                    <div class="sub-item">
+                        <i class="ph-bold ph-broadcast"></i>
+                        <span>YieldSnapshot</span>
+                        <span class="chain-badge">Sepolia</span>
+                    </div>
+                    <div class="sub-item">
+                        <i class="ph-bold ph-clock"></i>
+                        <span>CRON (100 blocks)</span>
+                        <span class="chain-badge reactive">Reactive</span>
+                    </div>
+                    <div class="sub-item">
+                        <i class="ph-bold ph-wallet"></i>
+                        <span>FundsReceived</span>
+                        <span class="chain-badge">Sepolia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 6: Transaction Flow Visualizer -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-flow-arrow"></i> REACTIVE TRANSACTION FLOW</span>
+                    <span class="badge badge-info">Cross-Chain</span>
+                </div>
+                <div class="tx-flow-visualizer">
+                    <div class="flow-node origin" id="origin-node">
+                        <div class="node-icon">
+                            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040" alt="Sepolia">
+                        </div>
+                        <div class="node-label">Sepolia</div>
+                        <div class="node-status" id="origin-status">YieldSnapshot</div>
+                    </div>
+
+                    <div class="flow-connection" id="conn-1">
+                        <div class="flow-particle"></div>
+                        <div class="flow-label">Event Log</div>
+                    </div>
+
+                    <div class="flow-node reactive" id="reactive-node">
+                        <div class="node-icon">
+                            <img src="assets/lasna-logo.png" alt="Reactive">
+                        </div>
+                        <div class="node-label">Reactive Network</div>
+                        <div class="node-status" id="reactive-status">YieldOptimizerRsc</div>
+                    </div>
+
+                    <div class="flow-connection" id="conn-2">
+                        <div class="flow-particle"></div>
+                        <div class="flow-label">Callback</div>
+                    </div>
+
+                    <div class="flow-node destination" id="dest-node">
+                        <div class="node-icon">
+                            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=040" alt="Sepolia">
+                        </div>
+                        <div class="node-label">Sepolia</div>
+                        <div class="node-status" id="dest-status">Rebalance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <script src="js/app.js"></script>
+    <script src="js/app_v2.js?v=12"></script>
     <script>
         // Chart instances
         let allocChart = null;
         let yieldChart = null;
-        let yieldHistory = { link: [], compound: [], weth: [] };
+        let yieldHistory = { link: [], aave: [], weth: [] };
 
         document.addEventListener('DOMContentLoaded', async () => {
             await App.init();
@@ -280,17 +408,15 @@
             allocChart = new Chart(allocCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['WETH', 'LINK', 'AAVE', 'EURS', 'WBTC', 'USDT', 'Compound'],
+                    labels: ['WETH', 'LINK', 'AAVE', 'EURS', 'WBTC'],
                     datasets: [{
-                        data: [20, 20, 20, 10, 15, 15, 0], // Excluding compound from assumption or small slice
+                        data: [20, 20, 20, 20, 20],
                         backgroundColor: [
                             'rgba(98, 126, 234, 0.8)',
                             'rgba(52, 211, 153, 0.8)',
                             'rgba(182, 80, 158, 0.8)',
                             'rgba(0, 82, 180, 0.8)',
-                            '#f7931a', // WBTC
-                            '#26a17b', // USDT
-                            'rgba(129, 140, 248, 0.8)'
+                            '#f7931a'
                         ],
                         borderWidth: 0
                     }]
@@ -318,10 +444,10 @@
                             tension: 0.4
                         },
                         {
-                            label: 'Compound',
+                            label: 'AAVE',
                             data: [],
-                            borderColor: '#818cf8',
-                            backgroundColor: 'rgba(129, 140, 248, 0.1)',
+                            borderColor: '#b146c8',
+                            backgroundColor: 'rgba(177, 70, 200, 0.1)',
                             fill: true,
                             tension: 0.4
                         }
@@ -372,7 +498,7 @@
                     });
                 }
                 if (compoundData) {
-                    allAPYs.push({ name: 'Compound USDC', apy: compoundData.apy });
+                    allAPYs.push({ name: 'AAVE Token', apy: aaveAsset ? aaveAsset.apy : 0 });
                 }
                 if (allAPYs.length > 0) {
                     const best = allAPYs.reduce((a, b) => a.apy > b.apy ? a : b);
@@ -401,13 +527,16 @@
                     }
                 }
 
-                // Compound display
-                if (compoundData) {
-                    document.getElementById('compound-apy').innerText = App.formatAPY(compoundData.apy);
-                    document.getElementById('compound-util').innerText = compoundData.utilization.toFixed(2) + '%';
+                // AAVE display from multiAssetData
+                const aaveAsset = multiAssetData?.assets?.find(a => a.symbol === 'AAVE');
+                if (aaveAsset) {
+                    const aaveApyEl = document.getElementById('aave-apy');
+                    const aaveBalEl = document.getElementById('aave-balance');
+                    if (aaveApyEl) aaveApyEl.innerText = aaveAsset.apy.toFixed(2) + '%';
+                    if (aaveBalEl) aaveBalEl.innerText = aaveAsset.balanceFormatted || '0.0000';
 
-                    yieldHistory.compound.push(compoundData.apy * 100);
-                    if (yieldHistory.compound.length > 20) yieldHistory.compound.shift();
+                    yieldHistory.aave.push(aaveAsset.apy * 100);
+                    if (yieldHistory.aave.length > 20) yieldHistory.aave.shift();
                 }
 
                 // Update yield chart
@@ -422,12 +551,12 @@
 
                 // RSC Status
                 if (rscData) {
-                    document.getElementById('cron-status').innerText = rscData.cronMonitoringEnabled ? '✅ Active' : '❌ Inactive';
+                    document.getElementById('cron-status').innerText = rscData.cronMonitoringEnabled ? 'Active' : 'Inactive';
                     document.getElementById('cron-interval').innerText = rscData.cronInterval + ' blocks';
                     document.getElementById('last-rebal-block').innerText = rscData.lastRebalanceBlock > 0 ? '#' + rscData.lastRebalanceBlock : 'Never';
-                    document.getElementById('finality-mode').innerText = rscData.finalityAwareEnabled ? '✅ Enabled' : '❌ Disabled';
+                    document.getElementById('finality-mode').innerText = rscData.finalityAwareEnabled ? 'Enabled' : 'Disabled';
                 } else {
-                    document.getElementById('cron-status').innerText = '⚠️ Offline';
+                    document.getElementById('cron-status').innerText = 'Offline';
                 }
 
             } catch (e) {
@@ -439,7 +568,7 @@
             const labels = yieldHistory.link.map((_, i) => i + 1);
             yieldChart.data.labels = labels;
             yieldChart.data.datasets[0].data = yieldHistory.link;
-            yieldChart.data.datasets[1].data = yieldHistory.compound;
+            yieldChart.data.datasets[1].data = yieldHistory.aave;
             yieldChart.update('none');
         }
     </script>

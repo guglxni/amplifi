@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant U as User
+    participant T as LINK Token
+    participant V as Vault
+    participant A as Aave Pool
+    
+    U->>T: approve(vault, amount)
+    Note right of T: TX: 0x8bf93a7c...3f
+    
+    U->>V: depositByToken(LINK, amount)
+    Note right of V: TX: 0x3e95c480...34
+    
+    V->>T: transferFrom(user, vault, amount)
+    V->>A: supply(LINK, amount)
+    A-->>V: Mint aLINK
+    V-->>U: Update shares

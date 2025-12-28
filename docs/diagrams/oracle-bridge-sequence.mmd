@@ -1,0 +1,42 @@
+sequenceDiagram
+    participant CL as Chainlink Aggregator<br/>(Base Sepolia)
+    participant RN as Reactive Network
+    participant CMR as ChainlinkMirrorReactive<br/>(Lasna)
+    participant REL as Relayer Network
+    participant AFP as AbstractFeedProxy<br/>(Sepolia)
+    participant DApp as Frontend/dApp
+    
+    Note over CL,DApp: Oracle Bridge Data Flow
+    
+    rect rgb(40, 60, 80)
+        Note over CL,CMR: Phase 1: Event Detection
+        CL->>CL: Price Update
+        CL->>RN: Emit AnswerUpdated(answer, roundId, updatedAt)
+        RN->>RN: Match subscription filters
+        RN->>CMR: Deliver log to react()
+    end
+    
+    rect rgb(60, 40, 80)
+        Note over CMR,REL: Phase 2: Reactive Processing
+        CMR->>CMR: Validate log.chain_id
+        CMR->>CMR: Validate log._contract
+        CMR->>CMR: Validate log.topic_0
+        CMR->>CMR: Decode AnswerUpdated data
+        CMR->>CMR: Construct callback payload
+        CMR->>REL: Emit Callback(destChain, destContract, payload)
+    end
+    
+    rect rgb(80, 60, 40)
+        Note over REL,DApp: Phase 3: Cross-Chain Delivery
+        REL->>REL: Pick up Callback event
+        REL->>AFP: Execute updateFromBridge(roundId, answer, timestamps)
+        AFP->>AFP: Verify msg.sender == authorizedRvmId
+        AFP->>AFP: Store round data
+        AFP->>AFP: Emit AnswerUpdated event
+    end
+    
+    rect rgb(40, 80, 60)
+        Note over AFP,DApp: Phase 4: Data Consumption
+        DApp->>AFP: latestRoundData()
+        AFP-->>DApp: Return (roundId, answer, startedAt, updatedAt, answeredInRound)
+    end

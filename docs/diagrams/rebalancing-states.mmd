@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> SnapshotTriggered: triggerSnapshot()
+    SnapshotTriggered --> EventEmitted: YieldSnapshot emitted
+    EventEmitted --> RSCProcessing: Reactive Network detects
+    RSCProcessing --> AllocationCalculated: APY comparison
+    AllocationCalculated --> CallbackSent: emit Callback
+    CallbackSent --> RebalanceExecuted: executeRebalance()
+    RebalanceExecuted --> Idle: Complete

@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant U as User/Trigger
+    participant V as Vault (Sepolia)
+    participant RN as Reactive Network
+    participant RSC as YieldOptimizerRsc (Lasna)
+    participant CB as Callback System
+    
+    rect rgb(40, 40, 60)
+        Note over U,CB: Step 1-2: Trigger Snapshot
+        U->>V: triggerSnapshot()
+        V->>V: Calculate APYs
+        V->>RN: Emit YieldSnapshot Event
+    end
+    
+    rect rgb(60, 40, 40)
+        Note over U,CB: Step 3-4: Reactive Processing
+        RN->>RSC: Deliver event to react()
+        RSC->>RSC: Evaluate APY data
+        RSC->>RSC: Calculate optimal allocation
+    end
+    
+    rect rgb(40, 60, 40)
+        Note over U,CB: Step 5-6: Execute Rebalance
+        RSC->>CB: Emit Callback event
+        CB->>V: executeRebalance(newAllocations)
+        V->>V: Rebalance funds
+    end

@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant D as Deployer
+    participant V as YieldVaultMultiAsset
+    participant A as Aave Pool
+    
+    Note over D,A: Deployment Phase
+    D->>V: Deploy Contract
+    Note right of V: TX: 0xd3fa36a0...93633
+    
+    Note over D,A: Asset Configuration Phase
+    D->>V: addAsset(WETH, 20%)
+    Note right of V: TX: 0x0d51d80f...4632c
+    
+    D->>V: addAsset(LINK, 20%)
+    Note right of V: TX: 0xa281fb1f...9791f
+    
+    D->>V: addAsset(AAVE, 20%)
+    Note right of V: TX: 0x33c46f3e...5afd
+    
+    D->>V: addAsset(EURS, 10%)
+    Note right of V: TX: 0x374375ae...90fb
+    
+    D->>V: addAsset(WBTC, 15%)
+    Note right of V: Subsequent TX
+    
+    V->>A: Approve tokens

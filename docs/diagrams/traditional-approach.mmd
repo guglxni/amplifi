@@ -1,0 +1,14 @@
+graph TB
+    subgraph "Traditional Approach"
+        T1["User/Bot monitors APY rates<br/>(off-chain)"]
+        T2["User/Bot decides to rebalance<br/>(off-chain)"]
+        T3["User/Bot submits transaction<br/>(manual)"]
+        T4["Vault rebalances funds"]
+        
+        T1 --> T2 --> T3 --> T4
+    end
+    
+    style T1 fill:#ef4444
+    style T2 fill:#ef4444
+    style T3 fill:#ef4444
+    style T4 fill:#fbbf24

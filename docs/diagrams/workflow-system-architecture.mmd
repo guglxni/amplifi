@@ -1,0 +1,24 @@
+flowchart TB
+    subgraph BASE["Base Sepolia (Origin)"]
+        CL[Chainlink Aggregators]
+    end
+    
+    subgraph LASNA["Lasna Network (Reactive)"]
+        CMR[ChainlinkMirrorReactive]
+        YOR[YieldOptimizerRsc]
+        RFR[ReactiveFunderRC]
+    end
+    
+    subgraph SEPOLIA["Ethereum Sepolia (Destination)"]
+        AFP[AbstractFeedProxy]
+        VMV[YieldVaultMultiAsset]
+        FND[Funder]
+    end
+    
+    CL -->|AnswerUpdated Event| CMR
+    CMR -->|Callback| AFP
+    AFP -->|Price Data| VMV
+    VMV -->|YieldSnapshot Event| YOR
+    YOR -->|Rebalance Callback| VMV
+    FND -->|Gas Funding| VMV
+    RFR -->|Auto-Refill| FND

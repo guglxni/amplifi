@@ -1,0 +1,22 @@
+graph TB
+    subgraph "Unified Price Oracle Sources"
+        subgraph S1["reactive-bounty-1"]
+            M1["MultiFeedDestinationV2<br/>ETH/USD, BTC/USD, LINK/USD"]
+        end
+        
+        subgraph S2["aggreatorv3-reactive-bridge"]
+            M2["AbstractFeedProxy<br/>USDC/USD, EUR/USD"]
+        end
+        
+        subgraph S3["Correlated"]
+            M3["Derived<br/>AAVE from LINK x10"]
+        end
+    end
+    
+    M1 --> UPO["Unified Price Oracle"]
+    M2 --> UPO
+    M3 --> UPO
+    
+    style M1 fill:#60a5fa
+    style M2 fill:#a78bfa
+    style M3 fill:#fbbf24

@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant CL as Chainlink (Base)
+    participant CMR as ChainlinkMirror (Lasna)
+    participant AFP as AbstractFeedProxy (Sepolia)
+    participant VMV as Vault (Sepolia)
+    
+    CL->>CL: AnswerUpdated Event
+    Note right of CL: Price: $2927.38
+    
+    CMR->>CMR: react() executes
+    Note right of CMR: Processes event
+    
+    CMR->>AFP: Callback with price data
+    Note right of AFP: TX: 0x66b373b5...8e73
+    
+    AFP->>AFP: updateFromBridge()
+    Note right of AFP: Block: 9905624
+    
+    VMV->>AFP: latestRoundData()
+    AFP-->>VMV: Returns price

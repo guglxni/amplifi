@@ -1,0 +1,53 @@
+graph TB
+    subgraph "Cross-Chain Yield Optimization Architecture"
+        subgraph BASE["Base Sepolia (Origin Chain)"]
+            CL_ETH["Chainlink ETH/USD<br/>Aggregator"]
+            CL_BTC["Chainlink BTC/USD<br/>Aggregator"]
+            CL_LINK["Chainlink LINK/USD<br/>Aggregator"]
+            CL_USDC["Chainlink USDC/USD<br/>Direct Feed"]
+        end
+        
+        subgraph LASNA["Lasna Network (Reactive Layer)"]
+            direction TB
+            ETH_M["ChainlinkMirrorReactive<br/>ETH/USD"]
+            BTC_M["ChainlinkMirrorReactive<br/>BTC/USD"]
+            LINK_M["ChainlinkMirrorReactive<br/>LINK/USD"]
+            YOR["YieldOptimizerRsc"]
+            RFR["ReactiveFunderRC"]
+        end
+        
+        subgraph SEP["Ethereum Sepolia (Destination Chain)"]
+            direction TB
+            ETH_P["AbstractFeedProxy<br/>ETH/USD"]
+            BTC_P["AbstractFeedProxy<br/>BTC/USD"]
+            LINK_P["AbstractFeedProxy<br/>LINK/USD"]
+            USDC_P["AbstractFeedProxy<br/>USDC/USD"]
+            EUR_P["AbstractFeedProxy<br/>EUR/USD"]
+            
+            VMV["YieldVaultMultiAsset"]
+            AAVE["Aave V3 Pool"]
+            FND["Funder"]
+        end
+    end
+    
+    CL_ETH -->|AnswerUpdated| ETH_M
+    CL_BTC -->|AnswerUpdated| BTC_M
+    CL_LINK -->|AnswerUpdated| LINK_M
+    
+    ETH_M -->|Callback| ETH_P
+    BTC_M -->|Callback| BTC_P
+    LINK_M -->|Callback| LINK_P
+    
+    ETH_P --> VMV
+    BTC_P --> VMV
+    LINK_P --> VMV
+    USDC_P --> VMV
+    EUR_P --> VMV
+    
+    VMV -->|YieldSnapshot| YOR
+    YOR -->|Rebalance Callback| VMV
+    
+    VMV <-->|Supply/Withdraw| AAVE
+    
+    FND -->|Gas Funding| VMV
+    RFR -->|Auto-Refill| FND
