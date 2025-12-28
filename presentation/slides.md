@@ -351,6 +351,97 @@ function getRequiredFee(uint256 amount)
 layout: center
 ---
 
+# Unified Oracle Architecture
+
+<div class="grid grid-cols-2 gap-8 items-center">
+
+<div>
+
+## How It Works
+
+1. **Origin Chain (Sepolia)**
+   - Chainlink feeds update prices
+   - `ChainlinkMirrorRC` captures events
+
+2. **Reactive Network**
+   - RSC processes price updates
+   - Triggers cross-chain callbacks
+
+3. **Destination (Sepolia)**
+   - `AbstractFeedProxy` receives data
+   - Updates internal state
+
+</div>
+
+<div>
+  <img src="/diagrams/unified-oracle.png" class="rounded-lg shadow-xl" />
+</div>
+
+</div>
+
+<div class="mt-4 p-4 bg-gray-800 rounded-lg text-sm">
+
+**Why this matters**: Enables reliable, decentralized price feeds on any chain without relying on centralized oracles or bridges.
+
+</div>
+
+---
+
+# Auto-Replenishment (The "Reactivate" Pattern)
+
+<div class="grid grid-cols-2 gap-8">
+
+<div>
+  <img src="/diagrams/gas-funding.png" class="rounded-lg shadow-xl mb-4" />
+  <div class="text-center text-sm font-bold">Funding Flow</div>
+</div>
+
+<div>
+
+## Self-Sustaining Cycle
+
+- **Problem**: Automation bots run out of gas.
+- **Solution**: The vault pays for its own automation.
+
+1. **Fee Collection**: 0.1% of every deposit goes to `VaultFeeCollector`.
+2. **Threshold Check**: If `ReactiveFunderRC` balance < 0.05 ETH.
+3. **Bridge Trigger**: `Funder` contract bridges ETH to Lasna.
+4. **Result**: Infinite automation loop.
+
+</div>
+
+</div>
+
+---
+
+# Frontend Architecture
+
+<div class="grid grid-cols-2 gap-8">
+
+<div>
+
+## User Experience Flow
+
+- **Connect Wallet**: Web3Mainstream integration
+- **View Yields**: Real-time Aave V3 data
+- **Deposit**: One-click multi-asset staking
+- **Monitor**: Live RSC event feed
+
+<div class="mt-4 p-4 border border-green-500 rounded bg-green-900/10">
+  <div class="font-bold text-green-400">Live Status: Operational</div>
+  <div class="text-sm opacity-80">Frontend is fully synced with Sepolia & Lasna testnets.</div>
+</div>
+
+</div>
+
+<div>
+  <img src="/diagrams/user-deposit-flow.png" class="rounded-lg shadow-xl" />
+</div>
+
+</div>
+
+---
+
 # CRON-Based Monitoring
 
 <div class="grid grid-cols-3 gap-8 text-center">
