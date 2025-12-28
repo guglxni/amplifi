@@ -1,6 +1,6 @@
 ---
 theme: seriph
-background: https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832
+background: https://images.unsplash.com/photo-1540575339264-569259387a45?q=80&w=2832
 class: text-center
 highlighter: shiki
 lineNumbers: true
@@ -8,659 +8,436 @@ drawings:
   persist: false
 transition: slide-left
 title: Amplifi - Reactive Yield Optimizer
+css: ./styles.css
 mdc: true
 ---
 
-# Amplifi
+<div class="absolute top-0 left-0 w-full h-full bg-black/50 z-0"></div>
 
-## Reactive Yield Optimizer
+<div class="relative z-10">
 
-*Cross-Chain Yield Optimization using Reactive Smart Contracts*
+# AMPLIFI
 
-<div class="pt-12">
-  <span class="px-2 py-1 rounded" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white;">
-    Powered by Reactive Network
-  </span>
+## REACTIVE YIELD OPTIMIZER
+
+<div class="text-xl tracking-widest text-cyan-400 opacity-80 mb-8">
+CROSS-CHAIN • AUTONOMOUS • REACTIVE
 </div>
 
-<div class="abs-br m-6 flex gap-2">
-  <a href="https://github.com/guglxni" target="_blank" class="text-xl slidev-icon-btn">
-    <carbon-logo-github />
-  </a>
+<div class="flex justify-center gap-4 mb-12">
+    <div class="cyber-card flex items-center gap-2 px-4 py-2">
+        <img src="/logos/eth.png" class="h-6" />
+        <span>Sepolia</span>
+    </div>
+    <div class="cyber-card flex items-center gap-2 px-4 py-2 border-purple-500/50">
+        <img src="/logos/lasna-logo.png" class="h-6" /> <!-- Make sure this exists or use alt -->
+        <span>Lasna</span>
+    </div>
 </div>
 
----
-layout: intro
----
+<div class="cyber-card inline-block px-8 py-4">
+    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+        POWERED BY REACTIVE NETWORK
+    </span>
+</div>
 
-# The Problem
+</div>
 
-<v-clicks>
-
-## Traditional Yield Optimization Challenges
-
-- **Manual Monitoring Required** - Users must constantly check APY rates across protocols
-- **Centralized Keepers** - Most solutions rely on AWS Lambda, cron jobs (single points of failure)
-- **Cross-Chain Coordination** - Synchronizing state across networks is complex
-- **Gas Cost Optimization** - Triggering rebalances requires sophisticated off-chain logic
-- **Trust Assumptions** - Relying on third-party infrastructure for automation
-
-</v-clicks>
-
----
-layout: two-cols
----
-
-# Traditional vs Reactive
-
-::left::
-
-## Traditional Approach ❌
-
-```mermaid
-graph TB
-    User[User] -->|Monitor| DeFi[DeFi Protocols]
-    Keeper[Centralized Keeper] -->|Trigger| DeFi
-    AWS[AWS Lambda] -->|Schedule| Keeper
-    
-    style AWS fill:#ef4444
-    style Keeper fill:#ef4444
-```
-
-- Off-chain infrastructure required
-- Single points of failure
-- Trust assumptions
-- Operational overhead
-
-::right::
-
-## Reactive Approach ✅
-
-```mermaid
-graph TB
-    Event[On-Chain Event] -->|Triggers| RSC[Reactive Contract]
-    RSC -->|Callback| Vault[Yield Vault]
-    
-    style RSC fill:#6366f1
-    style Event fill:#22c55e
-```
-
-- 100% on-chain automation
-- Trustless execution
-- Event-driven
-- Self-sustaining
-
----
-layout: center
-class: text-center
----
-
-# Amplifi Architecture
-
-<img src="/diagrams/system-architecture.png" alt="System Architecture" class="w-4/5 mx-auto rounded-lg shadow-2xl" />
+<!-- Lasna logo is needed. I'll assume I copied it or need to -->
 
 ---
 layout: default
 ---
 
-# Core Components
-
-<div class="grid grid-cols-2 gap-8">
-
-<div class="border border-blue-500 rounded-lg p-4">
-
-### Multi-Asset Vault
-- **5 Assets**: WETH, LINK, AAVE, EURS, WBTC
-- Integrated with Aave V3
-- Automatic yield optimization
-- Dynamic allocation management
-
-```solidity
-function deposit(uint256 assetId, uint256 amount) 
-    external payable nonReentrant {
-    AssetInfo storage asset = assets[assetId];
-    require(asset.active, "Asset not active");
-    
-    IERC20(asset.token).safeTransferFrom(
-        msg.sender, address(this), amount
-    );
-    aavePool.supply(asset.token, amount, 
-        address(this), 0);
-    
-    emit Deposited(msg.sender, assetId, amount);
-    _emitSnapshot();
-}
-```
-
-</div>
-
-<div class="border border-purple-500 rounded-lg p-4">
-
-### Reactive Smart Contract
-- Event-driven execution
-- CRON-based monitoring
-- Cross-chain callbacks
-- Finality-aware operations
-
-```solidity
-function react(
-    uint256 chain_id,
-    address _contract,
-    uint256 topic_0,
-    uint256 topic_1,
-    bytes calldata data
-) external vmOnly {
-    if (topic_0 == YIELD_SNAPSHOT_TOPIC) {
-        _processYieldSnapshot(data);
-    }
-}
-```
-
-</div>
-
-</div>
-
----
-layout: two-cols
----
-
-# Deployed Contracts
-
-::left::
-
-## Sepolia Testnet
-
-| Contract | Address |
-|----------|---------|
-| **YieldVaultMultiAssetV2** | `0x42437f29E25...` |
-| **VaultFeeCollector** | `0x3777Afd270B...` |
-| **Funder** | `0x0CabFEE932...` |
-| **MultiFeedDestination** | `0x889c32f46E...` |
-
-<div class="mt-4">
-
-[View on Etherscan →](https://sepolia.etherscan.io/address/0x42437f29E25Ad65E121f4D0f07FD8F5c2005e5d5)
-
-</div>
-
-::right::
-
-## Lasna Network
-
-| Contract | Purpose |
-|----------|---------|
-| **YieldOptimizerRsc** | Event monitoring |
-| **ReactiveFunderRC** | Gas auto-refill |
-| **CRONReactiveContract** | Periodic checks |
-
-<div class="mt-4">
-
-[View on Reactscan →](https://lasna.reactscan.net/)
-
-</div>
-
----
-
-# Multi-Asset Support
-
-<div class="grid grid-cols-5 gap-4 mt-8">
-
-<div class="text-center p-4 border rounded-lg hover:border-blue-500 transition">
-  <div class="text-3xl mb-2">Ξ</div>
-  <div class="font-bold">WETH</div>
-  <div class="text-sm text-gray-400">25% Allocation</div>
-  <div class="text-green-400">0.02% APY</div>
-</div>
-
-<div class="text-center p-4 border rounded-lg border-green-500 bg-green-900/20">
-  <div class="text-3xl mb-2">🔗</div>
-  <div class="font-bold">LINK</div>
-  <div class="text-sm text-gray-400">20% Allocation</div>
-  <div class="text-green-400 font-bold">17.70% APY ★</div>
-</div>
-
-<div class="text-center p-4 border rounded-lg hover:border-blue-500 transition">
-  <div class="text-3xl mb-2">👻</div>
-  <div class="font-bold">AAVE</div>
-  <div class="text-sm text-gray-400">20% Allocation</div>
-  <div class="text-green-400">0.01% APY</div>
-</div>
-
-<div class="text-center p-4 border rounded-lg hover:border-blue-500 transition">
-  <div class="text-3xl mb-2">€</div>
-  <div class="font-bold">EURS</div>
-  <div class="text-sm text-gray-400">15% Allocation</div>
-  <div class="text-green-400">0.24% APY</div>
-</div>
-
-<div class="text-center p-4 border rounded-lg hover:border-blue-500 transition">
-  <div class="text-3xl mb-2">₿</div>
-  <div class="font-bold">WBTC</div>
-  <div class="text-sm text-gray-400">20% Allocation</div>
-  <div class="text-green-400">0.01% APY</div>
-</div>
-
-</div>
-
-<div class="mt-8 text-center text-sm text-gray-400">
-
-All assets deposited into Aave V3 Sepolia for yield generation
-
-</div>
-
----
-layout: image-right
-image: https://images.unsplash.com/photo-1642790106117-e829e14a795f?q=80&w=2864
----
-
-# Cross-Chain Oracle
-
-## Unified Price Feeds
-
-The system aggregates price data from multiple sources:
-
-<v-clicks>
-
-- **Chainlink Direct** - Native Sepolia feeds
-- **AbstractFeedProxy** - Cross-chain mirrored feeds
-- **Fallback Prices** - Backup for reliability
-
-</v-clicks>
-
-<div class="mt-6">
-
-```solidity
-(uint256 price, , SourceType source, 
- bool isLive, bool isFresh) = 
-    oracle.getPriceDetailed(tokenAddress);
-```
-
-</div>
-
----
-
-# Oracle Bridge Flow
-
-```mermaid
-sequenceDiagram
-    participant CL as Chainlink (Origin)
-    participant RSC as Reactive Contract
-    participant Dest as AbstractFeedProxy
-    participant Vault as YieldVault
-    
-    CL->>CL: Price Update Event
-    CL->>RSC: AnswerUpdated log captured
-    RSC->>RSC: Process event data
-    RSC->>Dest: callback(price, timestamp)
-    Dest->>Dest: Store new price
-    Vault->>Dest: getPrice()
-    Dest-->>Vault: Return latest price
-```
-
-<div class="grid grid-cols-4 gap-4 mt-8 text-center text-sm">
-  <div class="p-2 bg-blue-900/30 rounded">ETH/USD</div>
-  <div class="p-2 bg-blue-900/30 rounded">LINK/USD</div>
-  <div class="p-2 bg-blue-900/30 rounded">BTC/USD</div>
-  <div class="p-2 bg-blue-900/30 rounded">EUR/USD</div>
-</div>
-
----
-layout: two-cols
----
-
-# True Auto-Replenishment
-
-::left::
-
-## The Challenge
-
-Gas funding is the Achilles heel of automation:
-
-- Traditional bots require manual refueling
-- Running out of gas = system failure
-- Cross-chain gas is complex
-
-## Our Solution
-
-```mermaid
-graph LR
-    User[User Deposit] -->|0.1% Fee| Collector[Fee Collector]
-    Collector -->|When Low| Funder
-    Funder -->|Bridge| RSC[Reactive Contract]
-```
-
-::right::
-
-## Self-Sustaining Flow
-
-1. **Fee Collection**: 0.1% on deposits
-2. **Balance Monitoring**: RSC watches funder balance
-3. **Auto Bridge**: Funds bridged when below threshold
-4. **Continuous Operation**: System never stops
-
-```solidity
-function getRequiredFee(uint256 amount) 
-    public view returns (uint256) {
-    if (feeCollector == address(0)) return 0;
-    // 0.1% fee for auto-replenishment
-    return amount / 1000;
-}
-```
-
----
-layout: center
----
-
-# Unified Oracle Architecture
-
-<div class="grid grid-cols-2 gap-8 items-center">
-
-<div>
-
-## How It Works
-
-1. **Origin Chain (Sepolia)**
-   - Chainlink feeds update prices
-   - `ChainlinkMirrorRC` captures events
-
-2. **Reactive Network**
-   - RSC processes price updates
-   - Triggers cross-chain callbacks
-
-3. **Destination (Sepolia)**
-   - `AbstractFeedProxy` receives data
-   - Updates internal state
-
-</div>
-
-<div>
-  <img src="/diagrams/unified-oracle.png" class="rounded-lg shadow-xl" />
-</div>
-
-</div>
-
-<div class="mt-4 p-4 bg-gray-800 rounded-lg text-sm">
-
-**Why this matters**: Enables reliable, decentralized price feeds on any chain without relying on centralized oracles or bridges.
-
-</div>
-
----
-
-# Auto-Replenishment (The "Reactivate" Pattern)
-
-<div class="grid grid-cols-2 gap-8">
-
-<div>
-  <img src="/diagrams/gas-funding.png" class="rounded-lg shadow-xl mb-4" />
-  <div class="text-center text-sm font-bold">Funding Flow</div>
-</div>
-
-<div>
-
-## Self-Sustaining Cycle
-
-- **Problem**: Automation bots run out of gas.
-- **Solution**: The vault pays for its own automation.
-
-1. **Fee Collection**: 0.1% of every deposit goes to `VaultFeeCollector`.
-2. **Threshold Check**: If `ReactiveFunderRC` balance < 0.05 ETH.
-3. **Bridge Trigger**: `Funder` contract bridges ETH to Lasna.
-4. **Result**: Infinite automation loop.
-
-</div>
-
-</div>
-
----
-
-# Frontend Architecture
-
-<div class="grid grid-cols-2 gap-8">
-
-<div>
-
-## User Experience Flow
-
-- **Connect Wallet**: Web3Mainstream integration
-- **View Yields**: Real-time Aave V3 data
-- **Deposit**: One-click multi-asset staking
-- **Monitor**: Live RSC event feed
-
-<div class="mt-4 p-4 border border-green-500 rounded bg-green-900/10">
-  <div class="font-bold text-green-400">Live Status: Operational</div>
-  <div class="text-sm opacity-80">Frontend is fully synced with Sepolia & Lasna testnets.</div>
-</div>
-
-</div>
-
-<div>
-  <img src="/diagrams/user-deposit-flow.png" class="rounded-lg shadow-xl" />
-</div>
-
-</div>
-
----
-
-# CRON-Based Monitoring
-
-<div class="grid grid-cols-3 gap-8 text-center">
-
-<div class="p-6 border rounded-lg">
-  <div class="text-4xl font-bold text-purple-400">100</div>
-  <div class="text-sm text-gray-400 mt-2">Block Interval</div>
-  <div class="text-xs text-gray-500">~20 minutes</div>
-</div>
-
-<div class="p-6 border rounded-lg">
-  <div class="text-4xl font-bold text-green-400">6</div>
-  <div class="text-sm text-gray-400 mt-2">Snapshots Taken</div>
-  <div class="text-xs text-gray-500">Yield data points</div>
-</div>
-
-<div class="p-6 border rounded-lg">
-  <div class="text-4xl font-bold text-blue-400">64</div>
-  <div class="text-sm text-gray-400 mt-2">Finality Blocks</div>
-  <div class="text-xs text-gray-500">For large rebalances</div>
-</div>
-
-</div>
-
-<div class="mt-8">
-
-```solidity
-// CRON subscription for periodic yield checks
-ISubscriptionService(REACTIVE_SERVICE).subscribe(
-    SEPOLIA_CHAIN_ID,
-    address(0),  // Any contract
-    CRON_TOPIC,  // Block-based trigger
-    REACTIVE_IGNORE,
-    REACTIVE_IGNORE
-);
-```
-
-</div>
-
----
-
-# Frontend Dashboard
-
-<div class="grid grid-cols-2 gap-4">
-
-<div>
-
-## Multi-Asset Vault UI
-
-- Real-time TVL display
-- Live APY rates from Aave V3
-- Asset allocation pie chart
-- Deposit/withdraw functionality
-- Connected wallet integration
-
-</div>
-
-<div>
-
-## Key Features
-
-- **Glassmorphic Design** - Modern UI aesthetics
-- **Live Data** - No mock data, all from chain
-- **Reactive Status** - RSC monitoring display
-- **Cross-Chain Flow** - Visual transaction tracker
-
-</div>
-
-</div>
-
-<div class="mt-4 text-center text-sm text-gray-400">
-
-Access at: `http://localhost:8888/multiasset.html`
-
-</div>
-
----
-layout: center
-class: text-center
----
-
-# Key Contract Code
-
----
-
-# YieldVaultMultiAssetV2.sol
-
-```solidity {all|5-8|10-14|16-19|all}
-/// @notice Deposit tokens into the vault
-/// @param assetId ID of the asset to deposit
-/// @param amount Amount to deposit (in token's native decimals)
-function deposit(uint256 assetId, uint256 amount) 
-    external payable nonReentrant {
-    AssetInfo storage asset = assets[assetId];
-    require(asset.active, "Asset not active");
-    require(amount > 0, "Amount must be > 0");
-    
-    // Collect fee for auto-replenishment
-    _collectFee(amount);
-    
-    // Transfer tokens from user
-    IERC20(asset.token).safeTransferFrom(
-        msg.sender, address(this), amount);
-    
-    // Supply to Aave V3
-    aavePool.supply(asset.token, amount, address(this), 0);
-    
-    emit Deposited(msg.sender, assetId, asset.token, amount);
-    _emitSnapshot();
-}
-```
-
----
-
-# YieldOptimizerReactive.sol
-
-```solidity {all|3-8|10-18|all}
-/// @notice React to yield snapshot events
-/// @dev Called by Reactive VM when events are captured
-function react(
-    uint256 chain_id,
-    address _contract,
-    uint256 topic_0,
-    uint256 topic_1,
-    bytes calldata data
-) external vmOnly {
-    // Decode the YieldSnapshot event
-    (uint256 snapshotId, 
-     uint256[] memory assetIds,
-     uint256[] memory apys,
-     uint256[] memory allocations,
-     uint256 tvl,
-     uint256 timestamp) = abi.decode(
-        data, 
-        (uint256, uint256[], uint256[], uint256[], uint256, uint256)
-    );
-    
-    // Find best yield asset
-    (uint256 bestId, uint256 bestApy) = _findBestYield(assetIds, apys);
-    
-    // Trigger rebalance if needed
-    if (_shouldRebalance(bestId, allocations)) {
-        _emitRebalanceCallback(assetIds, _calculateNewAllocations(bestId));
-    }
-}
-```
-
----
-layout: two-cols
----
-
-# Transaction Examples
-
-::left::
-
-## Successful Deposit
-
-```
-Transaction Hash: 0x6c81285c...
-Status: Success ✅
-Block: 9932676
-Gas Used: 159,624
-
-Asset: EURS (ID: 4)
-Amount: 100 EURS
-Depositor: 0xDDe9D31a...
-```
-
-[View on Etherscan →](https://sepolia.etherscan.io/tx/0x6c81285cc226ad9b5925b42da22db0e1446a850269dacba096a48189e0bcb739)
-
-::right::
-
-## RSC Callback
-
-```
-Transaction Hash: 0x7a3f...
-Network: Lasna (5318007)
-Status: Success ✅
-
-Action: YieldSnapshot
-Snapshot ID: 6
-Best Asset: LINK (17.70%)
-```
-
-[View on Reactscan →](https://lasna.reactscan.net/)
-
----
-
-# Credits & Acknowledgments
+# THE PROBLEM
 
 <div class="grid grid-cols-2 gap-8 mt-8">
 
-<div class="border rounded-lg p-6">
+<div class="cyber-card">
+    <h3>Manual Monitoring</h3>
+    <div class="opacity-70 text-sm mt-2">
+        Users must constantly check APY rates across protocols and chains manually.
+    </div>
+</div>
 
-### Built With
+<div class="cyber-card">
+    <h3>Centralized Keepers</h3>
+    <div class="opacity-70 text-sm mt-2">
+        Reliance on AWS Lambda or cron jobs introduces single points of failure.
+    </div>
+</div>
 
-- **[Reactive Network](https://reactive.network)** - Event-driven automation
-- **[Chainlink](https://chain.link)** - Price oracle feeds
-- **[Aave V3](https://aave.com)** - Lending protocol
-- **[Foundry](https://book.getfoundry.sh)** - Development framework
+<div class="cyber-card">
+    <h3>Cross-Chain Friction</h3>
+    <div class="opacity-70 text-sm mt-2">
+        Synchronizing state and triggers across networks is complex and error-prone.
+    </div>
+</div>
+
+<div class="cyber-card">
+    <h3>Gas Inefficiency</h3>
+    <div class="opacity-70 text-sm mt-2">
+        Triggering rebalances requires sophisticated, costly off-chain logic.
+    </div>
+</div>
 
 </div>
 
-<div class="border rounded-lg p-6">
+---
+layout: two-cols
+---
 
-### Open Source Credits
+# PARADIGM SHIFT
 
-- **[AggregatorV3 Reactive Bridge](https://github.com/tirth2004/aggreatorv3-reactive-bridge-abstract)** - Oracle bridge implementation
-- **[Reactive Bounty 1](https://github.com/guglxni/reactive-bounty-1)** - Previous bounty submission
+::left::
 
+<div class="cyber-card mr-4 h-full">
+    <h3 class="text-red-400 border-red-500/30">TRADITIONAL ❌</h3>
+    <div class="mt-4 flex flex-col gap-4">
+        <div class="p-2 border border-red-500/20 rounded bg-red-900/10">
+            Off-chain Infrastructure
+        </div>
+        <div class="p-2 border border-red-500/20 rounded bg-red-900/10">
+            Trusted Keepers
+        </div>
+        <div class="p-2 border border-red-500/20 rounded bg-red-900/10">
+            High Latency
+        </div>
+    </div>
+    <div class="mt-8 opacity-50 text-xs">
+        Dependent on Web2 servers and manual intervention.
+    </div>
+</div>
+
+::right::
+
+<div class="cyber-card ml-4 h-full">
+    <h3 class="text-green-400 border-green-500/30">REACTIVE ✅</h3>
+    <div class="mt-4 flex flex-col gap-4">
+        <div class="p-2 border border-green-500/20 rounded bg-green-900/10">
+            100% On-Chain
+        </div>
+        <div class="p-2 border border-green-500/20 rounded bg-green-900/10">
+            Trustless Automation
+        </div>
+        <div class="p-2 border border-green-500/20 rounded bg-green-900/10">
+            Event-Driven
+        </div>
+    </div>
+    <div class="mt-8 opacity-50 text-xs">
+        Autonomous smart contracts that react to events.
+    </div>
+</div>
+
+---
+
+# SYSTEM ARCHITECTURE
+
+<div class="flex justify-center">
+    <img src="/diagrams/system-architecture.png" class="h-100 object-contain cyber-border" />
+</div>
+
+<div class="grid grid-cols-4 gap-4 mt-8">
+    <div class="cyber-card text-center text-xs">User Deposits</div>
+    <div class="cyber-card text-center text-xs">Vault Collects</div>
+    <div class="cyber-card text-center text-xs">RSC Monitors</div>
+    <div class="cyber-card text-center text-xs">System Optimizes</div>
+</div>
+
+---
+
+# CORE DASHBOARD
+
+<div class="relative">
+    <img src="/screenshots/dashboard.png" class="w-full rounded border border-cyan-500/30 shadow-lg shadow-cyan-500/20" />
+    <div class="absolute -bottom-4 right-4 cyber-card text-xs">
+        Captured from Live Environment
+    </div>
+</div>
+
+---
+
+# DEPLOYED CONTRACTS
+
+<div class="grid grid-cols-2 gap-8">
+
+<div class="cyber-card">
+    <h3>Sepolia Testnet</h3>
+    <div class="flex flex-col gap-2 mt-4 text-sm">
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>Vault</span>
+            <code class="text-cyan-400">0x4243...e5d5</code>
+        </div>
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>FeeCollector</span>
+            <code class="text-purple-400">0x3777...33Cf</code>
+        </div>
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>Funder</span>
+            <code class="text-blue-400">0x0Cab...2D39</code>
+        </div>
+    </div>
+    <div class="mt-4 text-right">
+        <a href="https://sepolia.etherscan.io/address/0x42437f29E25Ad65E121f4D0f07FD8F5c2005e5d5" class="text-xs text-cyan-400 hover:text-cyan-300">EXPLORE ON ETHERSCAN >></a>
+    </div>
+</div>
+
+<div class="cyber-card">
+    <h3>Lasna Network</h3>
+    <div class="flex flex-col gap-2 mt-4 text-sm">
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>YieldOptimizerRsc</span>
+            <code class="text-pink-400">Event Monitor</code>
+        </div>
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>ReactiveFunder</span>
+            <code class="text-green-400">Auto-Refill</code>
+        </div>
+        <div class="flex justify-between border-b border-gray-800 pb-2">
+            <span>CRON</span>
+            <code class="text-yellow-400">Scheduler</code>
+        </div>
+    </div>
+    <div class="mt-4 text-right">
+        <a href="https://lasna.reactscan.net/" class="text-xs text-pink-400 hover:text-pink-300">VIEW ON REACTSCAN >></a>
+    </div>
 </div>
 
 </div>
 
-<div class="mt-8 text-center">
+---
 
-### Developed for Reactive Network Bounty Sprint
+# MULTI-ASSET SUPPORT
 
-[DoraHacks Bounty Page →](https://dorahacks.io/hackathon/reactive-bounties-2)
+<div class="grid grid-cols-5 gap-4 mt-8">
+
+<div class="cyber-card text-center hover:bg-white/5 transition">
+    <img src="/logos/eth.png" class="h-12 w-12 mx-auto mb-4" />
+    <div class="font-bold">WETH</div>
+    <div class="text-xs text-cyan-400 mt-2">25% Alloc</div>
+</div>
+
+<div class="cyber-card text-center hover:bg-white/5 transition border-green-500/50">
+    <img src="/logos/link.png" class="h-12 w-12 mx-auto mb-4" />
+    <div class="font-bold">LINK</div>
+    <div class="text-xs text-green-400 mt-2">20% Alloc</div>
+</div>
+
+<div class="cyber-card text-center hover:bg-white/5 transition">
+    <img src="/logos/aave.png" class="h-12 w-12 mx-auto mb-4" />
+    <div class="font-bold">AAVE</div>
+    <div class="text-xs text-cyan-400 mt-2">20% Alloc</div>
+</div>
+
+<div class="cyber-card text-center hover:bg-white/5 transition">
+    <img src="/logos/eurs.png" class="h-12 w-12 mx-auto mb-4" />
+    <div class="font-bold">EURS</div>
+    <div class="text-xs text-cyan-400 mt-2">15% Alloc</div>
+</div>
+
+<div class="cyber-card text-center hover:bg-white/5 transition">
+    <img src="/logos/wbtc.png" class="h-12 w-12 mx-auto mb-4" />
+    <div class="font-bold">WBTC</div>
+    <div class="text-xs text-cyan-400 mt-2">20% Alloc</div>
+</div>
+
+</div>
+
+<div class="mt-8 text-center text-sm opacity-60">
+    Integrated with Aave V3 Sepolia Liquidity Pools
+</div>
+
+---
+layout: two-cols
+---
+
+# CROSS-CHAIN ORACLE
+
+::left::
+
+<div class="cyber-card h-full mr-4">
+    <h3>Data Aggregation</h3>
+    <ul class="list-none pl-0 mt-4 space-y-4 text-sm">
+        <li class="flex items-center gap-3">
+            <img src="/logos/link.png" class="h-5" />
+            <span>Chainlink Direct Feeds</span>
+        </li>
+        <li class="flex items-center gap-3">
+            <div class="h-1 w-1 bg-cyan-400 rounded-full"></div>
+            <span>AbstractFeedProxy Mirroring</span>
+        </li>
+        <li class="flex items-center gap-3">
+            <div class="h-1 w-1 bg-cyan-400 rounded-full"></div>
+            <span>Reactive Network Bridging</span>
+        </li>
+    </ul>
+    
+    <div class="mt-8 code-block text-xs">
+        <span class="text-purple-400">function</span> getPrice(...) {
+            <div class="pl-4 text-gray-400">// Unified interface</div>
+        }
+    </div>
+</div>
+
+::right::
+
+<div class="relative ml-4">
+    <img src="/screenshots/oracle.png" class="rounded shadow-lg border border-cyan-500/30" />
+    <img src="/diagrams/oracle-bridge-flow.png" class="absolute -bottom-8 -left-8 w-2/3 rounded border border-purple-500/30 shadow-2xl bg-black" />
+</div>
+
+---
+
+# UNIFIED ORACLE ARCHITECTURE
+
+<div class="flex items-center justify-center gap-8">
+    <div class="w-1/2">
+        <div class="cyber-card">
+            <h3>Architecture Flow</h3>
+            <div class="space-y-4 text-sm mt-4">
+                <div>
+                    <strong class="text-cyan-400">1. Origin</strong>
+                    <p class="opacity-70">Chainlink feeds update on Sepolia.</p>
+                </div>
+                <div>
+                    <strong class="text-purple-400">2. Reactive</strong>
+                    <p class="opacity-70">RSC mirrors price events.</p>
+                </div>
+                <div>
+                    <strong class="text-pink-400">3. Destination</strong>
+                    <p class="opacity-70">AbstractFeedProxy updates local state.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-1/2">
+        <img src="/diagrams/unified-oracle.png" class="w-full rounded cyber-border" />
+    </div>
+</div>
+
+---
+
+# AUTO-REPLENISHMENT
+
+<div class="grid grid-cols-2 gap-8">
+    <div class="relative">
+        <img src="/diagrams/gas-funding.png" class="w-full rounded opacity-80" />
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="cyber-card bg-black/80 backdrop-blur">
+                <h3 class="text-center mb-0">INFINITE LOOP</h3>
+            </div>
+        </div>
+    </div>
+    <div class="cyber-card">
+        <h3>The "Reactivate" Pattern</h3>
+        <p class="text-sm mt-4 opacity-80">
+            A self-sustaining economic model for autonomous agents.
+        </p>
+        <div class="mt-6 space-y-2">
+            <div class="flex justify-between items-center bg-white/5 p-2 rounded">
+                <span class="text-xs">Fee Collection</span>
+                <span class="text-green-400 font-mono">0.1%</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 p-2 rounded">
+                <span class="text-xs">Trigger Threshold</span>
+                <span class="text-red-400 font-mono">< 0.05 ETH</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 p-2 rounded">
+                <span class="text-xs">Bridge Action</span>
+                <span class="text-cyan-400 font-mono">AUTOMATIC</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+---
+
+# FRONTEND EXPERIENCE
+
+<div class="flex flex-col gap-8">
+    <div class="relative">
+        <img src="/screenshots/multiasset.png" class="w-full rounded border-2 border-cyan-500/20" />
+    </div>
+    <div class="grid grid-cols-4 gap-4">
+        <div class="cyber-card text-center py-2">Glassmorphism</div>
+        <div class="cyber-card text-center py-2">Real-time Data</div>
+        <div class="cyber-card text-center py-2">Wallet Connect</div>
+        <div class="cyber-card text-center py-2">Tx Tracking</div>
+    </div>
+</div>
+
+---
+
+# STATE MACHINE DEEP DIVE
+
+<div class="flex gap-8">
+    <div class="w-1/2">
+        <img src="/diagrams/rsc-state-machine.png" class="w-full h-full object-contain rounded bg-white/5 p-4" />
+    </div>
+    <div class="w-1/2 flex flex-col gap-4 justify-center">
+        <div class="cyber-card border-l-4 border-l-gray-500">
+            <strong>IDLE</strong>
+            <div class="text-xs opacity-70">Waiting for triggers</div>
+        </div>
+        <div class="cyber-card border-l-4 border-l-cyan-500">
+            <strong>SNAPSHOT</strong>
+            <div class="text-xs opacity-70">Capturing yield data</div>
+        </div>
+        <div class="cyber-card border-l-4 border-l-purple-500">
+            <strong>CALCULATING</strong>
+            <div class="text-xs opacity-70">Strategy logic execution</div>
+        </div>
+        <div class="cyber-card border-l-4 border-l-green-500">
+            <strong>CONFIRMED</strong>
+            <div class="text-xs opacity-70">Transaction finalized</div>
+        </div>
+    </div>
+</div>
+
+---
+
+# ON-CHAIN VALIDATION
+
+<div class="grid grid-cols-2 gap-8">
+    <div>
+        <img src="/screenshots/etherscan_vault.png" class="rounded cyber-border opacity-90 hover:opacity-100 transition" />
+        <div class="text-center text-xs mt-2 text-cyan-400">SEPOLIA - VAULT</div>
+    </div>
+    <div>
+        <img src="/screenshots/lasnascan_rsc.png" class="rounded cyber-border opacity-90 hover:opacity-100 transition" />
+        <div class="text-center text-xs mt-2 text-pink-400">LASNA - RSC</div>
+    </div>
+</div>
+
+---
+
+# FUTURE ROADMAP
+
+<div class="grid grid-cols-3 gap-6 mt-12">
+
+<div class="cyber-card relative group">
+    <div class="absolute -top-3 left-4 bg-black px-2 text-purple-400 text-xs border border-purple-500">PHASE 1</div>
+    <h3 class="mt-2">L2 Scaling</h3>
+    <div class="text-sm opacity-60 mt-2">
+        Deploying vaults to Arbitrum and Optimism for lower fees.
+    </div>
+</div>
+
+<div class="cyber-card relative group">
+    <div class="absolute -top-3 left-4 bg-black px-2 text-cyan-400 text-xs border border-cyan-500">PHASE 2</div>
+    <h3 class="mt-2">AI Strategy</h3>
+    <div class="text-sm opacity-60 mt-2">
+        Integrating ML models for predictive yield optimization.
+    </div>
+</div>
+
+<div class="cyber-card relative group">
+    <div class="absolute -top-3 left-4 bg-black px-2 text-pink-400 text-xs border border-pink-500">PHASE 3</div>
+    <h3 class="mt-2">Insurance</h3>
+    <div class="text-sm opacity-60 mt-2">
+        On-chain risk coverage for protocol failures.
+    </div>
+</div>
 
 </div>
 
@@ -669,168 +446,17 @@ layout: center
 class: text-center
 ---
 
-# RSC State Machine Deep Dive
+# AMPLIFI
 
-<div class="grid grid-cols-2 gap-8 items-center">
-
-<div>
-
-## State Transitions
-
-The `YieldOptimizerRsc` manages complex cross-chain states to ensure atomicity and safety.
-
-1. **IDLE**: Waiting for CRON trigger or events.
-2. **SNAPSHOT_REQUESTED**: `YieldSnapshot` event captured.
-3. **CALCULATING**: Determining optimal rebalance.
-4. **CALLBACK_PENDING**: Waiting for destination chain execution.
-5. **CONFIRMED**: Transaction finalized.
-
+<div class="mt-8 flex justify-center gap-8">
+    <div class="cyber-card px-8 py-4">
+        <span>GITHUB</span>
+    </div>
+    <div class="cyber-card px-8 py-4 border-purple-500/50">
+        <span>REACTIVE</span>
+    </div>
 </div>
 
-<div>
-  <img src="/diagrams/rsc-state-machine.png" class="rounded-lg shadow-xl" />
-</div>
-
-</div>
-
-<div class="mt-4">
-
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    Idle --> Snapshot : YieldSnapshot Event
-    Snapshot --> Rebalance : APY Diff > Threshold
-    Rebalance --> Idle : Callback Success
-    Rebalance --> Retry : Callback Failure
-```
-
-</div>
-
----
-
-# Cross-Chain Callback Safety
-
-## Verification Logic
-
-Reactive callbacks must be strictly verified to prevent spoofing.
-
-```solidity {all|4-5|7-11|13-16}
-function reactiveCallback(
-    uint256 chain_id,
-    address _contract,
-    uint256 topic_0,
-    uint256 topic_1,
-    bytes calldata data
-) external vmOnly {
-    // 1. Verify Origin
-    require(chain_id == SEPOLIA_CHAIN_ID, "Invalid chain");
-    require(_contract == VAULT_ADDRESS, "Invalid sender");
-
-    // 2. Decode Payload
-    (bool success, bytes memory returnData) = abi.decode(data, (bool, bytes));
-
-    // 3. Update State
-    if (success) {
-        lastRebalanceBlock = block.number;
-        emit RebalanceSuccess(block.timestamp);
-    }
-}
-```
-
----
-
-# Future Roadmap
-
-<div class="grid grid-cols-3 gap-6 mt-8">
-
-<div class="p-6 border border-purple-500 rounded-lg bg-purple-900/10">
-  <div class="text-2xl mb-2">⚡️</div>
-  <div class="font-bold">L2 Integrations</div>
-  <div class="text-sm text-gray-400">Expanding to Arbitrum & Optimism</div>
-</div>
-
-<div class="p-6 border border-purple-500 rounded-lg bg-purple-900/10">
-  <div class="text-2xl mb-2">🤖</div>
-  <div class="font-bold">AI Strategy</div>
-  <div class="text-sm text-gray-400">ML-driven yield prediction models</div>
-</div>
-
-<div class="p-6 border border-purple-500 rounded-lg bg-purple-900/10">
-  <div class="text-2xl mb-2">🛡</div>
-  <div class="font-bold">Insurance</div>
-  <div class="text-sm text-gray-400">On-chain cover for protocol risks</div>
-</div>
-
-</div>
-
-<div class="mt-8 p-4 border border-gray-700 rounded-lg">
-
-### Ongoing Research
-- **Zero-Knowledge Proofs**: For private strategy execution
-- **Account Abstraction**: Gasless deposits for users
-- **Reactive Governance**: DAO-controlled strategy parameters
-
-</div>
-
----
-
-# Why Amplifi is Best-in-Class
-
-<div class="grid grid-cols-3 gap-6 mt-8">
-
-<div class="p-6 border border-green-500 rounded-lg bg-green-900/10">
-  <div class="text-2xl mb-2">✓</div>
-  <div class="font-bold">Multi-Asset</div>
-  <div class="text-sm text-gray-400">5 assets (exceeds 2-pool minimum)</div>
-</div>
-
-<div class="p-6 border border-green-500 rounded-lg bg-green-900/10">
-  <div class="text-2xl mb-2">✓</div>
-  <div class="font-bold">Auto-Replenishment</div>
-  <div class="text-sm text-gray-400">Self-sustaining gas funding</div>
-</div>
-
-<div class="p-6 border border-green-500 rounded-lg bg-green-900/10">
-  <div class="text-2xl mb-2">✓</div>
-  <div class="font-bold">CRON Monitoring</div>
-  <div class="text-sm text-gray-400">Decentralized scheduling</div>
-</div>
-
-<div class="p-6 border border-green-500 rounded-lg bg-green-900/10">
-  <div class="text-2xl mb-2">✓</div>
-  <div class="font-bold">Cross-Chain Oracles</div>
-  <div class="text-sm text-gray-400">4 price feeds bridged</div>
-</div>
-
-<div class="p-6 border border-green-500 rounded-lg bg-green-900/10">
-  <div class="text-2xl mb-2">✓</div>
-  <div class="font-bold">Live Dashboard</div>
-  <div class="text-sm text-gray-400">Real-time RSC events</div>
-</div>
-
-<div class="p-6 border border-green-500 rounded-lg bg-green-900/10">
-  <div class="text-2xl mb-2">✓</div>
-  <div class="font-bold">Production Ready</div>
-  <div class="text-sm text-gray-400">Deployed & operational</div>
-</div>
-
-</div>
-
----
-layout: end
-class: text-center
----
-
-# Thank You
-
-## Amplifi - Reactive Yield Optimizer
-
-<div class="mt-8 flex justify-center gap-4">
-  <a href="https://github.com/guglxni" class="px-4 py-2 bg-gray-800 rounded-lg">GitHub</a>
-  <a href="https://reactive.network" class="px-4 py-2 bg-purple-600 rounded-lg">Reactive Network</a>
-  <a href="https://dorahacks.io/hackathon/reactive-bounties-2" class="px-4 py-2 bg-blue-600 rounded-lg">DoraHacks</a>
-</div>
-
-<div class="mt-12 text-gray-400 text-sm">
-Built with ❤️ for Reactive Network Bounty Sprint
+<div class="mt-12 text-xs opacity-40 font-mono">
+    BUILT FOR REACTIVE NETWORK BOUNTY SPRINT
 </div>
