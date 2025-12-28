@@ -1,0 +1,132 @@
+
+> build
+> slidev build
+
+
+
+  [36m●[39m[34m■[39m[33m▲[39m
+[1m  Slidev[22m  [34mv52.11.1[39m 
+
+[33m  ! Unsupported Atomic CSS engine "./styles.css", fallback to UnoCSS[39m
+[2m  theme       [22m[32m@slidev/theme-seriph[39m
+[2m  css engine  [22m[34munocss[39m
+[2m  entry       [22m[2m/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/[22mslides.md
+vite v7.3.0 building client environment for production...
+transforming...
+✓ 182 modules transformed.
+✗ Build failed in 734ms
+[vite]: Rollup failed to resolve import "/logos/lasna-logo.png" from "/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/slides.md__slidev_1.md".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteLog (file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/vite/dist/node/chunks/config.js:33634:57)
+    at onRollupLog (file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/vite/dist/node/chunks/config.js:33664:7)
+    at onLog (file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/vite/dist/node/chunks/config.js:33466:4)
+    at file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/rollup/dist/es/shared/node-entry.js:21032:32
+    at Object.logger [as onLog] (file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/rollup/dist/es/shared/node-entry.js:22919:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/rollup/dist/es/shared/node-entry.js:21663:26)
+    at file:///Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/rollup/dist/es/shared/node-entry.js:21621:26 {
+  watchFiles: [
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/index.html',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/main.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/vue/dist/vue.esm-bundler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/App.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/setup/main.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vue/shared/dist/shared.esm-bundler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vue/compiler-dom/dist/compiler-dom.esm-bundler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@shikijs/vitepress-twoslash/dist/client.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/modules/v-drag.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/modules/v-motion.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/modules/v-mark.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/setup/routes.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/vue-router/dist/vue-router.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/modules/v-click.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@unhead/vue/dist/client.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/env.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/setup/root.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/styles.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/theme-seriph/styles/index.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/index.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@unocss/reset/tailwind.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/katex.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/code.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/transitions.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@shikijs/vitepress-twoslash/style.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/shiki-twoslash.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/shiki-magic-move/dist/style.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/vars.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/floating-vue/dist/floating-vue.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/client.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@unhead/vue/dist/shared/vue.Bm-NbY4b.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/plugins.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@unhead/vue/dist/shared/vue.BVUAdATk.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/utils.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@unhead/vue/dist/shared/vue.N9zWjxoK.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useDragElements.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vue/compiler-core/dist/compiler-core.esm-bundler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/utils.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useNav.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.CYpwL2hc.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.yem5I2v_.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.CGCfDSEL.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.CbpEuj3y.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/hookable/dist/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vueuse/motion/dist/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/logic/utils.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/constants.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.BYvz9V1x.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.DQc16pHI.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.CApf5sj3.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/unhead/dist/shared/unhead.ckV6dpEQ.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@floating-ui/dom/dist/floating-ui.dom.browser.min.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/rough-notation/dist/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@floating-ui/core/dist/floating-ui.core.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/roughjs/bin/renderer.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/roughjs/bin/generator.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/roughjs/bin/math.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/theme-seriph/styles/prism.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/theme-seriph/styles/layouts.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/styles/layouts-base.css',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/entry.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/overview.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/notes.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/play.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/presenter.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/404.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/pages/notes-edit.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/parser/dist/core.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@antfu/utils/dist/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@unhead/vue/dist/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useClicks.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/vue-router/dist/devtools-EWN81iOl.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useEmbeddedCtrl.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/logic/slides.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/state/index.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/usePrintStyles.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/state/shared.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/state/drawings.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/file-saver/dist/FileSaver.min.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vueuse/core/dist/index.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useSlideBounds.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useSlideInfo.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/parser/dist/utils.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/logic/transition.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/logic/route.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/composables/useTocTree.ts',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/roughjs/bin/fillers/filler.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/path-data-parser/lib/index.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/points-on-curve/lib/curve-to-bezier.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/points-on-curve/lib/index.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/points-on-path/lib/index.js',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/defu/dist/defu.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/style-value-types/dist/es/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/popmotion/dist/es/index.mjs',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/layouts/error.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@slidev/client/internals/SlideLoading.vue',
+    '/Volumes/MacExt/reactive-bounty-2/reactive-yield-optimizer/presentation/node_modules/@vueuse/motion/node_modules/@vueuse/core/index.mjs',
+    ... 23 more items
+  ]
+}

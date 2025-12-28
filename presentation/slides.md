@@ -8,11 +8,54 @@ drawings:
   persist: false
 transition: slide-left
 title: Amplifi - Reactive Yield Optimizer
-css: ./styles.css
 mdc: true
 ---
 
-<div class="absolute top-0 left-0 w-full h-full bg-black/50 z-0"></div>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+
+:root {
+  --cyber-primary: #a855f7;
+  --cyber-secondary: #06b6d4;
+  --cyber-accent: #ec4899;
+}
+
+.slidev-layout {
+  background: linear-gradient(135deg, #030305 0%, #0a0a15 100%) !important;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Orbitron', sans-serif !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+h1 {
+  background: linear-gradient(135deg, #fff 0%, var(--cyber-primary) 50%, var(--cyber-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cyber-card {
+  background: rgba(15, 15, 25, 0.8);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.cyber-card:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+</style>
+
+<div class="absolute inset-0 bg-black/60"></div>
 
 <div class="relative z-10">
 
@@ -21,64 +64,60 @@ mdc: true
 ## REACTIVE YIELD OPTIMIZER
 
 <div class="text-xl tracking-widest text-cyan-400 opacity-80 mb-8">
-CROSS-CHAIN • AUTONOMOUS • REACTIVE
+CROSS-CHAIN | AUTONOMOUS | REACTIVE
 </div>
 
-<div class="flex justify-center gap-4 mb-12">
-    <div class="cyber-card flex items-center gap-2 px-4 py-2">
-        <img src="/logos/eth.png" class="h-6" />
-        <span>Sepolia</span>
-    </div>
-    <div class="cyber-card flex items-center gap-2 px-4 py-2 border-purple-500/50">
-        <img src="/logos/lasna-logo.png" class="h-6" /> <!-- Make sure this exists or use alt -->
-        <span>Lasna</span>
-    </div>
+<div class="flex justify-center gap-6 mb-12">
+  <div class="cyber-card flex items-center gap-3 px-6 py-3">
+    <img src="/logos/eth.png" class="h-8 w-8" />
+    <span class="text-lg">Sepolia</span>
+  </div>
+  <div class="cyber-card flex items-center gap-3 px-6 py-3 border-purple-500/50">
+    <img src="/logos/lasna-logo.png" class="h-8 w-8" />
+    <span class="text-lg">Lasna</span>
+  </div>
 </div>
 
-<div class="cyber-card inline-block px-8 py-4">
-    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
-        POWERED BY REACTIVE NETWORK
-    </span>
+<div class="cyber-card inline-block px-10 py-4 border-cyan-500/50">
+  <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+    POWERED BY REACTIVE NETWORK
+  </span>
 </div>
 
 </div>
 
-<!-- Lasna logo is needed. I'll assume I copied it or need to -->
-
----
-layout: default
 ---
 
 # THE PROBLEM
 
-<div class="grid grid-cols-2 gap-8 mt-8">
+<div class="grid grid-cols-2 gap-6 mt-8">
 
 <div class="cyber-card">
-    <h3>Manual Monitoring</h3>
-    <div class="opacity-70 text-sm mt-2">
-        Users must constantly check APY rates across protocols and chains manually.
-    </div>
+  <h3 class="text-cyan-400 text-lg mb-3">Manual Monitoring</h3>
+  <p class="text-gray-300 text-base">
+    Users must constantly check APY rates across protocols and chains manually.
+  </p>
 </div>
 
 <div class="cyber-card">
-    <h3>Centralized Keepers</h3>
-    <div class="opacity-70 text-sm mt-2">
-        Reliance on AWS Lambda or cron jobs introduces single points of failure.
-    </div>
+  <h3 class="text-cyan-400 text-lg mb-3">Centralized Keepers</h3>
+  <p class="text-gray-300 text-base">
+    Reliance on AWS Lambda or cron jobs introduces single points of failure.
+  </p>
 </div>
 
 <div class="cyber-card">
-    <h3>Cross-Chain Friction</h3>
-    <div class="opacity-70 text-sm mt-2">
-        Synchronizing state and triggers across networks is complex and error-prone.
-    </div>
+  <h3 class="text-cyan-400 text-lg mb-3">Cross-Chain Friction</h3>
+  <p class="text-gray-300 text-base">
+    Synchronizing state and triggers across networks is complex and error-prone.
+  </p>
 </div>
 
 <div class="cyber-card">
-    <h3>Gas Inefficiency</h3>
-    <div class="opacity-70 text-sm mt-2">
-        Triggering rebalances requires sophisticated, costly off-chain logic.
-    </div>
+  <h3 class="text-cyan-400 text-lg mb-3">Gas Inefficiency</h3>
+  <p class="text-gray-300 text-base">
+    Triggering rebalances requires sophisticated, costly off-chain logic.
+  </p>
 </div>
 
 </div>
@@ -91,68 +130,86 @@ layout: two-cols
 
 ::left::
 
-<div class="cyber-card mr-4 h-full">
-    <h3 class="text-red-400 border-red-500/30">TRADITIONAL ❌</h3>
-    <div class="mt-4 flex flex-col gap-4">
-        <div class="p-2 border border-red-500/20 rounded bg-red-900/10">
-            Off-chain Infrastructure
-        </div>
-        <div class="p-2 border border-red-500/20 rounded bg-red-900/10">
-            Trusted Keepers
-        </div>
-        <div class="p-2 border border-red-500/20 rounded bg-red-900/10">
-            High Latency
-        </div>
+<div class="cyber-card mr-4 h-full border-red-500/30">
+  <h3 class="text-red-400 text-xl mb-4">TRADITIONAL</h3>
+  <div class="space-y-3">
+    <div class="p-3 border border-red-500/20 rounded bg-red-900/10 text-base">
+      Off-chain Infrastructure
     </div>
-    <div class="mt-8 opacity-50 text-xs">
-        Dependent on Web2 servers and manual intervention.
+    <div class="p-3 border border-red-500/20 rounded bg-red-900/10 text-base">
+      Trusted Keepers Required
     </div>
+    <div class="p-3 border border-red-500/20 rounded bg-red-900/10 text-base">
+      High Latency Operations
+    </div>
+    <div class="p-3 border border-red-500/20 rounded bg-red-900/10 text-base">
+      Manual Gas Management
+    </div>
+  </div>
 </div>
 
 ::right::
 
-<div class="cyber-card ml-4 h-full">
-    <h3 class="text-green-400 border-green-500/30">REACTIVE ✅</h3>
-    <div class="mt-4 flex flex-col gap-4">
-        <div class="p-2 border border-green-500/20 rounded bg-green-900/10">
-            100% On-Chain
-        </div>
-        <div class="p-2 border border-green-500/20 rounded bg-green-900/10">
-            Trustless Automation
-        </div>
-        <div class="p-2 border border-green-500/20 rounded bg-green-900/10">
-            Event-Driven
-        </div>
+<div class="cyber-card ml-4 h-full border-green-500/30">
+  <h3 class="text-green-400 text-xl mb-4">REACTIVE</h3>
+  <div class="space-y-3">
+    <div class="p-3 border border-green-500/20 rounded bg-green-900/10 text-base">
+      100% On-Chain Logic
     </div>
-    <div class="mt-8 opacity-50 text-xs">
-        Autonomous smart contracts that react to events.
+    <div class="p-3 border border-green-500/20 rounded bg-green-900/10 text-base">
+      Trustless Automation
     </div>
+    <div class="p-3 border border-green-500/20 rounded bg-green-900/10 text-base">
+      Event-Driven Execution
+    </div>
+    <div class="p-3 border border-green-500/20 rounded bg-green-900/10 text-base">
+      Self-Sustaining Gas
+    </div>
+  </div>
 </div>
 
 ---
 
 # SYSTEM ARCHITECTURE
 
-<div class="flex justify-center">
-    <img src="/diagrams/system-architecture.png" class="h-100 object-contain cyber-border" />
-</div>
-
-<div class="grid grid-cols-4 gap-4 mt-8">
-    <div class="cyber-card text-center text-xs">User Deposits</div>
-    <div class="cyber-card text-center text-xs">Vault Collects</div>
-    <div class="cyber-card text-center text-xs">RSC Monitors</div>
-    <div class="cyber-card text-center text-xs">System Optimizes</div>
-</div>
+```mermaid {scale: 0.9, theme: 'dark'}
+graph TD
+    subgraph Sepolia["SEPOLIA TESTNET"]
+        User((User)) -->|Deposit| Vault[Multi-Asset Vault]
+        Vault -->|Supply| Aave[Aave V3 Pool]
+        Vault -->|0.1% Fee| Collector[Fee Collector]
+        Collector -->|Fund| Funder[Funder Contract]
+    end
+    
+    subgraph Lasna["LASNA NETWORK"]
+        RSC[YieldOptimizer RSC]
+        FunderRSC[ReactiveFunder RSC]
+    end
+    
+    Aave -.->|Yield Events| RSC
+    RSC -->|Rebalance Callback| Vault
+    Funder -->|Bridge Gas| FunderRSC
+    FunderRSC -->|Auto-Refill| RSC
+    
+    style User fill:#fff,stroke:#06b6d4,color:#000
+    style Vault fill:#06b6d4,stroke:#fff,color:#000
+    style Aave fill:#8B5CF6,stroke:#fff,color:#fff
+    style RSC fill:#ec4899,stroke:#fff,color:#fff
+    style FunderRSC fill:#ec4899,stroke:#fff,color:#fff
+    style Collector fill:#22c55e,stroke:#fff,color:#000
+    style Funder fill:#22c55e,stroke:#fff,color:#000
+```
 
 ---
 
 # CORE DASHBOARD
 
-<div class="relative">
-    <img src="/screenshots/dashboard.png" class="w-full rounded border border-cyan-500/30 shadow-lg shadow-cyan-500/20" />
-    <div class="absolute -bottom-4 right-4 cyber-card text-xs">
-        Captured from Live Environment
-    </div>
+<div class="flex justify-center">
+  <img src="/screenshots/dashboard.png" class="w-full max-w-4xl rounded-lg border-2 border-cyan-500/30 shadow-2xl shadow-cyan-500/20" />
+</div>
+
+<div class="text-center mt-4 text-sm text-gray-400">
+  Live Dashboard | Real-time Yield Data | Wallet Integration
 </div>
 
 ---
@@ -162,45 +219,53 @@ layout: two-cols
 <div class="grid grid-cols-2 gap-8">
 
 <div class="cyber-card">
-    <h3>Sepolia Testnet</h3>
-    <div class="flex flex-col gap-2 mt-4 text-sm">
-        <div class="flex justify-between border-b border-gray-800 pb-2">
-            <span>Vault</span>
-            <code class="text-cyan-400">0x4243...e5d5</code>
-        </div>
-        <div class="flex justify-between border-b border-gray-800 pb-2">
-            <span>FeeCollector</span>
-            <code class="text-purple-400">0x3777...33Cf</code>
-        </div>
-        <div class="flex justify-between border-b border-gray-800 pb-2">
-            <span>Funder</span>
-            <code class="text-blue-400">0x0Cab...2D39</code>
-        </div>
+  <h3 class="text-cyan-400 mb-4">Sepolia Testnet</h3>
+  <div class="space-y-3 text-sm">
+    <div class="flex justify-between border-b border-gray-700 pb-2">
+      <span>YieldVaultMultiAssetV2</span>
+      <code class="text-cyan-400">0x4243...e5d5</code>
     </div>
-    <div class="mt-4 text-right">
-        <a href="https://sepolia.etherscan.io/address/0x42437f29E25Ad65E121f4D0f07FD8F5c2005e5d5" class="text-xs text-cyan-400 hover:text-cyan-300">EXPLORE ON ETHERSCAN >></a>
+    <div class="flex justify-between border-b border-gray-700 pb-2">
+      <span>VaultFeeCollector</span>
+      <code class="text-purple-400">0x3777...33Cf</code>
     </div>
+    <div class="flex justify-between border-b border-gray-700 pb-2">
+      <span>Funder</span>
+      <code class="text-blue-400">0x0Cab...2D39</code>
+    </div>
+    <div class="flex justify-between pb-2">
+      <span>MultiFeedDestination</span>
+      <code class="text-green-400">0x889c...b3F3</code>
+    </div>
+  </div>
+  <div class="mt-4 text-right">
+    <a href="https://sepolia.etherscan.io/address/0x42437f29E25Ad65E121f4D0f07FD8F5c2005e5d5" class="text-cyan-400 hover:text-cyan-300 text-sm">VIEW ON ETHERSCAN >></a>
+  </div>
 </div>
 
 <div class="cyber-card">
-    <h3>Lasna Network</h3>
-    <div class="flex flex-col gap-2 mt-4 text-sm">
-        <div class="flex justify-between border-b border-gray-800 pb-2">
-            <span>YieldOptimizerRsc</span>
-            <code class="text-pink-400">Event Monitor</code>
-        </div>
-        <div class="flex justify-between border-b border-gray-800 pb-2">
-            <span>ReactiveFunder</span>
-            <code class="text-green-400">Auto-Refill</code>
-        </div>
-        <div class="flex justify-between border-b border-gray-800 pb-2">
-            <span>CRON</span>
-            <code class="text-yellow-400">Scheduler</code>
-        </div>
+  <h3 class="text-pink-400 mb-4">Lasna Network</h3>
+  <div class="space-y-3 text-sm">
+    <div class="flex justify-between border-b border-gray-700 pb-2">
+      <span>YieldOptimizerRsc</span>
+      <span class="text-pink-400">Event Monitor</span>
     </div>
-    <div class="mt-4 text-right">
-        <a href="https://lasna.reactscan.net/" class="text-xs text-pink-400 hover:text-pink-300">VIEW ON REACTSCAN >></a>
+    <div class="flex justify-between border-b border-gray-700 pb-2">
+      <span>ReactiveFunderRC</span>
+      <span class="text-green-400">Auto-Refill</span>
     </div>
+    <div class="flex justify-between border-b border-gray-700 pb-2">
+      <span>CRONReactiveContract</span>
+      <span class="text-yellow-400">Scheduler</span>
+    </div>
+    <div class="flex justify-between pb-2">
+      <span>ChainlinkMirrorRC</span>
+      <span class="text-blue-400">Oracle Bridge</span>
+    </div>
+  </div>
+  <div class="mt-4 text-right">
+    <a href="https://lasna.reactscan.net/" class="text-pink-400 hover:text-pink-300 text-sm">VIEW ON REACTSCAN >></a>
+  </div>
 </div>
 
 </div>
@@ -209,234 +274,217 @@ layout: two-cols
 
 # MULTI-ASSET SUPPORT
 
-<div class="grid grid-cols-5 gap-4 mt-8">
+<div class="grid grid-cols-5 gap-6 mt-8">
 
-<div class="cyber-card text-center hover:bg-white/5 transition">
-    <img src="/logos/eth.png" class="h-12 w-12 mx-auto mb-4" />
-    <div class="font-bold">WETH</div>
-    <div class="text-xs text-cyan-400 mt-2">25% Alloc</div>
+<div class="cyber-card text-center py-6 hover:border-cyan-500/50 transition">
+  <img src="/logos/eth.png" class="h-16 w-16 mx-auto mb-4" />
+  <div class="font-bold text-lg">WETH</div>
+  <div class="text-cyan-400 mt-2">25%</div>
 </div>
 
-<div class="cyber-card text-center hover:bg-white/5 transition border-green-500/50">
-    <img src="/logos/link.png" class="h-12 w-12 mx-auto mb-4" />
-    <div class="font-bold">LINK</div>
-    <div class="text-xs text-green-400 mt-2">20% Alloc</div>
+<div class="cyber-card text-center py-6 border-green-500/50 bg-green-900/10">
+  <img src="/logos/link.png" class="h-16 w-16 mx-auto mb-4" />
+  <div class="font-bold text-lg">LINK</div>
+  <div class="text-green-400 mt-2 font-bold">20%</div>
 </div>
 
-<div class="cyber-card text-center hover:bg-white/5 transition">
-    <img src="/logos/aave.png" class="h-12 w-12 mx-auto mb-4" />
-    <div class="font-bold">AAVE</div>
-    <div class="text-xs text-cyan-400 mt-2">20% Alloc</div>
+<div class="cyber-card text-center py-6 hover:border-cyan-500/50 transition">
+  <img src="/logos/aave.png" class="h-16 w-16 mx-auto mb-4" />
+  <div class="font-bold text-lg">AAVE</div>
+  <div class="text-cyan-400 mt-2">20%</div>
 </div>
 
-<div class="cyber-card text-center hover:bg-white/5 transition">
-    <img src="/logos/eurs.png" class="h-12 w-12 mx-auto mb-4" />
-    <div class="font-bold">EURS</div>
-    <div class="text-xs text-cyan-400 mt-2">15% Alloc</div>
+<div class="cyber-card text-center py-6 hover:border-cyan-500/50 transition">
+  <img src="/logos/eurs.png" class="h-16 w-16 mx-auto mb-4" />
+  <div class="font-bold text-lg">EURS</div>
+  <div class="text-cyan-400 mt-2">15%</div>
 </div>
 
-<div class="cyber-card text-center hover:bg-white/5 transition">
-    <img src="/logos/wbtc.png" class="h-12 w-12 mx-auto mb-4" />
-    <div class="font-bold">WBTC</div>
-    <div class="text-xs text-cyan-400 mt-2">20% Alloc</div>
+<div class="cyber-card text-center py-6 hover:border-cyan-500/50 transition">
+  <img src="/logos/wbtc.png" class="h-16 w-16 mx-auto mb-4" />
+  <div class="font-bold text-lg">WBTC</div>
+  <div class="text-cyan-400 mt-2">20%</div>
 </div>
 
 </div>
 
-<div class="mt-8 text-center text-sm opacity-60">
-    Integrated with Aave V3 Sepolia Liquidity Pools
+<div class="mt-8 text-center text-gray-400">
+  All assets deposited into Aave V3 Sepolia for yield generation
 </div>
 
----
-layout: two-cols
 ---
 
 # CROSS-CHAIN ORACLE
 
-::left::
-
-<div class="cyber-card h-full mr-4">
-    <h3>Data Aggregation</h3>
-    <ul class="list-none pl-0 mt-4 space-y-4 text-sm">
-        <li class="flex items-center gap-3">
-            <img src="/logos/link.png" class="h-5" />
-            <span>Chainlink Direct Feeds</span>
-        </li>
-        <li class="flex items-center gap-3">
-            <div class="h-1 w-1 bg-cyan-400 rounded-full"></div>
-            <span>AbstractFeedProxy Mirroring</span>
-        </li>
-        <li class="flex items-center gap-3">
-            <div class="h-1 w-1 bg-cyan-400 rounded-full"></div>
-            <span>Reactive Network Bridging</span>
-        </li>
-    </ul>
+```mermaid {scale: 0.85, theme: 'dark'}
+graph LR
+    subgraph Origin["ORIGIN CHAIN"]
+        CL[Chainlink Feed]
+        Mirror[ChainlinkMirrorRC]
+    end
     
-    <div class="mt-8 code-block text-xs">
-        <span class="text-purple-400">function</span> getPrice(...) {
-            <div class="pl-4 text-gray-400">// Unified interface</div>
-        }
-    </div>
-</div>
+    subgraph Reactive["REACTIVE NETWORK"]
+        RSC[Oracle Bridge RSC]
+    end
+    
+    subgraph Destination["DESTINATION CHAIN"]
+        Proxy[AbstractFeedProxy]
+        Vault[Amplifi Vault]
+    end
+    
+    CL -->|AnswerUpdated| Mirror
+    Mirror -->|Emit Event| RSC
+    RSC -->|Cross-Chain Callback| Proxy
+    Proxy -->|getLatestPrice| Vault
+    
+    style CL fill:#375BD2,stroke:#fff,color:#fff
+    style Mirror fill:#ec4899,stroke:#fff,color:#fff
+    style RSC fill:#ec4899,stroke:#fff,color:#fff
+    style Proxy fill:#06b6d4,stroke:#fff,color:#000
+    style Vault fill:#06b6d4,stroke:#fff,color:#000
+```
 
-::right::
-
-<div class="relative ml-4">
-    <img src="/screenshots/oracle.png" class="rounded shadow-lg border border-cyan-500/30" />
-    <img src="/diagrams/oracle-bridge-flow.png" class="absolute -bottom-8 -left-8 w-2/3 rounded border border-purple-500/30 shadow-2xl bg-black" />
+<div class="grid grid-cols-4 gap-4 mt-6 text-center">
+  <div class="cyber-card py-2">ETH/USD</div>
+  <div class="cyber-card py-2">LINK/USD</div>
+  <div class="cyber-card py-2">BTC/USD</div>
+  <div class="cyber-card py-2">EUR/USD</div>
 </div>
 
 ---
 
-# UNIFIED ORACLE ARCHITECTURE
+# ORACLE BRIDGE SEQUENCE
 
-<div class="flex items-center justify-center gap-8">
-    <div class="w-1/2">
-        <div class="cyber-card">
-            <h3>Architecture Flow</h3>
-            <div class="space-y-4 text-sm mt-4">
-                <div>
-                    <strong class="text-cyan-400">1. Origin</strong>
-                    <p class="opacity-70">Chainlink feeds update on Sepolia.</p>
-                </div>
-                <div>
-                    <strong class="text-purple-400">2. Reactive</strong>
-                    <p class="opacity-70">RSC mirrors price events.</p>
-                </div>
-                <div>
-                    <strong class="text-pink-400">3. Destination</strong>
-                    <p class="opacity-70">AbstractFeedProxy updates local state.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="w-1/2">
-        <img src="/diagrams/unified-oracle.png" class="w-full rounded cyber-border" />
-    </div>
+```mermaid {scale: 0.9, theme: 'dark'}
+sequenceDiagram
+    participant CL as Chainlink Feed
+    participant Mirror as Mirror Contract
+    participant RSC as Reactive Contract
+    participant Proxy as AbstractFeedProxy
+    participant App as Amplifi Vault
+    
+    CL->>Mirror: Price Update Event
+    Mirror->>RSC: AnswerUpdated Log
+    RSC->>RSC: Verify & Process
+    RSC->>Proxy: callback(price, timestamp)
+    Proxy->>Proxy: Store New Price
+    App->>Proxy: latestRoundData()
+    Proxy-->>App: Return Price
+```
+
+---
+
+# MULTI-ASSET VAULT UI
+
+<div class="flex justify-center">
+  <img src="/screenshots/multiasset.png" class="w-full max-w-4xl rounded-lg border-2 border-purple-500/30 shadow-2xl shadow-purple-500/20" />
+</div>
+
+<div class="grid grid-cols-4 gap-4 mt-6 text-center text-sm">
+  <div class="cyber-card py-2">Glassmorphism</div>
+  <div class="cyber-card py-2">Real-time Data</div>
+  <div class="cyber-card py-2">Wallet Connect</div>
+  <div class="cyber-card py-2">Tx Tracking</div>
 </div>
 
 ---
 
 # AUTO-REPLENISHMENT
 
-<div class="grid grid-cols-2 gap-8">
-    <div class="relative">
-        <img src="/diagrams/gas-funding.png" class="w-full rounded opacity-80" />
-        <div class="absolute inset-0 flex items-center justify-center">
-            <div class="cyber-card bg-black/80 backdrop-blur">
-                <h3 class="text-center mb-0">INFINITE LOOP</h3>
-            </div>
-        </div>
-    </div>
-    <div class="cyber-card">
-        <h3>The "Reactivate" Pattern</h3>
-        <p class="text-sm mt-4 opacity-80">
-            A self-sustaining economic model for autonomous agents.
-        </p>
-        <div class="mt-6 space-y-2">
-            <div class="flex justify-between items-center bg-white/5 p-2 rounded">
-                <span class="text-xs">Fee Collection</span>
-                <span class="text-green-400 font-mono">0.1%</span>
-            </div>
-            <div class="flex justify-between items-center bg-white/5 p-2 rounded">
-                <span class="text-xs">Trigger Threshold</span>
-                <span class="text-red-400 font-mono">< 0.05 ETH</span>
-            </div>
-            <div class="flex justify-between items-center bg-white/5 p-2 rounded">
-                <span class="text-xs">Bridge Action</span>
-                <span class="text-cyan-400 font-mono">AUTOMATIC</span>
-            </div>
-        </div>
-    </div>
+```mermaid {scale: 0.9, theme: 'dark'}
+stateDiagram-v2
+    [*] --> Collecting: User Deposits
+    Collecting --> Checking: 0.1% Fee Collected
+    Checking --> Operating: Balance OK
+    Checking --> Bridging: Balance < 0.05 ETH
+    Bridging --> Refilled: Cross-Chain Bridge
+    Refilled --> Collecting
+    Operating --> Collecting: Continue Operations
+    
+    note right of Bridging: Funder Contract<br/>Bridges ETH to Lasna
+    note right of Collecting: VaultFeeCollector<br/>Accumulates Fees
+```
+
+<div class="mt-4 cyber-card max-w-xl mx-auto">
+  <h3 class="text-green-400 text-center">Self-Sustaining Gas Model</h3>
+  <p class="text-gray-300 text-center mt-2">System never runs out of gas - fees fund automation</p>
 </div>
 
 ---
 
-# FRONTEND EXPERIENCE
+# RSC STATE MACHINE
 
-<div class="flex flex-col gap-8">
-    <div class="relative">
-        <img src="/screenshots/multiasset.png" class="w-full rounded border-2 border-cyan-500/20" />
-    </div>
-    <div class="grid grid-cols-4 gap-4">
-        <div class="cyber-card text-center py-2">Glassmorphism</div>
-        <div class="cyber-card text-center py-2">Real-time Data</div>
-        <div class="cyber-card text-center py-2">Wallet Connect</div>
-        <div class="cyber-card text-center py-2">Tx Tracking</div>
-    </div>
-</div>
-
----
-
-# STATE MACHINE DEEP DIVE
-
-<div class="flex gap-8">
-    <div class="w-1/2">
-        <img src="/diagrams/rsc-state-machine.png" class="w-full h-full object-contain rounded bg-white/5 p-4" />
-    </div>
-    <div class="w-1/2 flex flex-col gap-4 justify-center">
-        <div class="cyber-card border-l-4 border-l-gray-500">
-            <strong>IDLE</strong>
-            <div class="text-xs opacity-70">Waiting for triggers</div>
-        </div>
-        <div class="cyber-card border-l-4 border-l-cyan-500">
-            <strong>SNAPSHOT</strong>
-            <div class="text-xs opacity-70">Capturing yield data</div>
-        </div>
-        <div class="cyber-card border-l-4 border-l-purple-500">
-            <strong>CALCULATING</strong>
-            <div class="text-xs opacity-70">Strategy logic execution</div>
-        </div>
-        <div class="cyber-card border-l-4 border-l-green-500">
-            <strong>CONFIRMED</strong>
-            <div class="text-xs opacity-70">Transaction finalized</div>
-        </div>
-    </div>
-</div>
+```mermaid {scale: 0.9, theme: 'dark'}
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Snapshot: YieldSnapshot Event
+    Idle --> CronTrigger: CRON Block
+    CronTrigger --> Snapshot: Capture Yields
+    Snapshot --> Calculate: Process APY Data
+    Calculate --> Rebalance: Threshold Exceeded
+    Calculate --> Idle: No Action Needed
+    Rebalance --> Callback: Emit Callback
+    Callback --> Confirmed: Success
+    Callback --> Retry: Failure
+    Retry --> Callback: Retry Logic
+    Confirmed --> Idle
+```
 
 ---
 
 # ON-CHAIN VALIDATION
 
 <div class="grid grid-cols-2 gap-8">
-    <div>
-        <img src="/screenshots/etherscan_vault.png" class="rounded cyber-border opacity-90 hover:opacity-100 transition" />
-        <div class="text-center text-xs mt-2 text-cyan-400">SEPOLIA - VAULT</div>
-    </div>
-    <div>
-        <img src="/screenshots/lasnascan_rsc.png" class="rounded cyber-border opacity-90 hover:opacity-100 transition" />
-        <div class="text-center text-xs mt-2 text-pink-400">LASNA - RSC</div>
-    </div>
+  <div>
+    <img src="/screenshots/etherscan_vault.png" class="w-full rounded-lg border border-cyan-500/30" />
+    <div class="text-center mt-2 text-cyan-400 text-sm">SEPOLIA - VAULT CONTRACT</div>
+  </div>
+  <div>
+    <img src="/screenshots/lasnascan_rsc.png" class="w-full rounded-lg border border-pink-500/30" />
+    <div class="text-center mt-2 text-pink-400 text-sm">LASNA - RSC CONTRACT</div>
+  </div>
+</div>
+
+---
+
+# ORACLE PAGE
+
+<div class="flex justify-center">
+  <img src="/screenshots/oracle.png" class="w-full max-w-4xl rounded-lg border-2 border-cyan-500/30 shadow-2xl" />
+</div>
+
+<div class="text-center mt-4 text-gray-400">
+  Live Cross-Chain Price Feeds | Powered by Chainlink + Reactive Network
 </div>
 
 ---
 
 # FUTURE ROADMAP
 
-<div class="grid grid-cols-3 gap-6 mt-12">
+<div class="grid grid-cols-3 gap-8 mt-8">
 
-<div class="cyber-card relative group">
-    <div class="absolute -top-3 left-4 bg-black px-2 text-purple-400 text-xs border border-purple-500">PHASE 1</div>
-    <h3 class="mt-2">L2 Scaling</h3>
-    <div class="text-sm opacity-60 mt-2">
-        Deploying vaults to Arbitrum and Optimism for lower fees.
-    </div>
+<div class="cyber-card relative">
+  <div class="absolute -top-3 left-4 bg-black px-3 text-purple-400 text-sm border border-purple-500">PHASE 1</div>
+  <h3 class="text-purple-400 mt-4 mb-3">L2 Scaling</h3>
+  <p class="text-gray-300">
+    Deploying vaults to Arbitrum and Optimism for lower fees and faster finality.
+  </p>
 </div>
 
-<div class="cyber-card relative group">
-    <div class="absolute -top-3 left-4 bg-black px-2 text-cyan-400 text-xs border border-cyan-500">PHASE 2</div>
-    <h3 class="mt-2">AI Strategy</h3>
-    <div class="text-sm opacity-60 mt-2">
-        Integrating ML models for predictive yield optimization.
-    </div>
+<div class="cyber-card relative">
+  <div class="absolute -top-3 left-4 bg-black px-3 text-cyan-400 text-sm border border-cyan-500">PHASE 2</div>
+  <h3 class="text-cyan-400 mt-4 mb-3">AI Strategy</h3>
+  <p class="text-gray-300">
+    Integrating ML models for predictive yield optimization and risk management.
+  </p>
 </div>
 
-<div class="cyber-card relative group">
-    <div class="absolute -top-3 left-4 bg-black px-2 text-pink-400 text-xs border border-pink-500">PHASE 3</div>
-    <h3 class="mt-2">Insurance</h3>
-    <div class="text-sm opacity-60 mt-2">
-        On-chain risk coverage for protocol failures.
-    </div>
+<div class="cyber-card relative">
+  <div class="absolute -top-3 left-4 bg-black px-3 text-pink-400 text-sm border border-pink-500">PHASE 3</div>
+  <h3 class="text-pink-400 mt-4 mb-3">Insurance</h3>
+  <p class="text-gray-300">
+    On-chain risk coverage for protocol failures and smart contract exploits.
+  </p>
 </div>
 
 </div>
@@ -448,15 +496,20 @@ class: text-center
 
 # AMPLIFI
 
-<div class="mt-8 flex justify-center gap-8">
-    <div class="cyber-card px-8 py-4">
-        <span>GITHUB</span>
-    </div>
-    <div class="cyber-card px-8 py-4 border-purple-500/50">
-        <span>REACTIVE</span>
-    </div>
+<div class="text-xl text-gray-400 mb-8">Cross-Chain Yield Optimization</div>
+
+<div class="flex justify-center gap-8">
+  <a href="https://github.com/guglxni/amplifi" class="cyber-card px-8 py-4 hover:border-cyan-500/50">
+    <span class="text-lg">GITHUB</span>
+  </a>
+  <a href="https://reactive.network" class="cyber-card px-8 py-4 border-purple-500/50 hover:border-purple-500">
+    <span class="text-lg">REACTIVE</span>
+  </a>
+  <a href="https://dorahacks.io/hackathon/reactive-bounties-2" class="cyber-card px-8 py-4 hover:border-pink-500/50">
+    <span class="text-lg">DORAHACKS</span>
+  </a>
 </div>
 
-<div class="mt-12 text-xs opacity-40 font-mono">
-    BUILT FOR REACTIVE NETWORK BOUNTY SPRINT
+<div class="mt-12 text-sm text-gray-500 font-mono">
+  BUILT FOR REACTIVE NETWORK BOUNTY SPRINT
 </div>
