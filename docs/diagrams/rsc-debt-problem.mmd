@@ -1,0 +1,15 @@
+flowchart TD
+    A["RSC executes callback"] --> B["Callback Proxy charges gas fee"]
+    B --> C{RSC has REACT?}
+    C -->|No| D["Debt accumulates"]
+    D --> E["RSC gets BLOCKLISTED 💀"]
+    E --> F["No more callbacks = System broken"]
+    C -->|Yes| G["✅ Callback succeeds"]
+    
+    style A fill:#6366f1,stroke:#4f46e5,color:#fff
+    style B fill:#f59e0b,stroke:#d97706,color:#fff
+    style C fill:#3b82f6,stroke:#2563eb,color:#fff
+    style D fill:#f97316,stroke:#ea580c,color:#fff
+    style E fill:#ef4444,stroke:#dc2626,color:#fff
+    style F fill:#dc2626,stroke:#b91c1c,color:#fff
+    style G fill:#10b981,stroke:#059669,color:#fff

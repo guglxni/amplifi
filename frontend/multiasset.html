@@ -150,8 +150,8 @@
             <div class="card" id="weth-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-eth"></i> WETH</span>
-                    <img src="assets/logos/eth.png"
-                        style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+                    <img src="assets/logos/eth.png" style="width: 24px; height: 24px;"
+                        onerror="this.style.display='none'">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -175,8 +175,7 @@
             <div class="card" id="link-card" style="border-color: var(--color-success);">
                 <div class="card-header">
                     <span><i class="ph-bold ph-link"></i> LINK</span>
-                    <img src="assets/logos/link.png"
-                        style="width: 24px; height: 24px;">
+                    <img src="assets/logos/link.png" style="width: 24px; height: 24px;">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -228,8 +227,8 @@
             <div class="card" id="eurs-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-eur"></i> EURS</span>
-                    <img src="assets/logos/eurs.png"
-                        style="width: 24px; height: 24px;" onerror="this.style.display='none'">
+                    <img src="assets/logos/eurs.png" style="width: 24px; height: 24px;"
+                        onerror="this.style.display='none'">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -253,8 +252,7 @@
             <div class="card" id="wbtc-card">
                 <div class="card-header">
                     <span><i class="ph-bold ph-currency-btc"></i> WBTC</span>
-                    <img src="assets/logos/wbtc.png"
-                        style="width: 24px; height: 24px;">
+                    <img src="assets/logos/wbtc.png" style="width: 24px; height: 24px;">
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                     <div>
@@ -506,7 +504,16 @@
                 // Update individual assets
                 data.assets.forEach(asset => {
                     const sym = asset.symbol.toLowerCase();
-                    document.getElementById(`${sym}-apy`).innerText = asset.apy.toFixed(2) + '%';
+                    const apyEl = document.getElementById(`${sym}-apy`);
+                    const apyStr = asset.apy.toFixed(2) + '%';
+                    
+                    // Add indicator for live mainnet data
+                    if (asset.apySource === 'mainnet' && apyEl) {
+                        apyEl.innerHTML = apyStr + ' <span class="text-xs opacity-60" title="Live from Aave V3 Mainnet">🌐</span>';
+                    } else if (apyEl) {
+                        apyEl.innerText = apyStr;
+                    }
+                    
                     document.getElementById(`${sym}-balance`).innerText = asset.balanceFormatted;
                     document.getElementById(`${sym}-alloc`).innerText = (asset.allocation / 100).toFixed(0) + '%';
                 });
@@ -543,9 +550,16 @@
                             statusEl.style.background = 'rgba(248, 113, 113, 0.2)';
                             statusEl.style.color = '#f87171';
                         }
+                    } else {
+                        // Set fallback values when stats not available
+                        document.getElementById('vault-eth-balance').innerText = '0.0000 ETH';
+                        document.getElementById('fees-collected').innerText = '0.0000 ETH';
                     }
                 } catch (replenishError) {
                     console.warn('Auto-replenishment stats not available:', replenishError.message);
+                    // Set fallback values on error
+                    document.getElementById('vault-eth-balance').innerText = '0.0000 ETH';
+                    document.getElementById('fees-collected').innerText = '0.0000 ETH';
                 }
 
             } catch (e) {

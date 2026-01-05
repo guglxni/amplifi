@@ -1,0 +1,28 @@
+%%{init: {'theme': 'dark'}}%%
+
+flowchart LR
+    subgraph Origin["Origin Chains<br/>(Base, BSC...)"]
+        CL["Chainlink Prices"]
+    end
+
+    subgraph Lasna["Lasna<br/>(Reactive Network)"]
+        Mirror["MultiFeedMirrorRC"]
+        RSC["YieldOptimizerRsc"]
+    end
+
+    subgraph Sepolia["Sepolia"]
+        MultiFeed["MultiFeed<br/>Destination"]
+        Oracle["UnifiedPriceOracle"]
+        Vault["YieldVaultMultiAsset"]
+    end
+
+    CL -->|Price Updates| Mirror
+    Mirror -->|Forward| MultiFeed
+    MultiFeed --> Oracle
+    Oracle --> Vault
+    Vault -->|YieldSnapshot Events| RSC
+    RSC -->|executeRebalance| Vault
+
+    style Origin fill:#1e1e2e,stroke:#f59e0b
+    style Lasna fill:#1e1e2e,stroke:#a855f7
+    style Sepolia fill:#1e1e2e,stroke:#06b6d4

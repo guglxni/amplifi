@@ -12,17 +12,7 @@ When the Reactive Network sends callbacks to destination chains (like Sepolia), 
 2. If debt isn't paid, the contract gets **blocklisted**
 3. Future callbacks are **rejected**, breaking the entire system
 
-```
-Reactive Network (Lasna)  ──→  Callback Proxy (Sepolia)  ──→  Vault
-                                       │
-                                       │ "Pay me for gas!"
-                                       │
-                                       ▼
-                               Vault has no ETH?
-                                       │
-                                       ▼
-                              💀 BLOCKLISTED 💀
-```
+![Callback Debt Problem](diagrams/callback-debt-problem.png)
 
 ## The Reactivate Pattern (Original)
 
@@ -40,41 +30,7 @@ We extend the Reactivate pattern to cover **callback destination contracts**:
 
 ### Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              SEPOLIA                                     │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌─────────────────────┐    fees     ┌──────────────────────┐           │
-│  │                     │────────────▶│                      │           │
-│  │  YieldVaultDualAssetV2 │           │  VaultFeeCollector  │           │
-│  │                     │◀────────────│                      │           │
-│  │  - Charges 0.1% fee │    funds    │  - Collects fees     │           │
-│  │  - Receives callbacks│            │  - Monitors vault    │           │
-│  │  - Pays callback gas│            │  - Auto-refills      │           │
-│  └─────────────────────┘             │  - Emits events      │           │
-│           │                          └──────────────────────┘           │
-│           │ YieldSnapshot                     │ FeeCollected            │
-│           ▼                                   ▼                         │
-└─────────────────────────────────────────────────────────────────────────┘
-                                                │
-                         Events flow to Reactive Network
-                                                ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         REACTIVE NETWORK (Lasna)                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌─────────────────────────┐        ┌─────────────────────────┐         │
-│  │                         │        │                         │         │
-│  │  YieldOptimizerReactive │        │    VaultFunderRSC      │         │
-│  │                         │        │                         │         │
-│  │  - Rebalancing logic    │        │  - Monitors FeeCollected│         │
-│  │  - 80/20 allocation     │        │  - Triggers funding     │         │
-│  │  ──▶ executeRebalance() │        │  ──▶ checkAndFundVault()│         │
-│  └─────────────────────────┘        └─────────────────────────┘         │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+![True Auto-Replenishment Architecture](diagrams/true-auto-replenish-architecture.png)
 
 ### Components
 

@@ -77,17 +77,7 @@ The Unified Price Oracle combines two reactive cross-chain oracle implementation
 
 ### Price Resolution Priority
 
-```
-1. Primary Source (MultiFeed or AbstractProxy)
-   |
-   +-- Success? --> Return live price
-   |
-   +-- Failure? --> Try Secondary Source
-                    |
-                    +-- Success? --> Return live price
-                    |
-                    +-- Failure? --> Return fallback price
-```
+![Price Resolution Priority](diagrams/price-resolution-priority.png)
 
 ---
 
@@ -148,26 +138,7 @@ if (bestAPY - currentAPY > REBALANCE_THRESHOLD * 1e23) {
 
 ### Funding Flow
 
-```
-User --> Funder (ETH)
-              |
-              +-- emit FundsReceived
-              |
-              v
-         ReactiveFunderRC (Lasna)
-              |
-              +-- Check threshold
-              |
-              +-- emit Callback(coverDebt)
-              |
-              v
-         Callback Proxy --> Funder
-              |
-              +-- depositTo(RSC)
-              |
-              v
-         RSC Gas Replenished
-```
+![Funding Flow](diagrams/funding-flow.png)
 
 ---
 
@@ -212,83 +183,17 @@ service.subscribe(
 
 ### Deposit Flow
 
-```
-User
-  |
-  +-- approve(vault, amount)
-  |
-  +-- deposit(assetId, amount)
-        |
-        +-- Vault: transferFrom(user, vault, amount)
-        |
-        +-- Vault: approve(aavePool, amount)
-        |
-        +-- Vault: aavePool.supply(token, amount, vault, 0)
-        |
-        +-- Vault: emit Deposited(user, assetId, token, amount)
-```
+![Deposit Flow](diagrams/deposit-flow.png)
 
 ### Rebalance Flow
 
-```
-YieldOptimizerRsc (Lasna)
-  |
-  +-- Receive YieldSnapshot event
-  |
-  +-- Compare APYs
-  |
-  +-- emit Callback(
-        SEPOLIA_CHAIN_ID,
-        vault,
-        abi.encodeCall(executeRebalance, (newAllocations))
-      )
-        |
-        v
-Callback Proxy (Sepolia)
-  |
-  +-- vault.executeRebalance(newAllocations)
-        |
-        +-- Update allocation mappings
-        |
-        +-- emit Rebalanced(assetIds, newAllocations)
-```
+![Rebalance Flow](diagrams/rebalance-flow.png)
 
 ---
 
 ## Data Flow Diagram
 
-```
-+------------------+     +------------------+     +------------------+
-|   Origin Chains  |     |      Lasna       |     |     Sepolia      |
-|  (Base, BSC...)  |     | (Reactive Net)   |     |                  |
-+------------------+     +------------------+     +------------------+
-        |                        |                        |
-        | Chainlink Prices       |                        |
-        |----------------------->|                        |
-        |                        | MultiFeedMirrorRC      |
-        |                        |----------------------->|
-        |                        |                        | MultiFeed
-        |                        |                        | Destination
-        |                        |                        |
-        |                        |                        v
-        |                        |              +------------------+
-        |                        |              | UnifiedPriceOracle|
-        |                        |              +------------------+
-        |                        |                        |
-        |                        |                        v
-        |                        |              +------------------+
-        |                        |              |YieldVaultMultiAsset|
-        |                        |              +------------------+
-        |                        |                        |
-        |                        | YieldSnapshot Events   |
-        |                        |<-----------------------|
-        |                        |                        |
-        |                        | YieldOptimizerRsc     |
-        |                        |                        |
-        |                        | executeRebalance      |
-        |                        |----------------------->|
-        |                        |                        |
-```
+![Data Flow](diagrams/data-flow.png)
 
 ---
 

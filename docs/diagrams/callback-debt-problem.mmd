@@ -1,0 +1,19 @@
+flowchart LR
+    subgraph Lasna["Reactive Network (Lasna)"]
+        RSC["RSC<br/>YieldOptimizerRsc"]
+    end
+    
+    subgraph Sepolia["Sepolia"]
+        CB["Callback Proxy"]
+        Vault["Vault"]
+    end
+    
+    RSC -->|"Callback"| CB
+    CB -->|"Execute callback"| Vault
+    CB -->|"Pay me for gas!"| Vault
+    Vault -->|"No ETH?"| Block["💀 BLOCKLISTED 💀"]
+    
+    style RSC fill:#6366f1,stroke:#4f46e5,color:#fff
+    style CB fill:#f59e0b,stroke:#d97706,color:#fff
+    style Vault fill:#10b981,stroke:#059669,color:#fff
+    style Block fill:#ef4444,stroke:#dc2626,color:#fff

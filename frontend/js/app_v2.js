@@ -575,13 +575,99 @@ const App = {
         }
     },
 
+    // ═══════════════════════════════════════════════════════════════
+    //                    MAINNET APY FETCHING
+    // ═══════════════════════════════════════════════════════════════
+
+    // Cache for mainnet APYs (refreshed every 5 minutes)
+    mainnetApyCache: {
+        data: {},
+        lastFetch: 0,
+        CACHE_DURATION: 5 * 60 * 1000 // 5 minutes
+    },
+
+    /**
+     * Fetch live APY data from DeFiLlama Yields API (Aave V3 Ethereum mainnet)
+     * API docs: https://defillama.com/docs/api
+     */
+    fetchMainnetApys: async function () {
+        const now = Date.now();
+        
+        // Return cached data if still fresh
+        if (this.mainnetApyCache.data && Object.keys(this.mainnetApyCache.data).length > 0 &&
+            (now - this.mainnetApyCache.lastFetch) < this.mainnetApyCache.CACHE_DURATION) {
+            console.log('[APY] Using cached mainnet APYs');
+            return this.mainnetApyCache.data;
+        }
+
+        try {
+            console.log('[APY] Fetching live APYs from DeFiLlama...');
+            const response = await fetch('https://yields.llama.fi/pools');
+            
+            if (!response.ok) {
+                throw new Error(`DeFiLlama API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const pools = data.data || [];
+
+            // Map our symbols to DeFiLlama pool identifiers (Aave V3 Ethereum)
+            const symbolToPool = {
+                'WETH': { project: 'aave-v3', chain: 'Ethereum', symbol: 'WETH' },
+                'LINK': { project: 'aave-v3', chain: 'Ethereum', symbol: 'LINK' },
+                'AAVE': { project: 'aave-v3', chain: 'Ethereum', symbol: 'AAVE' },
+                'WBTC': { project: 'aave-v3', chain: 'Ethereum', symbol: 'WBTC' },
+                'EURS': { project: 'aave-v3', chain: 'Ethereum', symbol: 'EURS' }
+            };
+
+            const apyMap = {};
+
+            for (const [symbol, filter] of Object.entries(symbolToPool)) {
+                // Find matching pool
+                const pool = pools.find(p => 
+                    p.project === filter.project && 
+                    p.chain === filter.chain && 
+                    p.symbol === filter.symbol
+                );
+
+                if (pool && pool.apy !== null && pool.apy !== undefined) {
+                    apyMap[symbol] = pool.apy;
+                    console.log(`[APY] ${symbol}: ${pool.apy.toFixed(2)}% (live from mainnet)`);
+                }
+            }
+
+            // Update cache
+            this.mainnetApyCache.data = apyMap;
+            this.mainnetApyCache.lastFetch = now;
+
+            console.log('[APY] Mainnet APYs fetched:', apyMap);
+            return apyMap;
+
+        } catch (error) {
+            console.warn('[APY] Failed to fetch from DeFiLlama:', error.message);
+            
+            // Fallback to static approximations if API fails
+            return {
+                'WETH': 1.85,
+                'LINK': 0.12,
+                'AAVE': 0.01,
+                'WBTC': 0.02,
+                'EURS': 2.50
+            };
+        }
+    },
+
     /**
      * Fetch Multi-Asset Vault data (WETH, LINK, AAVE, EURS)
+     * Now with live mainnet APY integration
      */
     fetchMultiAssetData: async function () {
         const vault = this.contracts.vaultMultiAsset;
 
         try {
+            // Fetch mainnet APYs first (for fallback when testnet shows 0)
+            const mainnetApys = await this.fetchMainnetApys();
+
             // Fetch core data using individual calls (more reliable than getAllAssets)
             const [bestYield, snapCount, lastRebal, totalAlloc, assetCount] = await Promise.all([
                 vault.getBestYieldAsset(),
@@ -609,17 +695,29 @@ const App = {
                     ]);
 
                     const symbol = assetInfo.symbol;
-                    const apyValue = liveApy.toNumber() / 1000; // BPS to %
+                    let apyValue = liveApy.toNumber() / 1000; // BPS to %
+                    let apySource = 'testnet';
+                    
+                    // If testnet APY is 0, use live mainnet APY from DeFiLlama
+                    if (apyValue === 0 && mainnetApys[symbol] !== undefined) {
+                        apyValue = mainnetApys[symbol];
+                        apySource = 'mainnet';
+                    }
 
                     assets.push({
                         id: assetIdNum,
                         token: assetInfo.token,
                         symbol: symbol,
-                        apy: apyValue, // LIVE Sepolia APY only
+                        apy: apyValue,
+                        apySource: apySource, // Track where APY came from
                         allocation: assetInfo.allocation.toNumber(),
                         balance: balance,
                         balanceFormatted: this.formatAssetBalance(symbol, balance)
                     });
+                    
+                    if (apyValue > 0) {
+                        console.log(`[Asset] ${symbol}: APY=${apyValue.toFixed(2)}% (${apySource})`);
+                    }
                 } catch (assetError) {
                     console.warn(`Failed to fetch asset ${i}:`, assetError.message);
                     // NO FALLBACK - skip failed assets
@@ -640,6 +738,9 @@ const App = {
             const bestAPY = bestYield[1].toNumber() / 1000;
             const bestAsset = assets.find(a => a.id === bestAssetId);
 
+            // Count only assets with allocation > 0 (active assets)
+            const activeAssetCount = assets.filter(a => a.allocation > 0).length;
+
             return {
                 tvlUSD: tvlUSD.toFixed(2),
                 assets: assets,
@@ -648,7 +749,7 @@ const App = {
                 snapshotCount: snapCount.toNumber(),
                 lastRebalanceTime: lastRebal.toNumber(),
                 totalAllocation: totalAlloc.toNumber(),
-                assetCount: assets.length
+                assetCount: activeAssetCount
             };
         } catch (e) {
             console.error("MultiAsset Contract Error:", e.message);
@@ -1274,6 +1375,75 @@ const App = {
             return null;
         }
     },
+
+    /**
+     * Direct Faucet Bridge - User sends SepETH directly to Reactive Faucet
+     * This bypasses the Funder contract and works for any user
+     * 
+     * Faucet Contract: 0x9b9BB25f1A81078C544C829c5EB7822d747Cf434
+     * Rate: 1 SepETH = 100 REACT
+     * Max: 5 SepETH per request (500 REACT)
+     * 
+     * @param recipientAddress - Address to receive REACT on Lasna (usually user's address or RSC)
+     * @param ethAmount - Amount of SepETH to convert (max 5)
+     */
+    directFaucetBridge: async function (recipientAddress, ethAmount) {
+        if (!this.signer) return this.connectWallet();
+
+        const FAUCET_ADDRESS = "0x9b9BB25f1A81078C544C829c5EB7822d747Cf434";
+        const amount = parseFloat(ethAmount);
+
+        if (amount <= 0 || amount > 5) {
+            this.showToast("Amount must be between 0.01 and 5 ETH", "error");
+            return null;
+        }
+
+        try {
+            this.showToast(`Converting ${amount} SepETH → ${amount * 100} REACT...`, "info");
+
+            // Create interface for faucet's request(address) function
+            const faucetABI = ["function request(address recipient) payable"];
+            const faucet = new ethers.Contract(FAUCET_ADDRESS, faucetABI, this.signer);
+
+            // Determine recipient - default to user's RSC target or the user themselves
+            let recipient = recipientAddress;
+            if (!recipient || recipient === "" || recipient === "user") {
+                recipient = await this.signer.getAddress();
+            }
+
+            // Call faucet with ETH value
+            const tx = await faucet.request(recipient, {
+                value: ethers.utils.parseEther(ethAmount.toString())
+            });
+
+            this.showToast(`Faucet TX sent! ${tx.hash.slice(0, 10)}...`, "success");
+            console.log("Direct faucet bridge TX:", tx.hash);
+            console.log("Recipient will receive", amount * 100, "REACT on Lasna");
+
+            // Wait for confirmation
+            await tx.wait();
+            this.showToast(`✓ ${amount * 100} REACT sent to ${recipient.slice(0, 8)}... on Lasna!`, "success");
+
+            return tx;
+        } catch (e) {
+            const errorMsg = e.reason || e.message;
+            console.error("Direct faucet error:", e);
+
+            if (errorMsg.includes("insufficient funds")) {
+                this.showToast("Insufficient SepETH. Get from Sepolia faucet.", "error");
+            } else if (errorMsg.includes("user rejected")) {
+                this.showToast("Transaction cancelled.", "error");
+            } else {
+                this.showToast("Faucet error: " + errorMsg.slice(0, 50), "error");
+            }
+            return null;
+        }
+    },
+
+    /**
+     * Get Reactive Faucet info
+     */
+    REACTIVE_FAUCET_ADDRESS: "0x9b9BB25f1A81078C544C829c5EB7822d747Cf434",
 
     // ═══════════════════════════════════════════════════════════════
     //                    UI UTILITIES

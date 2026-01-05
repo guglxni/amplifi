@@ -1,0 +1,14 @@
+%%{init: {'theme': 'dark'}}%%
+
+flowchart TB
+    Primary["Primary Source<br/>(MultiFeed or AbstractProxy)"]
+    Primary -->|Success| ReturnLive1["Return live price"]
+    Primary -->|Failure| Secondary["Try Secondary Source"]
+    Secondary -->|Success| ReturnLive2["Return live price"]
+    Secondary -->|Failure| Fallback["Return fallback price"]
+
+    style Primary fill:#06b6d4,stroke:#fff
+    style Secondary fill:#a855f7,stroke:#fff
+    style ReturnLive1 fill:#22c55e,stroke:#fff
+    style ReturnLive2 fill:#22c55e,stroke:#fff
+    style Fallback fill:#f59e0b,stroke:#fff

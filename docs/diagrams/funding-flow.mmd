@@ -1,0 +1,18 @@
+%%{init: {'theme': 'dark'}}%%
+
+flowchart TB
+    User["👤 User"]
+    User -->|ETH| Funder["💰 Funder"]
+    Funder -->|"emit FundsReceived"| FunderRC["🔄 ReactiveFunderRC<br/>(Lasna)"]
+    FunderRC -->|"Check threshold"| Check{"Balance<br/>< Threshold?"}
+    Check -->|Yes| Callback["emit Callback(coverDebt)"]
+    Check -->|No| Wait["Wait for more funds"]
+    Callback --> Proxy["📡 Callback Proxy"]
+    Proxy --> FunderDeposit["Funder.depositTo(RSC)"]
+    FunderDeposit --> RSC["⚡ RSC Gas Replenished"]
+
+    style User fill:#fff,color:#000
+    style Funder fill:#22c55e,stroke:#fff
+    style FunderRC fill:#a855f7,stroke:#fff
+    style Proxy fill:#06b6d4,stroke:#fff
+    style RSC fill:#ec4899,stroke:#fff

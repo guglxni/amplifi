@@ -1,0 +1,13 @@
+%%{init: {'theme': 'dark'}}%%
+
+sequenceDiagram
+    participant RSC as YieldOptimizerRsc (Lasna)
+    participant Proxy as Callback Proxy (Sepolia)
+    participant Vault as YieldVault
+
+    RSC->>RSC: Receive YieldSnapshot event
+    RSC->>RSC: Compare APYs
+    RSC->>Proxy: emit Callback(executeRebalance)
+    Proxy->>Vault: executeRebalance(newAllocations)
+    Vault->>Vault: Update allocation mappings
+    Vault-->>RSC: emit Rebalanced(assetIds, newAllocations)

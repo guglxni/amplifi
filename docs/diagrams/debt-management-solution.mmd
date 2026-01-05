@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph Frontend["Frontend Debt Clearing"]
+        U["User connects MetaMask"] --> SW["Switch to Lasna network"]
+        SW --> CD["Click 'Clear Debt'"]
+        CD --> TX["coverDebt() transaction"]
+        TX --> PAID["✅ Debt cleared"]
+    end
+    
+    subgraph Automated["DebtClearerRSC (Automated)"]
+        REG["Owner registers RSCs"] --> CRON["Cron triggers react()"]
+        CRON --> CHECK{"Debt > threshold?<br/>Balance > debt?"}
+        CHECK -->|Yes| EMIT["Emit Callback"]
+        EMIT --> COVER["coverDebt() executed"]
+        COVER --> AUTO["✅ Auto-cleared"]
+        CHECK -->|No| SKIP["Skip this cycle"]
+    end
+    
+    subgraph Refill["Auto-Refill System"]
+        FEE["Funder collects fees"] --> BRIDGE["Bridge to REACT"]
+        BRIDGE --> SEND["Send to RSC"]
+        SEND --> BAL["✅ Balance restored"]
+    end
+    
+    style U fill:#6366f1,stroke:#4f46e5,color:#fff
+    style REG fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style FEE fill:#f59e0b,stroke:#d97706,color:#fff
+    style PAID fill:#10b981,stroke:#059669,color:#fff
+    style AUTO fill:#10b981,stroke:#059669,color:#fff
+    style BAL fill:#10b981,stroke:#059669,color:#fff

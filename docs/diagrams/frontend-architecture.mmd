@@ -1,0 +1,48 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#06b6d4', 'primaryTextColor': '#fff', 'primaryBorderColor': '#06b6d4', 'lineColor': '#a855f7', 'secondaryColor': '#1e1e2e', 'tertiaryColor': '#0f0f17'}}}%%
+
+flowchart TB
+    subgraph SEPOLIA["SEPOLIA TESTNET"]
+        direction TB
+        
+        subgraph Vaults["Yield Vaults"]
+            MultiAsset["🏦 YieldVaultMultiAsset<br/><i>6 Aave Assets</i>"]
+            Compound["🏦 YieldVaultCompound<br/><i>Compound V3</i>"]
+        end
+        
+        MultiAsset -->|YieldSnapshot Events| EventBus((📡))
+        Compound -->|YieldSnapshot Events| EventBus
+        
+        subgraph Funding["Gas Funding Layer"]
+            Funder["💰 Funder.sol<br/><i>Collects fees from users</i><br/><i>Bridges to RSC via Callback Proxy</i><br/><i>Maintains gas reserve</i>"]
+            FeeCollector["💵 VaultFeeCollector<br/><i>Collects 0.1% fee from DualAsset</i><br/><i>Auto-funds vault internal accounting</i><br/><i>Triggers checkAndFundVault callbacks</i>"]
+        end
+        
+        EventBus --> Funder
+        Funder --> FeeCollector
+    end
+    
+    FeeCollector -->|Cross-Chain Bridge| Bridge((🌉))
+    
+    subgraph LASNA["LASNA (Reactive Network)"]
+        direction TB
+        
+        RSC["⚡ YieldOptimizerReactive<br/><i>Subscribes to YieldSnapshot events</i><br/><i>Compares APYs between assets</i><br/><i>Emits executeRebalance callbacks</i><br/><i>CRON-based periodic checks</i><br/><i>Finality-aware for large rebalances</i>"]
+        
+        FunderRC["🔄 ReactiveFunderRC<br/><i>Monitors FundsReceived events</i><br/><i>Auto-triggers coverDebt callbacks</i><br/><i>Self-sustaining gas pattern</i>"]
+    end
+    
+    Bridge --> RSC
+    Bridge --> FunderRC
+    RSC -->|executeRebalance| MultiAsset
+    FunderRC -->|coverDebt| Funder
+
+    style SEPOLIA fill:#1e1e2e,stroke:#06b6d4,stroke-width:2px
+    style LASNA fill:#1e1e2e,stroke:#a855f7,stroke-width:2px
+    style Vaults fill:#0f0f17,stroke:#22c55e,stroke-width:1px
+    style Funding fill:#0f0f17,stroke:#f59e0b,stroke-width:1px
+    style MultiAsset fill:#06b6d4,stroke:#fff
+    style Compound fill:#06b6d4,stroke:#fff
+    style Funder fill:#22c55e,stroke:#fff
+    style FeeCollector fill:#f59e0b,stroke:#fff
+    style RSC fill:#a855f7,stroke:#fff
+    style FunderRC fill:#ec4899,stroke:#fff

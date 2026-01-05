@@ -218,54 +218,19 @@ Rebalance timing shown as block numbers on Reactive Network.
 
 ## Contract Architecture
 
-```
-+-------------------------------------------------------------------+
-|                         SEPOLIA                                    |
-+-------------------------------------------------------------------+
-|  +---------------------+    +---------------------+               |
-|  | YieldVaultMultiAsset|    |   YieldVaultCompound |               |
-|  |  (6 Aave Assets)    |    |    (Compound V3)     |               |
-|  +----------+----------+    +----------+----------+               |
-|             |                          |                          |
-|             |  YieldSnapshot Events    |                          |
-|             +------------+-------------+                          |
-|                          |                                        |
-|  +-----------------------v------------------------+               |
-|  |              Funder.sol                        |               |
-|  |  - Collects fees from users                    |               |
-|  |  - Bridges to RSC via Callback Proxy           |               |
-|  |  - Maintains gas reserve                       |               |
-|  +-----------------------+------------------------+               |
-|                          |                                        |
-|  +-----------------------v------------------------+               |
-|  |         VaultFeeCollector (New)                |               |
-|  |  - Collects 0.1% fee from DualAsset vault      |               |
-|  |  - Auto-funds vault via internal accounting    |               |
-|  |  - Triggers 'checkAndFundVault' callbacks      |               |
-|  +-----------------------+------------------------+               |
-|                          |                                        |
-+--------------------------|----------------------------------------+
-                           | Cross-Chain Bridge
-+--------------------------|----------------------------------------+
-|                          v         LASNA (Reactive Network)       |
-+-------------------------------------------------------------------+
-|  +-----------------------v------------------------+               |
-|  |         YieldOptimizerReactive                 |               |
-|  |  - Subscribes to YieldSnapshot events          |               |
-|  |  - Compares APYs between assets                |               |
-|  |  - Emits executeRebalance callbacks            |               |
-|  |  - CRON-based periodic checks                  |               |
-|  |  - Finality-aware for large rebalances         |               |
-|  +------------------------------------------------+               |
-|                                                                   |
-|  +------------------------------------------------+               |
-|  |           ReactiveFunderRC                     |               |
-|  |  - Monitors FundsReceived events               |               |
-|  |  - Auto-triggers coverDebt() callbacks         |               |
-|  |  - Self-sustaining gas pattern                 |               |
-|  +------------------------------------------------+               |
-+-------------------------------------------------------------------+
-```
+![Contract Architecture](docs/diagrams/frontend-architecture.png)
+
+The diagram above shows the complete contract architecture spanning both Sepolia and Lasna networks:
+
+**Sepolia Layer:**
+- **YieldVaultMultiAsset** - 6-asset Aave V3 vault
+- **YieldVaultCompound** - Compound V3 vault
+- **Funder** - Collects fees, bridges to RSC, maintains gas reserve
+- **VaultFeeCollector** - 0.1% fee collection, auto-funds vault
+
+**Lasna Layer (Reactive Network):**
+- **YieldOptimizerReactive** - Subscribes to events, compares APYs, emits rebalance callbacks
+- **ReactiveFunderRC** - Monitors funds, auto-triggers coverDebt, self-sustaining gas
 
 ---
 

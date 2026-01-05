@@ -1,0 +1,13 @@
+%%{init: {'theme': 'dark'}}%%
+
+sequenceDiagram
+    participant User
+    participant Vault as YieldVault
+    participant Aave as Aave Pool
+
+    User->>Vault: approve(vault, amount)
+    User->>Vault: deposit(assetId, amount)
+    Vault->>Vault: transferFrom(user, vault, amount)
+    Vault->>Aave: approve(aavePool, amount)
+    Vault->>Aave: supply(token, amount, vault, 0)
+    Vault-->>User: emit Deposited(user, assetId, token, amount)

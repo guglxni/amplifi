@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph Sepolia["SEPOLIA"]
+        Vault["YieldVaultDualAssetV2<br/>- Charges 0.1% fee<br/>- Receives callbacks<br/>- Pays callback gas"]
+        FeeCol["VaultFeeCollector<br/>- Collects fees<br/>- Monitors vault<br/>- Auto-refills<br/>- Emits events"]
+        
+        Vault -->|"fees"| FeeCol
+        FeeCol -->|"funds"| Vault
+        
+        Vault -.->|"YieldSnapshot"| EventsOut["Events flow to<br/>Reactive Network"]
+        FeeCol -.->|"FeeCollected"| EventsOut
+    end
+    
+    EventsOut --> EventsIn
+    
+    subgraph Lasna["REACTIVE NETWORK (Lasna)"]
+        EventsIn["Events from Sepolia"]
+        YieldRSC["YieldOptimizerReactive<br/>- Rebalancing logic<br/>- 80/20 allocation<br/>→ executeRebalance()"]
+        FunderRSC["VaultFunderRSC<br/>- Monitors FeeCollected<br/>- Triggers funding<br/>→ checkAndFundVault()"]
+        
+        EventsIn --> YieldRSC
+        EventsIn --> FunderRSC
+    end
+    
+    style Vault fill:#10b981,stroke:#059669,color:#fff
+    style FeeCol fill:#3b82f6,stroke:#2563eb,color:#fff
+    style YieldRSC fill:#6366f1,stroke:#4f46e5,color:#fff
+    style FunderRSC fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style EventsOut fill:#f59e0b,stroke:#d97706,color:#fff
+    style EventsIn fill:#f59e0b,stroke:#d97706,color:#fff

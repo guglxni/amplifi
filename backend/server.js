@@ -1,6 +1,8 @@
 const http = require('http');
 const https = require('https');
 const url = require('url');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = 3001;
 
@@ -183,8 +185,47 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
         } else {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Not found' }));
+            // Serve static files from frontend directory
+            let filePath = path.join(__dirname, '..', 'frontend', pathname);
+            
+            // Default to index.html if root path
+            if (pathname === '/') {
+                filePath = path.join(__dirname, '..', 'frontend', 'index.html');
+            }
+
+            // Check if file exists
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    res.writeHead(404, { 'Content-Type': 'text/html' });
+                    res.end('<h1>404 Not Found</h1>');
+                    return;
+                }
+
+                // Determine content type
+                const ext = path.extname(filePath);
+                const contentTypes = {
+                    '.html': 'text/html',
+                    '.css': 'text/css',
+                    '.js': 'application/javascript',
+                    '.json': 'application/json',
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.svg': 'image/svg+xml',
+                    '.ico': 'image/x-icon'
+                };
+                const contentType = contentTypes[ext] || 'application/octet-stream';
+
+                // Read and serve file
+                fs.readFile(filePath, (err, data) => {
+                    if (err) {
+                        res.writeHead(500, { 'Content-Type': 'text/html' });
+                        res.end('<h1>500 Internal Server Error</h1>');
+                        return;
+                    }
+                    res.writeHead(200, { 'Content-Type': contentType });
+                    res.end(data);
+                });
+            });
         }
     } catch (e) {
         console.error('Server error:', e);

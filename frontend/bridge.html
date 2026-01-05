@@ -34,6 +34,7 @@
             <a href="multiasset.html" class="nav-item"><i class="ph-bold ph-cube"></i> Multi-Asset Vault</a>
             <a href="protection.html" class="nav-item"><i class="ph-bold ph-shield-check"></i> Protection</a>
             <a href="bridge.html" class="nav-item active"><i class="ph-bold ph-bridge"></i> Reactive Bridge</a>
+            <a href="oracle.html" class="nav-item"><i class="ph-bold ph-chart-line-up"></i> Oracle</a>
             <a href="settings.html" class="nav-item"><i class="ph-bold ph-gear"></i> Settings</a>
         </div>
     </nav>
@@ -199,23 +200,42 @@
                         </button>
                     </div>
 
-                    <!-- Faucet Bridge -->
+                    <!-- Faucet Bridge (Direct - Works for All Users) -->
                     <div
                         style="padding: 1.5rem; background: rgba(52, 211, 153, 0.1); border-radius: 12px; border: 1px solid rgba(52, 211, 153, 0.2);">
                         <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">
-                            <i class="ph-bold ph-drop"></i> Faucet Bridge
+                            <i class="ph-bold ph-drop"></i> Direct Faucet Bridge
                         </h3>
-                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.5rem;">
-                            Convert SepETH → REACT at 100:1 ratio via Reactive Faucet. Max 5 ETH per request.
+                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.75rem;">
+                            Convert SepETH → REACT at 100:1 ratio. Send directly from your wallet. Max 5 ETH (500
+                            REACT).
                         </p>
+                        <div style="margin-bottom: 0.5rem;">
+                            <label style="font-size: 0.75rem; color: var(--color-text-muted);">Recipient:</label>
+                            <select id="faucet-recipient"
+                                style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--color-border); border-radius: 6px; color: white; margin-top: 0.25rem;">
+                                <option value="user">My Wallet (for personal use)</option>
+                                <option value="0x98969559717c24b47A2E4365a569c947a88C4767">YieldOptimizer RSC (fund
+                                    protocol)</option>
+                                <optgroup label="V2 Oracle RSCs (Sepolia Source)">
+                                    <option value="0x4090B8BCcf477eDe37F5A5E7502A68c635579A89">ETH V2 Mirror</option>
+                                    <option value="0xd0E5F6f73254dd3AD42615b46073e4F3752E37b2">BTC V2 Mirror</option>
+                                    <option value="0x24F5b5525e4b598078d1D9965E68596E69c5bdE9">LINK V2 Mirror</option>
+                                </optgroup>
+                            </select>
+                        </div>
                         <div class="input-group" style="margin-bottom: 0.75rem;">
                             <input type="number" placeholder="0.1" id="faucet-amount" step="0.1" min="0.01" max="5"
                                 value="0.1">
                             <span style="font-weight: 700;">ETH</span>
                         </div>
+                        <div style="font-size: 0.75rem; color: var(--color-success); margin-bottom: 0.5rem;"
+                            id="faucet-estimate">
+                            ≈ 10 REACT will be received
+                        </div>
                         <button class="btn-primary"
                             style="width: 100%; background: linear-gradient(135deg, #34d399, #059669);"
-                            onclick="bridgeToFaucet()">
+                            onclick="directFaucetBridge()">
                             <i class="ph-bold ph-swap"></i> Convert to REACT
                         </button>
                     </div>
@@ -262,6 +282,38 @@
                         automatically triggers a faucet bridge to convert SepETH to REACT tokens, keeping the system
                         operational.
                     </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: RSC Debt Management -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-broom"></i> V2 RSC DEBT MANAGEMENT</span>
+                    <span class="badge" id="debt-status-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
+                        <i class="ph-bold ph-circle-notch ph-spin"></i> Checking...
+                    </span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0.5rem 0 1rem;">
+                    V2 RSCs use Sepolia Chainlink as source (constructor subscription pattern).
+                    Clear debt to restore functionality. <a href="oracle.html" style="color: var(--color-primary);">View Oracle RSC status →</a>
+                </p>
+
+                <div id="rsc-debt-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center; color: var(--color-text-muted);">Loading RSC debt status...</div>
+                </div>
+
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button onclick="refreshRscDebts()" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: rgba(255,255,255,0.1); border: 1px solid var(--color-border); border-radius: 6px; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="ph-bold ph-arrow-clockwise"></i> Refresh Status
+                    </button>
+                    <button onclick="clearAllRscDebts()" id="clear-all-debts-btn" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(185, 28, 28, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+                        <i class="ph-bold ph-broom"></i> Clear All Debt
+                    </button>
+                    <button onclick="fundAllRscs()" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: linear-gradient(135deg, rgba(52, 211, 153, 0.8), rgba(5, 150, 105, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+                        <i class="ph-bold ph-drop"></i> Fund All (0.1 ETH each)
+                    </button>
                 </div>
             </div>
         </div>
@@ -353,6 +405,31 @@
             if (tx) setTimeout(refreshBridgeStats, 5000);
         }
 
+        // New Direct Faucet Bridge - Works for all users
+        async function directFaucetBridge() {
+            if (!App.signer) {
+                await App.connectWallet();
+                if (!App.signer) return;
+            }
+
+            const amount = document.getElementById('faucet-amount').value || "0.1";
+            const recipient = document.getElementById('faucet-recipient').value;
+            const tx = await App.directFaucetBridge(recipient, amount);
+            if (tx) setTimeout(refreshBridgeStats, 5000);
+        }
+
+        // Update REACT estimate when amount changes
+        document.addEventListener('DOMContentLoaded', () => {
+            const amountInput = document.getElementById('faucet-amount');
+            if (amountInput) {
+                amountInput.addEventListener('input', () => {
+                    const amount = parseFloat(amountInput.value) || 0;
+                    const react = amount * 100;
+                    document.getElementById('faucet-estimate').innerText = `≈ ${react} REACT will be received`;
+                });
+            }
+        });
+
         function animateParticle() {
             const p = document.getElementById('particle');
             let pos = -10;
@@ -374,7 +451,286 @@
                 p.style.left = pos + '%';
             }, 20);
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        //                    RSC DEBT MANAGEMENT
+        // ═══════════════════════════════════════════════════════════════
+
+        const LASNA_RPC = 'https://lasna-rpc.rnk.dev';
+        const SYSTEM_CONTRACT = '0x0000000000000000000000000000000000fffFfF';
+        const DEBT_THRESHOLD = 0.001;
+
+        // V2 Oracle RSCs (Sepolia Source) - Active
+        const ORACLE_RSCS = {
+            ETH: { address: '0x4090B8BCcf477eDe37F5A5E7502A68c635579A89', name: 'ETH V2 Mirror' },
+            BTC: { address: '0xd0E5F6f73254dd3AD42615b46073e4F3752E37b2', name: 'BTC V2 Mirror' },
+            LINK: { address: '0x24F5b5525e4b598078d1D9965E68596E69c5bdE9', name: 'LINK V2 Mirror' }
+        };
+
+        let rscDebtStatus = {};
+
+        async function fetchRscDebt(rscAddress) {
+            try {
+                const callData = '0x9b6c56ec' + rscAddress.slice(2).padStart(64, '0');
+                const response = await fetch(LASNA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_call',
+                        params: [{ to: SYSTEM_CONTRACT, data: callData }, 'latest'],
+                        id: Date.now()
+                    })
+                });
+                const data = await response.json();
+                if (data.result) {
+                    return parseInt(data.result, 16) / 1e18;
+                }
+            } catch (e) {
+                console.warn('RSC debt fetch failed:', rscAddress, e.message);
+            }
+            return null;
+        }
+
+        async function fetchRscBalance(rscAddress) {
+            try {
+                const response = await fetch(LASNA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_getBalance',
+                        params: [rscAddress, 'latest'],
+                        id: Date.now()
+                    })
+                });
+                const data = await response.json();
+                if (data.result) {
+                    return parseInt(data.result, 16) / 1e18;
+                }
+            } catch (e) {
+                console.warn('RSC balance fetch failed:', rscAddress, e.message);
+            }
+            return null;
+        }
+
+        async function refreshRscDebts() {
+            const grid = document.getElementById('rsc-debt-grid');
+            const statusBadge = document.getElementById('debt-status-badge');
+            
+            let html = '';
+            let allHealthy = true;
+            let totalDebt = 0;
+
+            for (const [symbol, rsc] of Object.entries(ORACLE_RSCS)) {
+                const [debt, balance] = await Promise.all([
+                    fetchRscDebt(rsc.address),
+                    fetchRscBalance(rsc.address)
+                ]);
+
+                const hasDebt = debt !== null && debt > DEBT_THRESHOLD;
+                const hasFunds = balance !== null && balance > 0.01;
+                const canClear = hasDebt && hasFunds && balance >= debt;
+
+                if (hasDebt) {
+                    allHealthy = false;
+                    totalDebt += debt;
+                }
+
+                rscDebtStatus[symbol] = { address: rsc.address, name: rsc.name, debt, balance, canClear };
+
+                const debtStr = debt !== null ? debt.toFixed(6) : 'Error';
+                const balanceStr = balance !== null ? balance.toFixed(4) : 'Error';
+                const statusColor = !hasDebt ? 'rgba(52, 211, 153, 0.2)' : canClear ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                const borderColor = !hasDebt ? 'rgba(52, 211, 153, 0.3)' : canClear ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+                const statusText = !hasDebt ? '✓ No Debt' : canClear ? '⏳ Can Clear' : '⚠️ Need Funds';
+                const statusTextColor = !hasDebt ? '#34d399' : canClear ? '#fbbf24' : '#ef4444';
+
+                html += `
+                    <div style="background: var(--color-bg-secondary); padding: 1rem; border-radius: 10px; border: 1px solid ${borderColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700;">${symbol} Mirror</span>
+                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${statusColor}; color: ${statusTextColor};">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Balance</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${hasFunds ? '#34d399' : 'var(--color-text-muted)'};">
+                                    ${balanceStr} REACT
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Debt</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${hasDebt ? '#ef4444' : '#34d399'};">
+                                    ${debtStr} REACT
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.6rem; color: var(--color-text-muted); margin-top: 0.5rem; font-family: monospace;">
+                            ${rsc.address.slice(0, 10)}...${rsc.address.slice(-8)}
+                        </div>
+                        ${hasDebt ? `
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                            <button onclick="clearSingleDebt('${rsc.address}', '${symbol}')"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.7rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(185, 28, 28, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-weight: 600;">
+                                <i class="ph-bold ph-broom"></i> Clear
+                            </button>
+                            <button onclick="fundSingleRsc('${rsc.address}', '${symbol}')"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.7rem; background: linear-gradient(135deg, rgba(52, 211, 153, 0.8), rgba(5, 150, 105, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-weight: 600;">
+                                <i class="ph-bold ph-drop"></i> Fund
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            grid.innerHTML = html;
+
+            if (allHealthy) {
+                statusBadge.innerHTML = '<i class="ph-bold ph-check-circle"></i> All Clear';
+                statusBadge.style.background = 'rgba(52, 211, 153, 0.2)';
+                statusBadge.style.color = '#34d399';
+            } else {
+                statusBadge.innerHTML = `<i class="ph-bold ph-warning"></i> ${totalDebt.toFixed(4)} REACT Debt`;
+                statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusBadge.style.color = '#ef4444';
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem;
+                border-radius: 8px; font-weight: 600; z-index: 9999;
+                animation: slideIn 0.3s ease;
+                ${type === 'success' ? 'background: rgba(52, 211, 153, 0.9); color: white;' : ''}
+                ${type === 'error' ? 'background: rgba(239, 68, 68, 0.9); color: white;' : ''}
+                ${type === 'info' ? 'background: rgba(99, 102, 241, 0.9); color: white;' : ''}
+                ${type === 'warning' ? 'background: rgba(251, 191, 36, 0.9); color: black;' : ''}
+            `;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function clearSingleDebt(rscAddress, symbol) {
+            if (typeof window.ethereum === 'undefined') {
+                showToast('Please install MetaMask', 'error');
+                return;
+            }
+
+            try {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const LASNA_CHAIN_ID = '0x512417';
+                
+                if (chainId !== LASNA_CHAIN_ID) {
+                    showToast('Switching to Lasna network...', 'info');
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: LASNA_CHAIN_ID }]
+                        });
+                    } catch (e) {
+                        if (e.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: LASNA_CHAIN_ID,
+                                    chainName: 'Reactive Lasna Testnet',
+                                    nativeCurrency: { name: 'REACT', symbol: 'REACT', decimals: 18 },
+                                    rpcUrls: ['https://lasna-rpc.rnk.dev'],
+                                    blockExplorerUrls: ['https://reactscan.net']
+                                }]
+                            });
+                        } else throw e;
+                    }
+                }
+
+                showToast(`Clearing debt for ${symbol}...`, 'info');
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(rscAddress, ['function coverDebt() external'], signer);
+                
+                const tx = await contract.coverDebt();
+                showToast(`Tx submitted: ${tx.hash.slice(0, 10)}...`, 'info');
+                await tx.wait();
+                showToast(`✓ Debt cleared for ${symbol}!`, 'success');
+                refreshRscDebts();
+            } catch (e) {
+                console.error('Clear debt error:', e);
+                showToast(`Error: ${e.message?.slice(0, 40) || 'Unknown'}`, 'error');
+            }
+        }
+
+        async function fundSingleRsc(rscAddress, symbol) {
+            if (!App.signer) {
+                await App.connectWallet();
+                if (!App.signer) return;
+            }
+            
+            showToast(`Funding ${symbol} RSC via faucet...`, 'info');
+            const tx = await App.directFaucetBridge(rscAddress, '0.1');
+            if (tx) {
+                showToast(`✓ Funded ${symbol} with 10 REACT!`, 'success');
+                setTimeout(refreshRscDebts, 5000);
+            }
+        }
+
+        async function clearAllRscDebts() {
+            const rscsWithDebt = Object.entries(rscDebtStatus).filter(([_, d]) => d.debt > DEBT_THRESHOLD && d.canClear);
+            if (rscsWithDebt.length === 0) {
+                showToast('No debts to clear!', 'success');
+                return;
+            }
+            
+            showToast(`Clearing ${rscsWithDebt.length} RSC debts...`, 'info');
+            for (const [symbol, data] of rscsWithDebt) {
+                await clearSingleDebt(data.address, symbol);
+            }
+        }
+
+        async function fundAllRscs() {
+            const rscsToFund = Object.entries(rscDebtStatus).filter(([_, d]) => d.debt > DEBT_THRESHOLD);
+            if (rscsToFund.length === 0) {
+                showToast('No RSCs need funding!', 'success');
+                return;
+            }
+            
+            showToast(`Funding ${rscsToFund.length} RSCs...`, 'info');
+            for (const [symbol, data] of rscsToFund) {
+                await fundSingleRsc(data.address, symbol);
+            }
+        }
+
+        // Initialize RSC debt status on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(refreshRscDebts, 1000);
+            setInterval(refreshRscDebts, 60000);
+        });
     </script>
+
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+    </style>
 </body>
 
 </html>

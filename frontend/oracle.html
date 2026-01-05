@@ -66,6 +66,28 @@
             </div>
         </header>
 
+        <!-- Oracle Status Alert -->
+        <div id="oracle-alert" class="card"
+            style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(239, 68, 68, 0.1)); border: 1px solid rgba(251, 191, 36, 0.3); display: none;">
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <i class="ph-bold ph-warning" style="font-size: 2rem; color: #fbbf24;"></i>
+                <div style="flex: 1; min-width: 200px;">
+                    <div id="oracle-alert-title" style="font-weight: 700; color: #fbbf24; margin-bottom: 0.25rem;">
+                        Prices Awaiting Source Updates
+                    </div>
+                    <div id="oracle-alert-message" style="font-size: 0.85rem; color: var(--color-text-muted);">
+                        On-chain prices are <span id="staleness-age"
+                            style="color: #ef4444; font-weight: 600;">stale</span>.
+                        <span id="alert-reason">Checking Sepolia Chainlink feeds...</span>
+                    </div>
+                </div>
+                <button onclick="forceRefreshPrices()"
+                    style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                    <i class="ph-bold ph-arrow-clockwise"></i> Use Live Prices
+                </button>
+            </div>
+        </div>
+
         <!-- Key Stats -->
         <div class="dashboard-grid">
             <div class="card">
@@ -82,11 +104,12 @@
 
             <div class="card">
                 <div class="card-header">
-                    <span>AVG LATENCY</span>
-                    <i class="ph-bold ph-timer" style="color: var(--color-primary);"></i>
+                    <span>ORACLE STATUS</span>
+                    <i class="ph-bold ph-pulse" id="oracle-status-icon" style="color: var(--color-warning);"></i>
                 </div>
-                <div class="metric-value">&lt;1s</div>
-                <div class="metric-sub" style="color: var(--color-success);">Real-time updates</div>
+                <div class="metric-value" id="oracle-status-text" style="font-size: 1.5rem;">Checking...</div>
+                <div class="metric-sub" id="oracle-status-sub" style="color: var(--color-text-muted);">Fetching oracle
+                    data</div>
             </div>
 
             <div class="card">
@@ -94,8 +117,95 @@
                     <span>CHAINS SUPPORTED</span>
                     <i class="ph-bold ph-link-simple" style="color: var(--color-accent);"></i>
                 </div>
-                <div class="metric-value">2</div>
-                <div class="metric-sub">Sepolia + Lasna</div>
+                <div class="metric-value">3</div>
+                <div class="metric-sub">Sepolia Chainlink → Lasna → Sepolia</div>
+            </div>
+        </div>
+
+        <!-- RSC Debt Monitoring Section -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem;">
+            <div class="card col-span-3">
+                <div class="card-header">
+                    <span><i class="ph-bold ph-gas-pump"></i> ORACLE RSC MONITORING</span>
+                    <span class="badge" id="rsc-monitor-status"
+                        style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
+                        <i class="ph-bold ph-circle-notch ph-spin"></i> Checking...
+                    </span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0.5rem 0 1rem;">
+                    Monitor ChainlinkMirror RSCs on Lasna. V2 RSCs use constructor subscription pattern.
+                    When debt accumulates, RSCs stop processing callbacks and prices become stale.
+                </p>
+                <div id="rsc-monitoring-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center; color: var(--color-text-muted);">Fetching RSC status...</div>
+                </div>
+
+                <!-- Auto-Funding Status -->
+                <div
+                    style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--color-border);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                        <div>
+                            <div
+                                style="font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ph-bold ph-lightning" style="color: #fbbf24;"></i> Reactivate Pattern
+                                <span
+                                    style="font-size: 0.65rem; padding: 0.15rem 0.4rem; background: rgba(52, 211, 153, 0.2); color: #34d399; border-radius: 4px;">DEPLOYED</span>
+                            </div>
+                            <div
+                                style="font-size: 0.7rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                                <code
+                                    style="background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.65rem;">0x57fc3b...5ec7</code>
+                                <span>OracleAutoFunder on Lasna</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="checkAllRscDebts()"
+                                style="padding: 0.4rem 0.7rem; font-size: 0.75rem; background: rgba(255,255,255,0.1); border: 1px solid var(--color-border); border-radius: 6px; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                                <i class="ph-bold ph-arrow-clockwise"></i> Refresh
+                            </button>
+                            <button id="auto-clear-toggle" onclick="toggleAutoClear()"
+                                style="padding: 0.4rem 0.7rem; font-size: 0.75rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(79, 70, 229, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-weight: 600;">
+                                <i class="ph-bold ph-robot"></i> Auto-Clear
+                            </button>
+                            <button id="clear-all-debt-btn" onclick="clearAllDebt()"
+                                style="padding: 0.4rem 0.7rem; font-size: 0.75rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(185, 28, 28, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-weight: 600;">
+                                <i class="ph-bold ph-broom"></i> Clear All Debt
+                            </button>
+                            <a href="bridge.html"
+                                style="padding: 0.4rem 0.7rem; font-size: 0.75rem; background: linear-gradient(135deg, rgba(52, 211, 153, 0.8), rgba(5, 150, 105, 0.8)); border-radius: 6px; color: white; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; font-weight: 600;">
+                                <i class="ph-bold ph-drop"></i> Fund RSC
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- V2 RSC Summary Section -->
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ph-bold ph-star" style="color: #6366f1;"></i> V2 RSCs Deployed (Sepolia → Reactive → Sepolia)
+                                <span id="v2-rsc-badge" style="font-size: 0.65rem; padding: 0.15rem 0.4rem; background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-radius: 4px;">WAITING</span>
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--color-text-muted);">
+                                ETH: <code style="background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.65rem;">0x4090...9A89</code>
+                                BTC: <code style="background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.65rem;">0xd0E5...37b2</code>
+                                LINK: <code style="background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.65rem;">0x24F5...bdE9</code>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span id="v2-round-status" style="font-size: 0.75rem; color: var(--color-text-muted);">ETH lastRoundId: <span id="v2-round-id">-</span></span>
+                            <button onclick="checkV2RscStatus()" style="padding: 0.4rem 0.7rem; font-size: 0.75rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 6px; color: #a5b4fc; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                                <i class="ph-bold ph-arrow-clockwise"></i> Check
+                            </button>
+                        </div>
+                    </div>
+                    <div id="v2-status-message" style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.5rem;">
+                        V2 RSCs use constructor subscription + Sepolia origin. Waiting for next Chainlink update (~hourly on testnet).
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -188,17 +298,83 @@
     </main>
 
     <script>
-        // Price Feed Addresses (Sepolia Chainlink)
+        // Price Feed Addresses (AbstractFeedProxy on Sepolia)
         const PRICE_FEEDS = {
-            ETH: { address: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691', pair: 'ETH/USD' },
-            LINK: { address: '0x6B94668442B97e7dCF1958044a21e42a73D3647b', pair: 'LINK/USD' },
-            EUR: { address: '0x955e94A600d059789d42ca533fe90c5187f520Af', pair: 'EUR/USD' },
-            BTC: { address: '0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9', pair: 'BTC/USD' }
+            ETH: { address: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691', pair: 'ETH/USD', coingeckoId: 'ethereum' },
+            LINK: { address: '0x6B94668442B97e7dCF1958044a21e42a73D3647b', pair: 'LINK/USD', coingeckoId: 'chainlink' },
+            EUR: { address: '0x955e94A600d059789d42ca533fe90c5187f520Af', pair: 'EUR/USD', coingeckoId: null },
+            BTC: { address: '0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9', pair: 'BTC/USD', coingeckoId: 'bitcoin' }
         };
 
         const RPC_URL = 'https://eth-sepolia.g.alchemy.com/v2/gSGZUmZvUJI9GKs2xrpKl';
+        const COINGECKO_URL = 'https://api.coingecko.com/api/v3/simple/price';
 
-        async function fetchPrice(feedAddress) {
+        // Staleness threshold: 1 hour = 3600 seconds
+        const STALENESS_THRESHOLD_SECONDS = 3600;
+
+        // V2 RSC Addresses on Lasna (constructor subscription pattern)
+        const V2_RSCS = {
+            ETH: {
+                address: '0x4090B8BCcf477eDe37F5A5E7502A68c635579A89',
+                name: 'ETH V2 Mirror',
+                feedProxy: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691'
+            },
+            BTC: {
+                address: '0xd0E5F6f73254dd3AD42615b46073e4F3752E37b2',
+                name: 'BTC V2 Mirror',
+                feedProxy: '0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9'
+            },
+            LINK: {
+                address: '0x24F5b5525e4b598078d1D9965E68596E69c5bdE9',
+                name: 'LINK V2 Mirror',
+                feedProxy: '0x6B94668442B97e7dCF1958044a21e42a73D3647b'
+            }
+        };
+
+        // Sepolia Chainlink Direct Feeds (source of truth)
+        const SEPOLIA_CHAINLINK = {
+            ETH: '0x694AA1769357215DE4FAC081bf1f309aDC325306',
+            BTC: '0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43',
+            LINK: '0xc59E3633BAAC79493d908e63626716e204A45EdF'
+        };
+
+        // V1 RSC Addresses on Lasna (legacy - used Base Sepolia)
+        const ORACLE_RSCS = {
+            ETH: {
+                address: '0x1CdD260983f23c2A29a91134442C499cd3cc29cF',
+                name: 'ETH Mirror V1',
+                feedProxy: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691'
+            },
+            BTC: {
+                address: '0xa17c0a6abac640ee401ff767efa1cbf31966a848',
+                name: 'BTC Mirror V1',
+                feedProxy: '0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9'
+            },
+            LINK: {
+                address: '0xdb0a8ab7ea10f2d9e1be242718699bee43131274',
+                name: 'LINK Mirror V1',
+                feedProxy: '0x6B94668442B97e7dCF1958044a21e42a73D3647b'
+            }
+        };
+
+        const LASNA_RPC = 'https://lasna-rpc.rnk.dev';
+        const SYSTEM_CONTRACT = '0x0000000000000000000000000000000000fffFfF';
+
+        // Debt threshold (in REACT) - above this RSC needs funding
+        const DEBT_THRESHOLD = 0.001; // 1 mREACT
+
+        // Track RSC status
+        let rscStatus = {};
+
+        // Track price sources and last update
+        let priceData = {};
+        let lastCoingeckoCall = 0;
+        const COINGECKO_RATE_LIMIT_MS = 30000; // 30 seconds rate limit
+        let oracleStale = false;
+        let maxStalenessHours = 0;
+
+        // Fetch price from on-chain AbstractFeedProxy including timestamp
+        async function fetchOnchainPrice(feedAddress) {
             try {
                 const response = await fetch(RPC_URL, {
                     method: 'POST',
@@ -206,49 +382,915 @@
                     body: JSON.stringify({
                         jsonrpc: '2.0',
                         method: 'eth_call',
-                        params: [{ to: feedAddress, data: '0xfeaf968c' }, 'latest'],
+                        params: [{ to: feedAddress, data: '0xfeaf968c' }, 'latest'], // latestRoundData()
                         id: Date.now()
                     })
                 });
                 const data = await response.json();
+
                 if (data.result && data.result.length > 66) {
-                    return parseInt('0x' + data.result.slice(66, 130), 16) / 1e8;
+                    // latestRoundData returns: (roundId, answer, startedAt, updatedAt, answeredInRound)
+                    // Each uint256 = 64 hex chars, positions: 0-64 (roundId), 64-128 (answer), 128-192 (startedAt), 192-256 (updatedAt)
+                    const price = parseInt('0x' + data.result.slice(66, 130), 16) / 1e8;
+                    const updatedAt = parseInt('0x' + data.result.slice(194, 258), 16);
+
+                    const now = Math.floor(Date.now() / 1000);
+                    const ageSeconds = now - updatedAt;
+                    const isStale = ageSeconds > STALENESS_THRESHOLD_SECONDS;
+
+                    if (price > 0) {
+                        return {
+                            price,
+                            source: 'onchain',
+                            fresh: !isStale,
+                            updatedAt,
+                            ageSeconds,
+                            ageHours: (ageSeconds / 3600).toFixed(1)
+                        };
+                    }
                 }
             } catch (e) {
-                console.error('Price fetch error:', e);
+                console.warn('On-chain price fetch failed:', feedAddress, e.message);
             }
-            return 0;
+            return null;
+        }
+
+        // Fetch price directly from Sepolia Chainlink (source of truth)
+        async function fetchSepoliaChainlinkPrice(symbol) {
+            const feedAddress = SEPOLIA_CHAINLINK[symbol];
+            if (!feedAddress) return null;
+
+            try {
+                const response = await fetch(RPC_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_call',
+                        params: [{ to: feedAddress, data: '0xfeaf968c' }, 'latest'], // latestRoundData()
+                        id: Date.now()
+                    })
+                });
+                const data = await response.json();
+
+                if (data.result && data.result.length > 66) {
+                    const price = parseInt('0x' + data.result.slice(66, 130), 16) / 1e8;
+                    const updatedAt = parseInt('0x' + data.result.slice(194, 258), 16);
+
+                    const now = Math.floor(Date.now() / 1000);
+                    const ageSeconds = now - updatedAt;
+
+                    if (price > 0) {
+                        return {
+                            price,
+                            source: 'chainlink-sepolia',
+                            updatedAt,
+                            ageSeconds,
+                            ageHours: (ageSeconds / 3600).toFixed(1)
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn('Sepolia Chainlink fetch failed:', symbol, e.message);
+            }
+            return null;
+        }
+
+        // Fetch prices from CoinGecko (with rate limiting)
+        async function fetchCoingeckoPrices() {
+            const now = Date.now();
+            if (now - lastCoingeckoCall < COINGECKO_RATE_LIMIT_MS) {
+                console.log('CoinGecko rate limited, using cached prices');
+                return null;
+            }
+
+            try {
+                const ids = Object.values(PRICE_FEEDS)
+                    .filter(f => f.coingeckoId)
+                    .map(f => f.coingeckoId)
+                    .join(',');
+
+                const response = await fetch(`${COINGECKO_URL}?ids=${ids}&vs_currencies=usd`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) throw new Error('CoinGecko API error');
+
+                lastCoingeckoCall = now;
+                return await response.json();
+            } catch (e) {
+                console.warn('CoinGecko fetch failed:', e.message);
+                return null;
+            }
         }
 
         function formatPrice(price) {
+            if (price === null || price === undefined || price === 0) return '--';
+            if (price < 1) return price.toFixed(4);
+            if (price < 100) return price.toFixed(2);
             return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Force use of live CoinGecko prices when on-chain is stale
+        let useLivePrices = false;
+        
+        function forceRefreshPrices() {
+            useLivePrices = !useLivePrices;
+            const btn = document.querySelector('#oracle-alert button');
+            if (useLivePrices) {
+                btn.innerHTML = '<i class="ph-bold ph-link"></i> Use On-Chain';
+                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                showToast('Switched to live CoinGecko prices', 'success');
+            } else {
+                btn.innerHTML = '<i class="ph-bold ph-arrow-clockwise"></i> Use Live Prices';
+                btn.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+                showToast('Switched to on-chain prices', 'info');
+            }
+            updatePrices();
+        }
+
+        // Check V2 RSC status (constructor subscription test)
+        async function checkV2RscStatus() {
+            const V2_RSC = '0x4090B8BCcf477eDe37F5A5E7502A68c635579A89';
+            const roundIdEl = document.getElementById('v2-round-id');
+            const statusMsg = document.getElementById('v2-status-message');
+            const badge = document.getElementById('v2-rsc-badge');
+            
+            try {
+                const lasnaProvider = new ethers.providers.JsonRpcProvider('https://lasna-rpc.rnk.dev');
+                const abi = ['function lastMirroredRoundId() view returns (uint80)'];
+                const contract = new ethers.Contract(V2_RSC, abi, lasnaProvider);
+                
+                const roundId = await contract.lastMirroredRoundId();
+                roundIdEl.textContent = roundId.toString();
+                
+                if (roundId.gt(0)) {
+                    // V2 RSC received events!
+                    badge.style.background = 'rgba(52, 211, 153, 0.2)';
+                    badge.style.color = '#34d399';
+                    badge.textContent = 'WORKING ✓';
+                    statusMsg.innerHTML = '✅ V2 RSC is receiving events from Reactive Network! Constructor subscription pattern works.';
+                    statusMsg.style.color = '#34d399';
+                    showToast('V2 RSC is working! Events received.', 'success');
+                } else {
+                    // Still waiting
+                    badge.style.background = 'rgba(251, 191, 36, 0.2)';
+                    badge.style.color = '#fbbf24';
+                    badge.textContent = 'WAITING';
+                    statusMsg.innerHTML = '⏳ Waiting for next Chainlink update on Sepolia... (updates ~hourly on testnet)';
+                    statusMsg.style.color = 'var(--color-text-muted)';
+                }
+            } catch (e) {
+                console.error('V2 RSC check failed:', e);
+                roundIdEl.textContent = 'Error';
+                statusMsg.innerHTML = '❌ Error checking V2 RSC: ' + e.message;
+                statusMsg.style.color = '#ef4444';
+            }
+        }
+
+        // Check if RSCs have debt to determine alert message
+        async function getRscDebtStatus() {
+            if (!window.ethereum) return { hasDebt: false, totalDebt: 0 };
+            
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const SYSTEM_CONTRACT = '0x0000000000000000000000000000000000fffFfF';
+            const systemAbi = ['function debt(address) view returns (uint256)'];
+            
+            const rscs = [
+                '0x1CdD260983f23c2A29a91134442C499cd3cc29cF', // ETH
+                '0xA17c0A6aBAC640ee401FF767EfA1cBf31966A848', // BTC  
+                '0xDb0a8ab7Ea10f2D9E1BE242718699BEE43131274'  // LINK
+            ];
+            
+            try {
+                // Connect to Lasna RPC
+                const lasnaProvider = new ethers.providers.JsonRpcProvider('https://lasna-rpc.rnk.dev');
+                const system = new ethers.Contract(SYSTEM_CONTRACT, systemAbi, lasnaProvider);
+                
+                let totalDebt = 0;
+                for (const rsc of rscs) {
+                    const debt = await system.debt(rsc);
+                    totalDebt += parseFloat(ethers.utils.formatEther(debt));
+                }
+                
+                return { hasDebt: totalDebt > 0.001, totalDebt };
+            } catch (e) {
+                console.error('Error checking RSC debt:', e);
+                return { hasDebt: false, totalDebt: 0 };
+            }
         }
 
         async function updatePrices() {
             const grid = document.getElementById('prices-grid');
-            let html = '';
+            const liveIndicator = document.querySelector('.badge-live');
+            const oracleAlert = document.getElementById('oracle-alert');
+            const stalenessAge = document.getElementById('staleness-age');
+            const statusText = document.getElementById('oracle-status-text');
+            const statusSub = document.getElementById('oracle-status-sub');
+            const statusIcon = document.getElementById('oracle-status-icon');
+            const alertTitle = document.getElementById('oracle-alert-title');
+            const alertReason = document.getElementById('alert-reason');
 
+            let anyStale = false;
+            let maxStaleHours = 0;
+            let maxChainlinkHours = 0; // Track Chainlink age separately
+            let coingeckoPrices = null;
+
+            // Always fetch CoinGecko for live comparison
+            coingeckoPrices = await fetchCoingeckoPrices();
+
+            // Fetch prices from Sepolia Chainlink (source of truth) and on-chain proxies
             for (const [symbol, feed] of Object.entries(PRICE_FEEDS)) {
-                const price = await fetchPrice(feed.address);
+                // First try Sepolia Chainlink direct (most reliable source)
+                const chainlinkResult = await fetchSepoliaChainlinkPrice(symbol);
+                const proxyResult = await fetchOnchainPrice(feed.address);
+
+                // Use Chainlink as primary, proxy as secondary
+                const primaryResult = chainlinkResult || proxyResult;
+
+                if (primaryResult) {
+                    // Track Chainlink age separately (for status display)
+                    if (chainlinkResult) {
+                        const chainlinkHours = parseFloat(chainlinkResult.ageHours);
+                        if (chainlinkHours > maxChainlinkHours) maxChainlinkHours = chainlinkHours;
+                    }
+
+                    // Consider "fresh" if Chainlink available and under 24h, OR proxy under 1h
+                    const chainlinkFreshForSymbol = chainlinkResult && parseFloat(chainlinkResult.ageHours) < 24;
+                    const proxyFreshForSymbol = proxyResult && parseFloat(proxyResult.ageHours) < 1;
+                    const isFresh = chainlinkFreshForSymbol || proxyFreshForSymbol;
+
+                    // Track max proxy staleness for feeds without Chainlink
+                    if (!chainlinkResult && proxyResult) {
+                        const proxyHours = parseFloat(proxyResult.ageHours);
+                        if (proxyHours > maxStaleHours) maxStaleHours = proxyHours;
+                    }
+
+                    priceData[symbol] = {
+                        ...primaryResult,
+                        fresh: isFresh,
+                        pair: feed.pair,
+                        address: feed.address,
+                        coingeckoId: feed.coingeckoId,
+                        proxyPrice: proxyResult?.price || 0,
+                        proxyAge: proxyResult?.ageHours || null,
+                        chainlinkPrice: chainlinkResult?.price || 0,
+                        chainlinkAge: chainlinkResult?.ageHours || null,
+                        hasChainlink: !!chainlinkResult
+                    };
+
+                    // If stale and CoinGecko available, add live price for comparison
+                    if (!isFresh && feed.coingeckoId && coingeckoPrices && coingeckoPrices[feed.coingeckoId]) {
+                        priceData[symbol].livePrice = coingeckoPrices[feed.coingeckoId].usd;
+                    }
+                } else {
+                    priceData[symbol] = {
+                        price: 0,
+                        source: 'offline',
+                        fresh: false,
+                        pair: feed.pair,
+                        address: feed.address,
+                        coingeckoId: feed.coingeckoId
+                    };
+                    anyStale = true;
+
+                    // Use CoinGecko as fallback
+                    if (feed.coingeckoId && coingeckoPrices && coingeckoPrices[feed.coingeckoId]) {
+                        priceData[symbol].livePrice = coingeckoPrices[feed.coingeckoId].usd;
+                    }
+                }
+            }
+
+            // Check RSC debt status to determine alert reason
+            const debtStatus = await getRscDebtStatus();
+
+            // Count how many feeds have fresh Chainlink data
+            const chainlinkFeeds = Object.values(priceData).filter(d => d.hasChainlink);
+            const freshChainlinkCount = chainlinkFeeds.filter(d => parseFloat(d.chainlinkAge || 999) < 24).length;
+            const allChainlinkFresh = chainlinkFeeds.length > 0 && freshChainlinkCount === chainlinkFeeds.length;
+
+            // Determine display age - use Chainlink age for main feeds
+            const displayAge = maxChainlinkHours > 0 ? maxChainlinkHours : maxStaleHours;
+
+            // Update staleness alert - show info banner even when Chainlink is fresh
+            if (!allChainlinkFresh && !useLivePrices) {
+                oracleAlert.style.display = 'block';
+                oracleAlert.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.1))';
+                oracleAlert.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                
+                // Show hours if under 24, otherwise days
+                if (displayAge > 24) {
+                    const daysStale = (displayAge / 24).toFixed(1);
+                    stalenessAge.textContent = `${daysStale} days old`;
+                } else {
+                    stalenessAge.textContent = `${displayAge.toFixed(1)} hours old`;
+                }
+
+                // Update alert message based on debt status and data source
+                if (debtStatus.hasDebt) {
+                    alertTitle.textContent = 'Oracle RSCs Need Funding';
+                    alertReason.textContent = 'RSCs have accumulated debt. Fund or clear debt to resume.';
+                    alertTitle.style.color = '#ef4444';
+                } else if (chainlinkFeeds.length > 0) {
+                    alertTitle.textContent = 'Chainlink Sepolia Data Available';
+                    alertReason.textContent = `Showing Chainlink prices (last update: ${maxChainlinkHours.toFixed(1)}h ago). RSC bridge pending.`;
+                    alertTitle.style.color = '#3b82f6';
+                } else {
+                    alertTitle.textContent = 'Awaiting Reactive Network Events';
+                    alertReason.textContent = 'V2 RSCs deployed. Waiting for Sepolia Chainlink update.';
+                    alertTitle.style.color = '#fbbf24';
+                }
+
+                // Update status card based on CHAINLINK freshness (not proxy)
+                const chainlinkIsFresh = maxChainlinkHours < 24;
+                statusText.textContent = chainlinkIsFresh ? 'RECENT' : 'STALE';
+                statusText.style.color = chainlinkIsFresh ? '#3b82f6' : '#fbbf24';
+                statusSub.textContent = `Chainlink: ${maxChainlinkHours.toFixed(1)}h ago`;
+                statusSub.style.color = chainlinkIsFresh ? '#3b82f6' : '#fbbf24';
+                statusIcon.style.color = chainlinkIsFresh ? '#3b82f6' : '#fbbf24';
+
+                if (chainlinkIsFresh) {
+                    liveIndicator.innerHTML = '<i class="ph-bold ph-clock"></i> RECENT';
+                    liveIndicator.classList.remove('badge-live');
+                    liveIndicator.classList.add('badge-warning');
+                } else {
+                    liveIndicator.innerHTML = '<i class="ph-bold ph-warning"></i> STALE';
+                    liveIndicator.classList.remove('badge-live');
+                    liveIndicator.classList.add('badge-warning');
+                }
+            } else if (useLivePrices) {
+                // Using live prices mode
+                oracleAlert.style.display = 'block';
+                alertTitle.textContent = 'Using Live CoinGecko Prices';
+                alertTitle.style.color = '#10b981';
+                alertReason.textContent = 'On-chain feeds stale. Displaying real-time market prices.';
+                stalenessAge.textContent = 'live';
+                stalenessAge.style.color = '#10b981';
+
+                statusText.textContent = 'LIVE';
+                statusText.style.color = 'var(--color-success)';
+                statusSub.textContent = 'CoinGecko prices';
+                statusSub.style.color = 'var(--color-success)';
+                statusIcon.style.color = 'var(--color-success)';
+
+                liveIndicator.innerHTML = '<span class="live-dot"></span> LIVE';
+                liveIndicator.classList.remove('badge-warning');
+                liveIndicator.classList.add('badge-live');
+            } else if (allChainlinkFresh) {
+                // Chainlink data is fresh - show success banner
+                oracleAlert.style.display = 'block';
+                oracleAlert.style.background = 'linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.1))';
+                oracleAlert.style.border = '1px solid rgba(52, 211, 153, 0.3)';
+                alertTitle.textContent = 'Chainlink Sepolia Data Fresh';
+                alertTitle.style.color = '#34d399';
+                alertReason.textContent = `Showing real Chainlink prices (${maxChainlinkHours.toFixed(1)}h ago). RSC bridge pending next update.`;
+                stalenessAge.textContent = `${maxChainlinkHours.toFixed(1)}h ago`;
+                stalenessAge.style.color = '#34d399';
+
+                statusText.textContent = 'FRESH';
+                statusText.style.color = 'var(--color-success)';
+                statusSub.textContent = `Chainlink: ${maxChainlinkHours.toFixed(1)}h ago`;
+                statusSub.style.color = 'var(--color-success)';
+                statusIcon.style.color = 'var(--color-success)';
+
+                liveIndicator.innerHTML = '<span class="live-dot"></span> FRESH';
+                liveIndicator.classList.remove('badge-warning');
+                liveIndicator.classList.add('badge-live');
+            } else {
+                oracleAlert.style.display = 'none';
+                statusText.textContent = 'LIVE';
+                statusText.style.color = 'var(--color-success)';
+                statusSub.textContent = 'Real-time updates';
+                statusSub.style.color = 'var(--color-success)';
+                statusIcon.style.color = 'var(--color-success)';
+
+                liveIndicator.innerHTML = '<span class="live-dot"></span> LIVE';
+                liveIndicator.classList.remove('badge-warning');
+                liveIndicator.classList.add('badge-live');
+            }
+
+            // Render price cards - show Chainlink source as primary
+            let html = '';
+            for (const [symbol, data] of Object.entries(priceData)) {
+                const isStale = !data.fresh || data.source === 'offline';
+                const hasChainlink = data.chainlinkPrice && data.chainlinkPrice > 0;
+                const hasProxy = data.proxyPrice && data.proxyPrice > 0;
+
+                // Use Chainlink price (fresh) if available, otherwise show status
+                const displayPrice = hasChainlink ? data.chainlinkPrice : (hasProxy ? data.proxyPrice : data.price);
+                const displayAge = hasChainlink ? data.chainlinkAge : (hasProxy ? data.proxyAge : data.ageHours);
+                const displaySource = hasChainlink ? 'chainlink-sepolia' : (hasProxy ? 'feed-proxy' : data.source);
+
+                // Fresh = less than 24 hours for Chainlink
+                const isFresh = hasChainlink && parseFloat(data.chainlinkAge) < 24;
+
+                // Determine display color based on freshness
+                const borderColor = isFresh ? 'rgba(52, 211, 153, 0.3)' : 'rgba(251, 191, 36, 0.3)';
+                const statusBg = isFresh ? 'rgba(52, 211, 153, 0.2)' : 'rgba(251, 191, 36, 0.2)';
+                const statusColor = isFresh ? '#34d399' : '#fbbf24';
+                const statusText = isFresh ? '✓ Fresh' : `⏱️ ${displayAge}h ago`;
+
                 html += `
-                    <div style="background: var(--color-bg-secondary); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--color-border);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                            <span style="font-weight: 600;">${symbol}</span>
-                            <span style="font-size: 0.75rem; color: var(--color-text-muted);">${feed.pair}</span>
+                    <div style="background: var(--color-bg-secondary); padding: 1.25rem; border-radius: 12px; border: 1px solid ${borderColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700; font-size: 1.1rem;">${symbol}</span>
+                            <span style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${statusBg}; color: ${statusColor};">
+                                ${statusText}
+                            </span>
                         </div>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary);">$${formatPrice(price)}</div>
-                        <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.5rem;">
-                            ${feed.address.slice(0, 10)}...${feed.address.slice(-6)}
+                        
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-primary);">
+                            ${displayPrice > 0 ? '$' + formatPrice(displayPrice) : 'Offline'}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                            ${hasChainlink ? '🔗 Chainlink Sepolia' : (hasProxy ? '📡 Feed Proxy' : '❌ No data')}
+                        </div>
+                        
+                        ${hasChainlink && hasProxy && Math.abs(data.chainlinkPrice - data.proxyPrice) > 0.01 ? `
+                            <div style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border);">
+                                📡 Proxy: $${formatPrice(data.proxyPrice)} (${data.proxyAge}h old)
+                            </div>
+                        ` : ''}
+                        
+                        <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.65rem; color: var(--color-text-muted);">
+                            <span>${data.pair}</span>
+                            <span style="font-family: monospace;">${data.address?.slice(0, 6)}...${data.address?.slice(-4)}</span>
                         </div>
                     </div>
                 `;
             }
-            grid.innerHTML = html;
+
+            grid.innerHTML = html || '<div style="text-align: center; color: var(--color-text-muted);">No prices available</div>';
+
+            // Log status
+            console.log('[Oracle] Prices updated:',
+                Object.entries(priceData).map(([s, d]) =>
+                    `${s}: $${formatPrice(d.price)} (${d.fresh ? 'fresh' : 'stale: ' + d.ageHours + 'h'})${d.livePrice ? ' | Live: $' + formatPrice(d.livePrice) : ''}`
+                ).join(', ')
+            );
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        //                    RSC DEBT MONITORING FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════
+
+        /**
+         * Fetch RSC debt from Lasna System Contract
+         */
+        async function fetchRscDebt(rscAddress) {
+            try {
+                // Call debt(address) on system contract
+                const callData = '0x9b6c56ec' + rscAddress.slice(2).padStart(64, '0'); // debt(address)
+
+                const response = await fetch(LASNA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_call',
+                        params: [{ to: SYSTEM_CONTRACT, data: callData }, 'latest'],
+                        id: Date.now()
+                    })
+                });
+
+                const data = await response.json();
+                if (data.result) {
+                    return parseInt(data.result, 16) / 1e18; // Convert to REACT
+                }
+            } catch (e) {
+                console.warn('RSC debt fetch failed:', rscAddress, e.message);
+            }
+            return null;
+        }
+
+        /**
+         * Fetch RSC balance from Lasna
+         */
+        async function fetchRscBalance(rscAddress) {
+            try {
+                const response = await fetch(LASNA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_getBalance',
+                        params: [rscAddress, 'latest'],
+                        id: Date.now()
+                    })
+                });
+
+                const data = await response.json();
+                if (data.result) {
+                    return parseInt(data.result, 16) / 1e18; // Convert to REACT
+                }
+            } catch (e) {
+                console.warn('RSC balance fetch failed:', rscAddress, e.message);
+            }
+            return null;
+        }
+
+        /**
+         * Check all RSC debts and update UI (both V1 and V2)
+         */
+        async function checkAllRscDebts() {
+            const grid = document.getElementById('rsc-monitoring-grid');
+            const statusBadge = document.getElementById('rsc-monitor-status');
+
+            let html = '';
+            let allHealthy = true;
+            let totalDebt = 0;
+
+            // Check V2 RSCs first (priority)
+            html += '<div style="grid-column: 1 / -1; font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><i class="ph-bold ph-star"></i> V2 RSCs (Sepolia Source)</div>';
+            
+            for (const [symbol, rsc] of Object.entries(V2_RSCS)) {
+                const [debt, balance] = await Promise.all([
+                    fetchRscDebt(rsc.address),
+                    fetchRscBalance(rsc.address)
+                ]);
+
+                // Also check lastMirroredRoundId to see if receiving events
+                let lastRoundId = 0;
+                try {
+                    const roundResp = await fetch(LASNA_RPC, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'eth_call',
+                            params: [{ to: rsc.address, data: '0x69ac8d2a' }, 'latest'], // lastMirroredRoundId()
+                            id: Date.now()
+                        })
+                    });
+                    const roundData = await roundResp.json();
+                    if (roundData.result) {
+                        lastRoundId = parseInt(roundData.result, 16);
+                    }
+                } catch (e) {}
+
+                const hasDebt = debt !== null && debt > DEBT_THRESHOLD;
+                const hasFunds = balance !== null && balance > 0.01;
+                const isReceiving = lastRoundId > 0;
+                const isHealthy = !hasDebt && hasFunds;
+
+                const debtReact = debt !== null ? debt.toFixed(6) : null;
+                const balanceReact = balance !== null ? balance.toFixed(4) : null;
+                
+                const borderColor = isReceiving ? 'rgba(52, 211, 153, 0.3)' : 'rgba(99, 102, 241, 0.3)';
+                const statusBg = isReceiving ? 'rgba(52, 211, 153, 0.2)' : 'rgba(99, 102, 241, 0.2)';
+                const statusColor = isReceiving ? '#34d399' : '#6366f1';
+                const statusText = isReceiving ? '✓ Active' : '⏳ Waiting';
+
+                html += `
+                    <div style="background: var(--color-bg-secondary); padding: 1rem; border-radius: 10px; border: 1px solid ${borderColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700;">${symbol} V2</span>
+                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${statusBg}; color: ${statusColor};">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Balance</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${hasFunds ? '#34d399' : 'var(--color-text-muted)'};">
+                                    ${balanceReact !== null ? balanceReact + ' REACT' : 'Error'}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Round ID</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${isReceiving ? '#34d399' : '#6366f1'};">
+                                    ${lastRoundId > 0 ? lastRoundId : 'Pending'}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.6rem; color: var(--color-text-muted); margin-top: 0.5rem; font-family: monospace;">
+                            ${rsc.address.slice(0, 10)}...${rsc.address.slice(-8)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Add separator
+            html += '<div style="grid-column: 1 / -1; border-top: 1px solid var(--color-border); margin: 1rem 0;"></div>';
+            html += '<div style="grid-column: 1 / -1; font-weight: 600; color: var(--color-text-muted); margin-bottom: 0.5rem; font-size: 0.85rem;">V1 RSCs (Legacy - Base Sepolia Source)</div>';
+
+            // Then V1 RSCs
+            for (const [symbol, rsc] of Object.entries(ORACLE_RSCS)) {
+                const [debt, balance] = await Promise.all([
+                    fetchRscDebt(rsc.address),
+                    fetchRscBalance(rsc.address)
+                ]);
+
+                // Healthy if no debt or balance can cover debt
+                const hasDebt = debt !== null && debt > DEBT_THRESHOLD;
+                const hasFunds = balance !== null && balance > 0.01;
+                const isHealthy = !hasDebt;
+
+                if (debt === null) {
+                    allHealthy = false;
+                } else {
+                    totalDebt += debt;
+                    if (debt > DEBT_THRESHOLD) {
+                        allHealthy = false;
+                    }
+                }
+
+                rscStatus[symbol] = {
+                    address: rsc.address,
+                    name: rsc.name,
+                    debt: debt,
+                    balance: balance,
+                    healthy: isHealthy,
+                    feedProxy: rsc.feedProxy
+                };
+
+                // Format displays
+                const debtReact = debt !== null ? debt.toFixed(6) : null;
+                const balanceReact = balance !== null ? balance.toFixed(4) : null;
+                const statusColor = isHealthy ? 'rgba(52, 211, 153, 0.2)' : hasDebt && hasFunds ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                const borderColor = isHealthy ? 'rgba(52, 211, 153, 0.3)' : hasDebt && hasFunds ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+                const statusText = isHealthy ? '✓ Healthy' : hasDebt && hasFunds ? '⏳ Clear Debt' : '⚠️ Fund RSC';
+                const statusTextColor = isHealthy ? '#34d399' : hasDebt && hasFunds ? '#fbbf24' : '#ef4444';
+
+                html += `
+                    <div style="background: var(--color-bg-secondary); padding: 1rem; border-radius: 10px; border: 1px solid ${borderColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700;">${symbol} Mirror</span>
+                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${statusColor}; color: ${statusTextColor};">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Balance</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${hasFunds ? '#34d399' : 'var(--color-text-muted)'};">
+                                    ${balanceReact !== null ? balanceReact + ' REACT' : 'Error'}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Debt</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${hasDebt ? '#ef4444' : '#34d399'};">
+                                    ${debtReact !== null ? debtReact + ' REACT' : 'Error'}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.6rem; color: var(--color-text-muted); margin-top: 0.5rem; font-family: monospace;">
+                            ${rsc.address.slice(0, 10)}...${rsc.address.slice(-8)}
+                        </div>
+                        ${hasDebt ? `
+                        <button onclick="clearDebt('${rsc.address}', '${symbol}')"
+                            style="margin-top: 0.75rem; width: 100%; padding: 0.4rem; font-size: 0.7rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(185, 28, 28, 0.8)); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-weight: 600;">
+                            <i class="ph-bold ph-broom"></i> Clear Debt (${debtReact} REACT)
+                        </button>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            grid.innerHTML = html;
+
+            // Update overall status badge
+            if (allHealthy) {
+                statusBadge.innerHTML = '<i class="ph-bold ph-check-circle"></i> All Healthy';
+                statusBadge.style.background = 'rgba(52, 211, 153, 0.2)';
+                statusBadge.style.color = '#34d399';
+            } else {
+                statusBadge.innerHTML = '<i class="ph-bold ph-warning"></i> Funding Needed';
+                statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusBadge.style.color = '#ef4444';
+            }
+
+            console.log('[RSC Monitor] Checked RSCs:',
+                Object.entries(rscStatus).map(([s, d]) =>
+                    `${s}: ${d.debt !== null ? (d.debt * 1000).toFixed(3) + ' mREACT' : 'error'} (${d.healthy ? 'healthy' : 'needs funding'})`
+                ).join(', ')
+            );
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //                    CLEAR DEBT FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════
+
+        /**
+         * Show toast notification
+         */
+        function showToast(message, type = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                ${type === 'success' ? 'background: rgba(52, 211, 153, 0.9); color: white;' : ''}
+                ${type === 'error' ? 'background: rgba(239, 68, 68, 0.9); color: white;' : ''}
+                ${type === 'info' ? 'background: rgba(99, 102, 241, 0.9); color: white;' : ''}
+                ${type === 'warning' ? 'background: rgba(251, 191, 36, 0.9); color: black;' : ''}
+            `;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /**
+         * Clear debt for a single RSC by calling coverDebt()
+         * @param {string} rscAddress - The RSC address on Lasna
+         * @param {string} symbol - Human readable name (ETH, BTC, LINK)
+         */
+        async function clearDebt(rscAddress, symbol) {
+            // Check if wallet is connected
+            if (typeof window.ethereum === 'undefined') {
+                showToast('Please install MetaMask to clear debt', 'error');
+                return;
+            }
+
+            try {
+                // Request wallet connection if needed
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (accounts.length === 0) {
+                    showToast('Please connect your wallet', 'error');
+                    return;
+                }
+
+                // Switch to Lasna network
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const LASNA_CHAIN_ID = '0x512417'; // 5318007 in hex
+                
+                if (chainId !== LASNA_CHAIN_ID) {
+                    showToast('Switching to Lasna network...', 'info');
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: LASNA_CHAIN_ID }]
+                        });
+                    } catch (switchError) {
+                        // If network doesn't exist, add it
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: LASNA_CHAIN_ID,
+                                    chainName: 'Reactive Lasna Testnet',
+                                    nativeCurrency: { name: 'REACT', symbol: 'REACT', decimals: 18 },
+                                    rpcUrls: ['https://lasna-rpc.rnk.dev'],
+                                    blockExplorerUrls: ['https://reactscan.net']
+                                }]
+                            });
+                        } else {
+                            throw switchError;
+                        }
+                    }
+                }
+
+                showToast(`Clearing debt for ${symbol} Mirror RSC...`, 'info');
+
+                // Create provider and signer
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+
+                // coverDebt() ABI
+                const abi = ['function coverDebt() external'];
+                const rscContract = new ethers.Contract(rscAddress, abi, signer);
+
+                // Check RSC balance first
+                const balance = await provider.getBalance(rscAddress);
+                const debt = rscStatus[symbol]?.debt || 0;
+                
+                if (balance.lt(ethers.utils.parseEther(debt.toString()))) {
+                    showToast(`Insufficient RSC balance. Fund the RSC first!`, 'warning');
+                    return;
+                }
+
+                // Call coverDebt()
+                const tx = await rscContract.coverDebt();
+                showToast(`Transaction submitted: ${tx.hash.slice(0, 10)}...`, 'info');
+
+                // Wait for confirmation
+                await tx.wait();
+                showToast(`✓ Debt cleared for ${symbol} Mirror RSC!`, 'success');
+
+                // Refresh RSC status
+                await checkAllRscDebts();
+
+            } catch (error) {
+                console.error('Clear debt error:', error);
+                if (error.code === 4001) {
+                    showToast('Transaction rejected by user', 'warning');
+                } else if (error.message.includes('Insufficient funds')) {
+                    showToast('RSC has insufficient balance to cover debt. Fund it first!', 'error');
+                } else {
+                    showToast(`Error: ${error.message?.slice(0, 50) || 'Unknown error'}`, 'error');
+                }
+            }
+        }
+
+        /**
+         * Clear debt for all RSCs with outstanding debt
+         */
+        async function clearAllDebt() {
+            // Get RSCs with debt
+            const rscsWithDebt = Object.entries(rscStatus)
+                .filter(([_, data]) => data.debt && data.debt > DEBT_THRESHOLD);
+
+            if (rscsWithDebt.length === 0) {
+                showToast('No RSCs have outstanding debt!', 'success');
+                return;
+            }
+
+            showToast(`Clearing debt for ${rscsWithDebt.length} RSC(s)...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const [symbol, data] of rscsWithDebt) {
+                try {
+                    await clearDebt(data.address, symbol);
+                    successCount++;
+                } catch (e) {
+                    console.error(`Failed to clear debt for ${symbol}:`, e);
+                    failCount++;
+                }
+            }
+
+            if (failCount === 0) {
+                showToast(`✓ All ${successCount} RSC debts cleared!`, 'success');
+            } else {
+                showToast(`Cleared ${successCount}/${rscsWithDebt.length} RSCs. ${failCount} failed.`, 'warning');
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //                    AUTO DEBT CLEARING (CRON)
+        // ═══════════════════════════════════════════════════════════════
+
+        let autoClearEnabled = false;
+        let autoClearInterval = null;
+
+        /**
+         * Toggle auto debt clearing
+         */
+        function toggleAutoClear() {
+            autoClearEnabled = !autoClearEnabled;
+            const btn = document.getElementById('auto-clear-toggle');
+            
+            if (autoClearEnabled) {
+                btn.innerHTML = '<i class="ph-bold ph-pause"></i> Pause Auto-Clear';
+                btn.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(185, 28, 28, 0.8))';
+                showToast('Auto debt clearing enabled (every 5 min)', 'success');
+                
+                // Start interval
+                autoClearInterval = setInterval(async () => {
+                    const rscsWithDebt = Object.entries(rscStatus)
+                        .filter(([_, data]) => data.debt && data.debt > DEBT_THRESHOLD && data.balance > data.debt);
+                    
+                    if (rscsWithDebt.length > 0) {
+                        console.log('[Auto-Clear] Found RSCs with debt and sufficient balance:', rscsWithDebt);
+                        await clearAllDebt();
+                    }
+                }, 300000); // 5 minutes
+                
+            } else {
+                btn.innerHTML = '<i class="ph-bold ph-play"></i> Enable Auto-Clear';
+                btn.style.background = 'linear-gradient(135deg, rgba(52, 211, 153, 0.8), rgba(5, 150, 105, 0.8))';
+                showToast('Auto debt clearing disabled', 'info');
+                
+                if (autoClearInterval) {
+                    clearInterval(autoClearInterval);
+                    autoClearInterval = null;
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //                    INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════
+
         document.addEventListener('DOMContentLoaded', async () => {
+            // Initial price fetch
             await updatePrices();
+
+            // Initial RSC debt check
+            await checkAllRscDebts();
+            
+            // Initial V2 RSC check
+            await checkV2RscStatus();
+
+            // Update prices every 30 seconds
             setInterval(updatePrices, 30000);
+
+            // Check RSC debts every 60 seconds
+            setInterval(checkAllRscDebts, 60000);
+            
+            // Check V2 RSC status every 30 seconds
+            setInterval(checkV2RscStatus, 30000);
 
             // Wallet connection
             document.getElementById('wallet-btn').addEventListener('click', async () => {
@@ -266,6 +1308,49 @@
             });
         });
     </script>
+
+    <style>
+        .badge-warning {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+    </style>
 </body>
 
 </html>
