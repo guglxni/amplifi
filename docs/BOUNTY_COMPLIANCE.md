@@ -64,7 +64,7 @@ The implemented architecture spans three networks:
 | Contract | Address |
 |----------|---------|
 | YieldVaultMultiAsset | 0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d |
-| YieldVaultCompound | 0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a |
+| YieldVaultCompound | 0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a | ⚠️ DEPRECATED |
 | Funder | 0x0CabFEE932171171d90D672160cC6939f93b2D39 |
 | ETH AbstractFeedProxy | 0xb1aDCca598051EfdaD48217D950EAFf2CA869691 |
 | BTC AbstractFeedProxy | 0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9 |

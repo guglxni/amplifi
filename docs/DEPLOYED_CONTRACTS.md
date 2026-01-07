@@ -12,7 +12,7 @@
 |----------|---------|-------------|
 | YieldVaultMultiAssetV2 | `0x42437f29E25Ad65E121f4D0f07FD8F5c2005e5d5` | Multi-asset yield vault (WETH, LINK, AAVE, EURS, WBTC) - EURS FIXED |
 | VaultFeeCollector | `0x3777Afd270B483cAc21C3234fa72E34b9fed33Cf` | Fee collection for auto-replenishment |
-| YieldVaultCompound | `0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a` | Compound V3 USDC vault |
+| YieldVaultCompound | `0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a` | ⚠️ DEPRECATED - Compound V3 USDC vault (not used in TVL) |
 | Funder | `0x0CabFEE932171171d90D672160cC6939f93b2D39` | Gas funding bridge contract |
 
 ### Oracle Contracts
@@ -55,6 +55,16 @@
 | LiquidationProtectorRsc | `0xe6e06F94d1aaa2496b9e33afeE29f01436E9fA4A` | Health factor monitoring RSC |
 | StopLossRsc | `0xa5738210F67a0C9c753b63EeC9d090557152df13` | Stop-loss/take-profit RSC |
 
+### V2 Oracle RSCs (Chainlink Mirror)
+
+| Contract | Address | Source Aggregator | Description |
+|----------|---------|-------------------|-------------|
+| ETH/USD V2 RSC | `0x4217702423754A49AC1e5cc1c1105210bbf7Ba0C` | `0x719E22E3D4b690E5d96cCb40619180B5427F14AE` | Mirrors ETH/USD from Sepolia Chainlink |
+| BTC/USD V2 RSC | `0x4272e8ad2b63c36CC1a9f2CF10aE077478BF55e0` | `0x17Dac87b07EAC97De4E182Fc51C925ebB7E723e2` | Mirrors BTC/USD from Sepolia Chainlink |
+| LINK/USD V2 RSC | `0x4139e3A69bC30d97335a0794983F51c9622FDeBB` | `0x5A2734CC0341ea6564dF3D00171cc99C63B1A7d3` | Mirrors LINK/USD from Sepolia Chainlink |
+
+> **Note**: V2 RSCs subscribe to the correct Chainlink AGGREGATOR contracts (not proxies) which emit `AnswerUpdated` events.
+
 ---
 
 ## System Configuration
@@ -93,4 +103,4 @@
 
 ---
 
-*Last Updated: December 28, 2024*
+*Last Updated: January 6, 2025*

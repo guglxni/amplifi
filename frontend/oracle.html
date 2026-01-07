@@ -298,6 +298,17 @@
     </main>
 
     <script>
+        console.log('[Oracle Script] Script start - parsing JavaScript...');
+        
+        // Global error handler to catch any uncaught errors
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('[Global Error]', msg, 'at', url, 'line', line, 'col', col, error);
+            return false;
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('[Unhandled Promise Rejection]', event.reason);
+        });
+        
         // Price Feed Addresses (AbstractFeedProxy on Sepolia)
         const PRICE_FEEDS = {
             ETH: { address: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691', pair: 'ETH/USD', coingeckoId: 'ethereum' },
@@ -312,31 +323,44 @@
         // Staleness threshold: 1 hour = 3600 seconds
         const STALENESS_THRESHOLD_SECONDS = 3600;
 
-        // V2 RSC Addresses on Lasna (constructor subscription pattern)
+        // V2 RSC Addresses on Lasna - FIXED: Subscribed to correct AGGREGATOR contracts
+        // Deployed 2025-01-06 with correct Sepolia aggregator addresses
         const V2_RSCS = {
             ETH: {
-                address: '0x4090B8BCcf477eDe37F5A5E7502A68c635579A89',
+                address: '0x4217702423754A49AC1e5cc1c1105210bbf7Ba0C',
                 name: 'ETH V2 Mirror',
-                feedProxy: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691'
+                feedProxy: '0xb1aDCca598051EfdaD48217D950EAFf2CA869691', // Destination on Sepolia
+                aggregator: '0x719E22E3D4b690E5d96cCb40619180B5427F14AE', // Source aggregator (emits AnswerUpdated)
+                proxy: '0x694AA1769357215DE4FAC081bf1f309aDC325306' // Source proxy (for reading latest)
             },
             BTC: {
-                address: '0xd0E5F6f73254dd3AD42615b46073e4F3752E37b2',
+                address: '0x4272e8ad2b63c36CC1a9f2CF10aE077478BF55e0',
                 name: 'BTC V2 Mirror',
-                feedProxy: '0x736D13De4d6BF46DC81f89a759D6e3C2FbC9D6b9'
+                feedProxy: '0x34d1Ce3Cd88dB5D9d3Aec06b4C8c34fDf7E91FE3', // Destination on Sepolia
+                aggregator: '0x17Dac87b07EAC97De4E182Fc51C925ebB7E723e2', // Source aggregator
+                proxy: '0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43' // Source proxy
             },
             LINK: {
-                address: '0x24F5b5525e4b598078d1D9965E68596E69c5bdE9',
+                address: '0x4139e3A69bC30d97335a0794983F51c9622FDeBB',
                 name: 'LINK V2 Mirror',
-                feedProxy: '0x6B94668442B97e7dCF1958044a21e42a73D3647b'
+                feedProxy: '0x75cf0Ee7E7d0fd3b4E10E3CD2ECcee44Cf9E2e95', // Destination on Sepolia
+                aggregator: '0x5A2734CC0341ea6564dF3D00171cc99C63B1A7d3', // Source aggregator
+                proxy: '0xc59E3633BAAC79493d908e63626716e204A45EdF' // Source proxy
             }
         };
+        
+        // V2 RVM ID - Different from V1 deployer
+        const V2_RVM_ID = '0x3a949910627c3d424d0871efa2a34214293a5e25';
 
-        // Sepolia Chainlink Direct Feeds (source of truth)
+        // Sepolia Chainlink Direct Feeds (proxies - source of truth for reading)
         const SEPOLIA_CHAINLINK = {
             ETH: '0x694AA1769357215DE4FAC081bf1f309aDC325306',
             BTC: '0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43',
             LINK: '0xc59E3633BAAC79493d908e63626716e204A45EdF'
         };
+        
+        // Sepolia RPC for reading source chain data
+        const SEPOLIA_RPC = 'https://sepolia.drpc.org';
 
         // V1 RSC Addresses on Lasna (legacy - used Base Sepolia)
         const ORACLE_RSCS = {
@@ -359,12 +383,36 @@
 
         const LASNA_RPC = 'https://lasna-rpc.rnk.dev';
         const SYSTEM_CONTRACT = '0x0000000000000000000000000000000000fffFfF';
+        
+        // RVM ID - Required for rnk_call to read RSC state from ReactVM instance
+        // All RSCs from the same deployer share the same RVM ID
+        const RVM_ID = '0xdde9d31a31d6763612c7f535f51e5dc9f830682e';
 
         // Debt threshold (in REACT) - above this RSC needs funding
         const DEBT_THRESHOLD = 0.001; // 1 mREACT
 
         // Track RSC status
         let rscStatus = {};
+        
+        // Helper function to fetch with timeout
+        async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                if (error.name === 'AbortError') {
+                    throw new Error(`Request timeout after ${timeout}ms`);
+                }
+                throw error;
+            }
+        }
 
         // Track price sources and last update
         let priceData = {};
@@ -470,9 +518,9 @@
                     .map(f => f.coingeckoId)
                     .join(',');
 
-                const response = await fetch(`${COINGECKO_URL}?ids=${ids}&vs_currencies=usd`, {
+                const response = await fetchWithTimeout(`${COINGECKO_URL}?ids=${ids}&vs_currencies=usd`, {
                     headers: { 'Accept': 'application/json' }
-                });
+                }, 5000); // 5 second timeout
 
                 if (!response.ok) throw new Error('CoinGecko API error');
 
@@ -509,35 +557,84 @@
             updatePrices();
         }
 
-        // Check V2 RSC status (constructor subscription test)
+        // Check V2 RSC status (constructor subscription test) - shows source vs mirrored rounds
         async function checkV2RscStatus() {
-            const V2_RSC = '0x4090B8BCcf477eDe37F5A5E7502A68c635579A89';
             const roundIdEl = document.getElementById('v2-round-id');
             const statusMsg = document.getElementById('v2-status-message');
             const badge = document.getElementById('v2-rsc-badge');
             
             try {
-                const lasnaProvider = new ethers.providers.JsonRpcProvider('https://lasna-rpc.rnk.dev');
-                const abi = ['function lastMirroredRoundId() view returns (uint80)'];
-                const contract = new ethers.Contract(V2_RSC, abi, lasnaProvider);
+                let allWorking = true;
+                let statusDetails = [];
                 
-                const roundId = await contract.lastMirroredRoundId();
-                roundIdEl.textContent = roundId.toString();
+                for (const [symbol, rsc] of Object.entries(V2_RSCS)) {
+                    // Get source Chainlink round
+                    let sourceRound = 0;
+                    try {
+                        const srcResp = await fetch(SEPOLIA_RPC, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                jsonrpc: '2.0',
+                                method: 'eth_call',
+                                params: [{ to: rsc.proxy, data: '0xfeaf968c' }, 'latest'],
+                                id: Date.now()
+                            })
+                        });
+                        const srcData = await srcResp.json();
+                        if (srcData.result && srcData.result.length >= 66) {
+                            sourceRound = parseInt(srcData.result.slice(2, 66), 16);
+                        }
+                    } catch (e) { console.warn('Source round fetch failed:', e); }
+                    
+                    // Get mirrored round using rnk_call
+                    let mirroredRound = 0;
+                    try {
+                        const response = await fetch(LASNA_RPC, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                jsonrpc: '2.0',
+                                method: 'rnk_call',
+                                params: [V2_RVM_ID, { to: rsc.address, data: '0x69ac8d2a' }, 'latest'],
+                                id: Date.now()
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.result) {
+                            mirroredRound = parseInt(data.result, 16);
+                        }
+                    } catch (e) { console.warn('Mirrored round fetch failed:', e); }
+                    
+                    if (mirroredRound === 0) allWorking = false;
+                    statusDetails.push({ symbol, sourceRound, mirroredRound, working: mirroredRound > 0 });
+                }
                 
-                if (roundId.gt(0)) {
-                    // V2 RSC received events!
+                // Display summary
+                const workingCount = statusDetails.filter(s => s.working).length;
+                roundIdEl.innerHTML = statusDetails.map(s => 
+                    `<span style="margin-right: 0.5rem;">${s.symbol}: ${s.mirroredRound > 0 ? s.mirroredRound : '<span style="color:#fbbf24;">Pending</span>'}</span>`
+                ).join('');
+                
+                const now = new Date().toLocaleTimeString();
+                
+                if (workingCount === statusDetails.length) {
                     badge.style.background = 'rgba(52, 211, 153, 0.2)';
                     badge.style.color = '#34d399';
-                    badge.textContent = 'WORKING ✓';
-                    statusMsg.innerHTML = '✅ V2 RSC is receiving events from Reactive Network! Constructor subscription pattern works.';
+                    badge.textContent = 'ALL WORKING ✓';
+                    statusMsg.innerHTML = `✅ All ${workingCount} V2 RSCs are receiving events! Source rounds: ${statusDetails.map(s => `${s.symbol}=${s.sourceRound}`).join(', ')}`;
                     statusMsg.style.color = '#34d399';
-                    showToast('V2 RSC is working! Events received.', 'success');
-                } else {
-                    // Still waiting
+                } else if (workingCount > 0) {
                     badge.style.background = 'rgba(251, 191, 36, 0.2)';
                     badge.style.color = '#fbbf24';
-                    badge.textContent = 'WAITING';
-                    statusMsg.innerHTML = '⏳ Waiting for next Chainlink update on Sepolia... (updates ~hourly on testnet)';
+                    badge.textContent = `${workingCount}/${statusDetails.length} ACTIVE`;
+                    statusMsg.innerHTML = `⏳ ${workingCount}/${statusDetails.length} RSCs active. Source rounds: ${statusDetails.map(s => `${s.symbol}=${s.sourceRound}`).join(', ')}<br><small style="color: #818cf8;">Last check: ${now}</small>`;
+                    statusMsg.style.color = '#fbbf24';
+                } else {
+                    badge.style.background = 'rgba(251, 191, 36, 0.2)';
+                    badge.style.color = '#fbbf24';
+                    badge.textContent = 'PENDING';
+                    statusMsg.innerHTML = `⏳ Waiting for next Chainlink update. Source rounds: ${statusDetails.map(s => `${s.symbol}=${s.sourceRound}`).join(', ')}<br><small style="color: #818cf8;">Sepolia updates every few hours. Auto-checking every 30s. Last check: ${now}</small>`;
                     statusMsg.style.color = 'var(--color-text-muted)';
                 }
             } catch (e) {
@@ -550,27 +647,34 @@
 
         // Check if RSCs have debt to determine alert message
         async function getRscDebtStatus() {
-            if (!window.ethereum) return { hasDebt: false, totalDebt: 0 };
-            
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            // Use direct RPC - no wallet connection needed
             const SYSTEM_CONTRACT = '0x0000000000000000000000000000000000fffFfF';
-            const systemAbi = ['function debt(address) view returns (uint256)'];
             
             const rscs = [
-                '0x1CdD260983f23c2A29a91134442C499cd3cc29cF', // ETH
-                '0xA17c0A6aBAC640ee401FF767EfA1cBf31966A848', // BTC  
-                '0xDb0a8ab7Ea10f2D9E1BE242718699BEE43131274'  // LINK
+                '0x1CdD260983f23c2A29a91134442C499cd3cc29cF', // ETH V1
+                '0xA17c0A6aBAC640ee401FF767EfA1cBf31966A848', // BTC V1  
+                '0xDb0a8ab7Ea10f2D9E1BE242718699BEE43131274'  // LINK V1
             ];
             
             try {
-                // Connect to Lasna RPC
-                const lasnaProvider = new ethers.providers.JsonRpcProvider('https://lasna-rpc.rnk.dev');
-                const system = new ethers.Contract(SYSTEM_CONTRACT, systemAbi, lasnaProvider);
-                
                 let totalDebt = 0;
                 for (const rsc of rscs) {
-                    const debt = await system.debt(rsc);
-                    totalDebt += parseFloat(ethers.utils.formatEther(debt));
+                    // Call debt(address) directly via JSON-RPC
+                    const callData = '0x9b6c56ec' + rsc.slice(2).padStart(64, '0');
+                    const response = await fetch(LASNA_RPC, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'eth_call',
+                            params: [{ to: SYSTEM_CONTRACT, data: callData }, 'latest'],
+                            id: Date.now()
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.result) {
+                        totalDebt += parseInt(data.result, 16) / 1e18;
+                    }
                 }
                 
                 return { hasDebt: totalDebt > 0.001, totalDebt };
@@ -581,6 +685,7 @@
         }
 
         async function updatePrices() {
+            console.log('[updatePrices] Starting...');
             const grid = document.getElementById('prices-grid');
             const liveIndicator = document.querySelector('.badge-live');
             const oracleAlert = document.getElementById('oracle-alert');
@@ -596,11 +701,13 @@
             let maxChainlinkHours = 0; // Track Chainlink age separately
             let coingeckoPrices = null;
 
-            // Always fetch CoinGecko for live comparison
-            coingeckoPrices = await fetchCoingeckoPrices();
+            try {
+                // Always fetch CoinGecko for live comparison
+                coingeckoPrices = await fetchCoingeckoPrices();
+                console.log('[updatePrices] CoinGecko prices:', coingeckoPrices);
 
-            // Fetch prices from Sepolia Chainlink (source of truth) and on-chain proxies
-            for (const [symbol, feed] of Object.entries(PRICE_FEEDS)) {
+                // Fetch prices from Sepolia Chainlink (source of truth) and on-chain proxies
+                for (const [symbol, feed] of Object.entries(PRICE_FEEDS)) {
                 // First try Sepolia Chainlink direct (most reliable source)
                 const chainlinkResult = await fetchSepoliaChainlinkPrice(symbol);
                 const proxyResult = await fetchOnchainPrice(feed.address);
@@ -693,7 +800,11 @@
                     alertTitle.style.color = '#ef4444';
                 } else if (chainlinkFeeds.length > 0) {
                     alertTitle.textContent = 'Chainlink Sepolia Data Available';
-                    alertReason.textContent = `Showing Chainlink prices (last update: ${maxChainlinkHours.toFixed(1)}h ago). RSC bridge pending.`;
+                    const now = new Date();
+                    const lastCheck = now.toLocaleTimeString();
+                    alertReason.innerHTML = `Sepolia Chainlink last update: ${maxChainlinkHours.toFixed(1)}h ago. 
+                        <span style="color: #818cf8;">⏱️ Next check: <span id="refresh-countdown">${refreshCountdown}</span>s</span> | 
+                        <span style="color: #a5b4fc;">Checked: ${lastCheck}</span>`;
                     alertTitle.style.color = '#3b82f6';
                 } else {
                     alertTitle.textContent = 'Awaiting Reactive Network Events';
@@ -743,7 +854,14 @@
                 oracleAlert.style.border = '1px solid rgba(52, 211, 153, 0.3)';
                 alertTitle.textContent = 'Chainlink Sepolia Data Fresh';
                 alertTitle.style.color = '#34d399';
-                alertReason.textContent = `Showing real Chainlink prices (${maxChainlinkHours.toFixed(1)}h ago). RSC bridge pending next update.`;
+                
+                // Calculate when we last checked and next check
+                const now = new Date();
+                const lastCheck = now.toLocaleTimeString();
+                
+                alertReason.innerHTML = `Showing real Chainlink prices (${maxChainlinkHours.toFixed(1)}h ago). 
+                    <span style="color: #818cf8;">⏱️ Next check: <span id="refresh-countdown">30</span>s</span> | 
+                    <span style="color: #a5b4fc;">Last: ${lastCheck}</span>`;
                 stalenessAge.textContent = `${maxChainlinkHours.toFixed(1)}h ago`;
                 stalenessAge.style.color = '#34d399';
 
@@ -775,9 +893,12 @@
                 const isStale = !data.fresh || data.source === 'offline';
                 const hasChainlink = data.chainlinkPrice && data.chainlinkPrice > 0;
                 const hasProxy = data.proxyPrice && data.proxyPrice > 0;
+                
+                // Get live CoinGecko price for comparison
+                const livePrice = data.livePrice || (data.coingeckoId && coingeckoPrices && coingeckoPrices[data.coingeckoId] ? coingeckoPrices[data.coingeckoId].usd : null);
 
                 // Use Chainlink price (fresh) if available, otherwise show status
-                const displayPrice = hasChainlink ? data.chainlinkPrice : (hasProxy ? data.proxyPrice : data.price);
+                const displayPrice = useLivePrices && livePrice ? livePrice : (hasChainlink ? data.chainlinkPrice : (hasProxy ? data.proxyPrice : data.price));
                 const displayAge = hasChainlink ? data.chainlinkAge : (hasProxy ? data.proxyAge : data.ageHours);
                 const displaySource = hasChainlink ? 'chainlink-sepolia' : (hasProxy ? 'feed-proxy' : data.source);
 
@@ -785,10 +906,14 @@
                 const isFresh = hasChainlink && parseFloat(data.chainlinkAge) < 24;
 
                 // Determine display color based on freshness
-                const borderColor = isFresh ? 'rgba(52, 211, 153, 0.3)' : 'rgba(251, 191, 36, 0.3)';
-                const statusBg = isFresh ? 'rgba(52, 211, 153, 0.2)' : 'rgba(251, 191, 36, 0.2)';
-                const statusColor = isFresh ? '#34d399' : '#fbbf24';
-                const statusText = isFresh ? '✓ Fresh' : `⏱️ ${displayAge}h ago`;
+                const borderColor = useLivePrices ? 'rgba(16, 185, 129, 0.3)' : (isFresh ? 'rgba(52, 211, 153, 0.3)' : 'rgba(251, 191, 36, 0.3)');
+                const statusBg = useLivePrices ? 'rgba(16, 185, 129, 0.2)' : (isFresh ? 'rgba(52, 211, 153, 0.2)' : 'rgba(251, 191, 36, 0.2)');
+                const statusColor = useLivePrices ? '#10b981' : (isFresh ? '#34d399' : '#fbbf24');
+                const statusText = useLivePrices ? '🔴 LIVE' : (isFresh ? '✓ Fresh' : `⏱️ ${displayAge}h ago`);
+
+                // Calculate price difference between Chainlink and CoinGecko for comparison
+                const priceDiff = livePrice && hasChainlink ? ((livePrice - data.chainlinkPrice) / data.chainlinkPrice * 100).toFixed(2) : null;
+                const diffColor = priceDiff && Math.abs(priceDiff) > 1 ? '#fbbf24' : '#4ade80';
 
                 html += `
                     <div style="background: var(--color-bg-secondary); padding: 1.25rem; border-radius: 12px; border: 1px solid ${borderColor};">
@@ -803,10 +928,23 @@
                             ${displayPrice > 0 ? '$' + formatPrice(displayPrice) : 'Offline'}
                         </div>
                         <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
-                            ${hasChainlink ? '🔗 Chainlink Sepolia' : (hasProxy ? '📡 Feed Proxy' : '❌ No data')}
+                            ${useLivePrices ? '🟢 CoinGecko Live' : (hasChainlink ? '🔗 Chainlink Sepolia' : (hasProxy ? '📡 Feed Proxy' : '❌ No data'))}
                         </div>
                         
-                        ${hasChainlink && hasProxy && Math.abs(data.chainlinkPrice - data.proxyPrice) > 0.01 ? `
+                        ${!useLivePrices && livePrice && hasChainlink ? `
+                            <div style="font-size: 0.75rem; color: #10b981; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border);">
+                                🟢 Live: $${formatPrice(livePrice)} 
+                                <span style="color: ${diffColor}; font-size: 0.65rem;">(${priceDiff > 0 ? '+' : ''}${priceDiff}%)</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${useLivePrices && hasChainlink ? `
+                            <div style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border);">
+                                🔗 Chainlink: $${formatPrice(data.chainlinkPrice)} (${displayAge}h ago)
+                            </div>
+                        ` : ''}
+                        
+                        ${!useLivePrices && hasChainlink && hasProxy && Math.abs(data.chainlinkPrice - data.proxyPrice) > 0.01 ? `
                             <div style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border);">
                                 📡 Proxy: $${formatPrice(data.proxyPrice)} (${data.proxyAge}h old)
                             </div>
@@ -828,6 +966,10 @@
                     `${s}: $${formatPrice(d.price)} (${d.fresh ? 'fresh' : 'stale: ' + d.ageHours + 'h'})${d.livePrice ? ' | Live: $' + formatPrice(d.livePrice) : ''}`
                 ).join(', ')
             );
+            } catch (e) {
+                console.error('[updatePrices] Error:', e);
+                grid.innerHTML = '<div style="text-align: center; color: #ef4444;">Error loading prices: ' + e.message + '</div>';
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -893,12 +1035,41 @@
          * Check all RSC debts and update UI (both V1 and V2)
          */
         async function checkAllRscDebts() {
+            console.log('[checkAllRscDebts] Starting...');
             const grid = document.getElementById('rsc-monitoring-grid');
             const statusBadge = document.getElementById('rsc-monitor-status');
 
             let html = '';
             let allHealthy = true;
             let totalDebt = 0;
+
+            // Fetch source Chainlink round IDs first for comparison
+            let sourceRounds = {};
+            try {
+                console.log('[checkAllRscDebts] Fetching source rounds from Sepolia...');
+                for (const [symbol, rsc] of Object.entries(V2_RSCS)) {
+                    console.log(`[checkAllRscDebts] Fetching ${symbol} from ${rsc.proxy}...`);
+                    const resp = await fetch(SEPOLIA_RPC, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'eth_call',
+                            params: [{ to: rsc.proxy, data: '0xfeaf968c' }, 'latest'], // latestRoundData()
+                            id: Date.now()
+                        })
+                    });
+                    const data = await resp.json();
+                    console.log(`[checkAllRscDebts] ${symbol} response:`, data);
+                    if (data.result && data.result.length >= 66) {
+                        const roundId = parseInt(data.result.slice(2, 66), 16);
+                        sourceRounds[symbol] = roundId;
+                    }
+                }
+                console.log('[checkAllRscDebts] Source rounds:', sourceRounds);
+            } catch (e) {
+                console.warn('Failed to fetch source round IDs:', e);
+            }
 
             // Check V2 RSCs first (priority)
             html += '<div style="grid-column: 1 / -1; font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><i class="ph-bold ph-star"></i> V2 RSCs (Sepolia Source)</div>';
@@ -910,6 +1081,7 @@
                 ]);
 
                 // Also check lastMirroredRoundId to see if receiving events
+                // IMPORTANT: Use rnk_call with V2_RVM_ID to read from ReactVM instance
                 let lastRoundId = 0;
                 try {
                     const roundResp = await fetch(LASNA_RPC, {
@@ -917,8 +1089,8 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             jsonrpc: '2.0',
-                            method: 'eth_call',
-                            params: [{ to: rsc.address, data: '0x69ac8d2a' }, 'latest'], // lastMirroredRoundId()
+                            method: 'rnk_call',
+                            params: [V2_RVM_ID, { to: rsc.address, data: '0x69ac8d2a' }, 'latest'], // lastMirroredRoundId()
                             id: Date.now()
                         })
                     });
@@ -926,19 +1098,23 @@
                     if (roundData.result) {
                         lastRoundId = parseInt(roundData.result, 16);
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.warn(`Failed to read lastMirroredRoundId for ${symbol}:`, e);
+                }
 
+                const sourceRound = sourceRounds[symbol] || 0;
                 const hasDebt = debt !== null && debt > DEBT_THRESHOLD;
                 const hasFunds = balance !== null && balance > 0.01;
                 const isReceiving = lastRoundId > 0;
+                const isSynced = isReceiving && lastRoundId >= sourceRound;
                 const isHealthy = !hasDebt && hasFunds;
 
                 const debtReact = debt !== null ? debt.toFixed(6) : null;
                 const balanceReact = balance !== null ? balance.toFixed(4) : null;
                 
                 const borderColor = isReceiving ? 'rgba(52, 211, 153, 0.3)' : 'rgba(99, 102, 241, 0.3)';
-                const statusBg = isReceiving ? 'rgba(52, 211, 153, 0.2)' : 'rgba(99, 102, 241, 0.2)';
-                const statusColor = isReceiving ? '#34d399' : '#6366f1';
+                const statusBg = isReceiving ? 'rgba(52, 211, 153, 0.2)' : 'rgba(251, 191, 36, 0.2)';
+                const statusColor = isReceiving ? '#34d399' : '#fbbf24';
                 const statusText = isReceiving ? '✓ Active' : '⏳ Waiting';
 
                 html += `
@@ -957,10 +1133,18 @@
                                 </div>
                             </div>
                             <div>
-                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Round ID</div>
-                                <div style="font-size: 0.9rem; font-weight: 600; color: ${isReceiving ? '#34d399' : '#6366f1'};">
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Mirrored Round</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${isReceiving ? '#34d399' : '#fbbf24'};">
                                     ${lastRoundId > 0 ? lastRoundId : 'Pending'}
                                 </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 0.5rem; padding: 0.4rem; background: rgba(99, 102, 241, 0.1); border-radius: 6px;">
+                            <div style="font-size: 0.6rem; color: #a5b4fc;">Source Round (Sepolia Chainlink):</div>
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #818cf8;">
+                                ${sourceRound > 0 ? sourceRound : 'Loading...'}
+                                ${isReceiving && sourceRound > lastRoundId ? '<span style="color: #fbbf24; margin-left: 0.3rem;">(' + (sourceRound - lastRoundId) + ' behind)</span>' : ''}
+                                ${isSynced ? '<span style="color: #34d399; margin-left: 0.3rem;">✓ synced</span>' : ''}
                             </div>
                         </div>
                         <div style="font-size: 0.6rem; color: var(--color-text-muted); margin-top: 0.5rem; font-family: monospace;">
@@ -981,9 +1165,31 @@
                     fetchRscBalance(rsc.address)
                 ]);
 
+                // Check lastMirroredRoundId for V1 RSCs too (using rnk_call)
+                let lastRoundId = 0;
+                try {
+                    const roundResp = await fetch(LASNA_RPC, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'rnk_call',
+                            params: [RVM_ID, { to: rsc.address, data: '0x69ac8d2a' }, 'latest'],
+                            id: Date.now()
+                        })
+                    });
+                    const roundData = await roundResp.json();
+                    if (roundData.result) {
+                        lastRoundId = parseInt(roundData.result, 16);
+                    }
+                } catch (e) {
+                    console.warn(`Failed to read V1 lastMirroredRoundId for ${symbol}:`, e);
+                }
+
                 // Healthy if no debt or balance can cover debt
                 const hasDebt = debt !== null && debt > DEBT_THRESHOLD;
                 const hasFunds = balance !== null && balance > 0.01;
+                const isReceiving = lastRoundId > 0;
                 const isHealthy = !hasDebt;
 
                 if (debt === null) {
@@ -1007,17 +1213,17 @@
                 // Format displays
                 const debtReact = debt !== null ? debt.toFixed(6) : null;
                 const balanceReact = balance !== null ? balance.toFixed(4) : null;
-                const statusColor = isHealthy ? 'rgba(52, 211, 153, 0.2)' : hasDebt && hasFunds ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-                const borderColor = isHealthy ? 'rgba(52, 211, 153, 0.3)' : hasDebt && hasFunds ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)';
-                const statusText = isHealthy ? '✓ Healthy' : hasDebt && hasFunds ? '⏳ Clear Debt' : '⚠️ Fund RSC';
-                const statusTextColor = isHealthy ? '#34d399' : hasDebt && hasFunds ? '#fbbf24' : '#ef4444';
+                const v1BorderColor = isReceiving ? 'rgba(52, 211, 153, 0.3)' : 'rgba(99, 102, 241, 0.3)';
+                const v1StatusBg = isReceiving ? 'rgba(52, 211, 153, 0.2)' : 'rgba(99, 102, 241, 0.2)';
+                const v1StatusColor = isReceiving ? '#34d399' : '#6366f1';
+                const v1StatusText = isReceiving ? '✓ Active' : '⏳ Pending';
 
                 html += `
-                    <div style="background: var(--color-bg-secondary); padding: 1rem; border-radius: 10px; border: 1px solid ${borderColor};">
+                    <div style="background: var(--color-bg-secondary); padding: 1rem; border-radius: 10px; border: 1px solid ${v1BorderColor};">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                             <span style="font-weight: 700;">${symbol} Mirror</span>
-                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${statusColor}; color: ${statusTextColor};">
-                                ${statusText}
+                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: ${v1StatusBg}; color: ${v1StatusColor};">
+                                ${v1StatusText}
                             </span>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
@@ -1031,6 +1237,12 @@
                                 <div style="font-size: 0.65rem; color: var(--color-text-muted);">Debt</div>
                                 <div style="font-size: 0.9rem; font-weight: 600; color: ${hasDebt ? '#ef4444' : '#34d399'};">
                                     ${debtReact !== null ? debtReact + ' REACT' : 'Error'}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--color-text-muted);">Round ID</div>
+                                <div style="font-size: 0.9rem; font-weight: 600; color: ${isReceiving ? '#34d399' : '#6366f1'};">
+                                    ${isReceiving ? lastRoundId : 'Pending'}
                                 </div>
                             </div>
                         </div>
@@ -1273,24 +1485,72 @@
         //                    INITIALIZATION
         // ═══════════════════════════════════════════════════════════════
 
+        // Countdown timer for auto-refresh
+        let refreshCountdown = 30;
+        let countdownInterval = null;
+        
+        function startCountdown() {
+            refreshCountdown = 30;
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                refreshCountdown--;
+                const countdownEl = document.getElementById('refresh-countdown');
+                if (countdownEl) {
+                    countdownEl.textContent = refreshCountdown;
+                    countdownEl.style.color = refreshCountdown <= 5 ? '#fbbf24' : '#818cf8';
+                }
+                if (refreshCountdown <= 0) refreshCountdown = 30;
+            }, 1000);
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('[Oracle] Starting initialization...');
+            
+            // Start countdown timer
+            startCountdown();
+            
             // Initial price fetch
-            await updatePrices();
+            try {
+                console.log('[Oracle] Fetching prices...');
+                await updatePrices();
+                console.log('[Oracle] Prices loaded');
+            } catch (e) {
+                console.error('[Oracle] Price fetch error:', e);
+            }
 
             // Initial RSC debt check
-            await checkAllRscDebts();
+            try {
+                console.log('[Oracle] Checking RSC debts...');
+                await checkAllRscDebts();
+                console.log('[Oracle] RSC debts loaded');
+            } catch (e) {
+                console.error('[Oracle] RSC debt check error:', e);
+            }
             
             // Initial V2 RSC check
-            await checkV2RscStatus();
+            try {
+                console.log('[Oracle] Checking V2 RSC status...');
+                await checkV2RscStatus();
+                console.log('[Oracle] V2 RSC status loaded');
+            } catch (e) {
+                console.error('[Oracle] V2 RSC check error:', e);
+            }
 
             // Update prices every 30 seconds
-            setInterval(updatePrices, 30000);
+            setInterval(() => {
+                refreshCountdown = 30;
+                updatePrices().catch(e => console.error('[Oracle] Price update error:', e));
+            }, 30000);
 
             // Check RSC debts every 60 seconds
-            setInterval(checkAllRscDebts, 60000);
+            setInterval(() => {
+                checkAllRscDebts().catch(e => console.error('[Oracle] RSC debt check error:', e));
+            }, 60000);
             
             // Check V2 RSC status every 30 seconds
-            setInterval(checkV2RscStatus, 30000);
+            setInterval(() => {
+                checkV2RscStatus().catch(e => console.error('[Oracle] V2 RSC check error:', e));
+            }, 30000);
 
             // Wallet connection
             document.getElementById('wallet-btn').addEventListener('click', async () => {

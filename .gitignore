@@ -33,3 +33,8 @@ coverage/
 
 # Node (if frontend added)
 node_modules/
+
+# Submission files (private)
+SUBMISSION.md
+submission-assets/
+docs/DEMO_SCRIPT.md

@@ -477,11 +477,10 @@
             try {
                 // Fetch Multi-Asset data
                 const multiAssetData = await App.fetchMultiAssetData();
-                const compoundData = await App.fetchCompoundData();
                 const funderData = await App.fetchFunderData();
                 const rscData = await App.fetchRscData();
 
-                console.log('[Dashboard] Data fetched:', { multiAssetData, compoundData, funderData, rscData });
+                console.log('[Dashboard] Data fetched:', { multiAssetData, funderData, rscData });
 
                 // Calculate Total TVL
                 let totalTvl = 0;
@@ -493,7 +492,6 @@
                     activeAssets = multiAssetData.assets?.filter(a => a.allocation > 0).length || 5;
                     assetCount = activeAssets;
                 }
-                if (compoundData) totalTvl += parseFloat(compoundData.tvl) || 0;
 
                 document.getElementById('tvl-value').innerText = totalTvl > 0 ? App.formatUSD(totalTvl) : '$0.00';
                 document.getElementById('tvl-pools').innerText = `across ${assetCount} assets`;

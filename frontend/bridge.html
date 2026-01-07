@@ -217,10 +217,10 @@
                                 <option value="user">My Wallet (for personal use)</option>
                                 <option value="0x98969559717c24b47A2E4365a569c947a88C4767">YieldOptimizer RSC (fund
                                     protocol)</option>
-                                <optgroup label="V2 Oracle RSCs (Sepolia Source)">
-                                    <option value="0x4090B8BCcf477eDe37F5A5E7502A68c635579A89">ETH V2 Mirror</option>
-                                    <option value="0xd0E5F6f73254dd3AD42615b46073e4F3752E37b2">BTC V2 Mirror</option>
-                                    <option value="0x24F5b5525e4b598078d1D9965E68596E69c5bdE9">LINK V2 Mirror</option>
+                                <optgroup label="V2 Oracle RSCs (Sepolia Source - FIXED)">
+                                    <option value="0x4217702423754A49AC1e5cc1c1105210bbf7Ba0C">ETH V2 Mirror</option>
+                                    <option value="0x4272e8ad2b63c36CC1a9f2CF10aE077478BF55e0">BTC V2 Mirror</option>
+                                    <option value="0x4139e3A69bC30d97335a0794983F51c9622FDeBB">LINK V2 Mirror</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -460,11 +460,12 @@
         const SYSTEM_CONTRACT = '0x0000000000000000000000000000000000fffFfF';
         const DEBT_THRESHOLD = 0.001;
 
-        // V2 Oracle RSCs (Sepolia Source) - Active
+        // V2 Oracle RSCs (Sepolia Source) - FIXED: subscribing to correct AGGREGATOR addresses
+        // Redeployed 2025-01-06 with correct aggregator addresses
         const ORACLE_RSCS = {
-            ETH: { address: '0x4090B8BCcf477eDe37F5A5E7502A68c635579A89', name: 'ETH V2 Mirror' },
-            BTC: { address: '0xd0E5F6f73254dd3AD42615b46073e4F3752E37b2', name: 'BTC V2 Mirror' },
-            LINK: { address: '0x24F5b5525e4b598078d1D9965E68596E69c5bdE9', name: 'LINK V2 Mirror' }
+            ETH: { address: '0x4217702423754A49AC1e5cc1c1105210bbf7Ba0C', name: 'ETH V2 Mirror' },
+            BTC: { address: '0x4272e8ad2b63c36CC1a9f2CF10aE077478BF55e0', name: 'BTC V2 Mirror' },
+            LINK: { address: '0x4139e3A69bC30d97335a0794983F51c9622FDeBB', name: 'LINK V2 Mirror' }
         };
 
         let rscDebtStatus = {};

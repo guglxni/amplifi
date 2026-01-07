@@ -194,7 +194,7 @@ Complete gas funding sequence ensuring continuous autonomous operation.
 | Contract | Address |
 |----------|---------|
 | YieldVaultMultiAsset | 0x9015fb507E9bE03fB59514ba7a913122e5Fa2e7d |
-| YieldVaultCompound | 0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a |
+| YieldVaultCompound | 0x13c0a04aa10f9eA0847BbFc00CeaB8b85941951a | ⚠️ DEPRECATED |
 | Funder | 0x9f7c78a50379dc4d9703b19c708088d5eac5c923 |
 | Callback Proxy | 0xc9f36411C9897e7F959D99ffca2a0Ba7ee0D7bDA |
 | ETH AbstractFeedProxy | 0xb1aDCca598051EfdaD48217D950EAFf2CA869691 |
