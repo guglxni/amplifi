@@ -1,8 +1,12 @@
-# Amplifi - Reactive Yield Optimizer
+<div align="center">
+  <img src="amplifi-logo.svg" alt="Amplifi Logo" width="200"/>
+  
+  # Amplifi - Reactive Yield Optimizer
 
-> Cross-Chain Yield Optimization using Reactive Smart Contracts
+  > Cross-Chain Yield Optimization using Reactive Smart Contracts
 
-**Powered by Reactive Network** | **Bounty 3 Edition**
+  **Powered by Reactive Network** | **Bounty 3 Edition**
+</div>
 
 ---
 
