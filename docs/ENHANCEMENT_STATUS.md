@@ -1,6 +1,6 @@
 # Enhancement Implementation Status
 
-> Tracking the implementation progress of Amplifi enhancements
+> Tracking the implementation progress of AmpliFi enhancements
 
 ---
 

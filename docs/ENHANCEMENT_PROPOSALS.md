@@ -1,13 +1,13 @@
-# Amplifi Enhancement Proposals - Technical Documentation
+# AmpliFi Enhancement Proposals - Technical Documentation
 
-> Comprehensive technical documentation for enhancing Amplifi (Reactive Yield Optimizer) 
+> Comprehensive technical documentation for enhancing AmpliFi (Reactive Yield Optimizer) 
 > to create the best implementation for Reactive Network Bounty 3
 
 ---
 
 ## Executive Summary
 
-This document outlines a strategic enhancement plan for Amplifi that leverages Reactive Network's full capabilities to create a best-in-class yield optimization platform. Based on extensive research of Reactive Network's ecosystem, blog posts, and technical documentation, we propose enhancements that go beyond the minimum bounty requirements while staying true to the core objective: **cross-chain automation for lenders**.
+This document outlines a strategic enhancement plan for AmpliFi that leverages Reactive Network's full capabilities to create a best-in-class yield optimization platform. Based on extensive research of Reactive Network's ecosystem, blog posts, and technical documentation, we propose enhancements that go beyond the minimum bounty requirements while staying true to the core objective: **cross-chain automation for lenders**.
 
 ---
 
@@ -242,7 +242,7 @@ contract StopLossRsc is AbstractReactive {
 }
 ```
 
-#### Integration with Amplifi
+#### Integration with AmpliFi
 
 This can be integrated into the yield vault to:
 - Automatically exit positions when APY drops below threshold

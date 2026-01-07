@@ -294,7 +294,7 @@ const App = {
     // ═══════════════════════════════════════════════════════════════
 
     init: async function () {
-        console.log("[Amplifi] App Initializing...");
+        console.log("[AmpliFi] App Initializing...");
 
         try {
             // IMPORTANT: ALWAYS use JsonRpcProvider for read operations

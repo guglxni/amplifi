@@ -1,4 +1,4 @@
-# Amplifi Frontend Enhancement Specifications
+# AmpliFi Frontend Enhancement Specifications
 
 > Detailed implementation guide for UI/UX enhancements to showcase Reactive Network capabilities
 

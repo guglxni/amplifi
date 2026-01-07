@@ -1,6 +1,6 @@
 # Deployed Contracts Registry
 
-> All deployed contracts for the Amplifi yield optimizer
+> All deployed contracts for the AmpliFi yield optimizer
 
 ---
 

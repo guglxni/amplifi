@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="defi.jpg" alt="Amplifi Logo" width="300"/>
+  <img src="defi.jpg" alt="AmpliFi Logo" width="300"/>
   
-  # Amplifi - Reactive Yield Optimizer
+  # AmpliFi - Reactive Yield Optimizer
 
   > Cross-Chain Yield Optimization using Reactive Smart Contracts
 
@@ -18,7 +18,7 @@
 
 ## Overview
 
-Amplifi is a multi-asset yield optimization vault that automatically routes funds across DeFi lending protocols to maximize returns. The system uses Reactive Smart Contracts (RSC) on the Lasna Network to monitor yields and trigger rebalancing operations without user intervention.
+AmpliFi is a multi-asset yield optimization vault that automatically routes funds across DeFi lending protocols to maximize returns. The system uses Reactive Smart Contracts (RSC) on the Lasna Network to monitor yields and trigger rebalancing operations without user intervention.
 
 ### Key Capabilities
 
@@ -30,7 +30,7 @@ Amplifi is a multi-asset yield optimization vault that automatically routes fund
 - **CRON-Based Monitoring** - Periodic yield checks every ~12 minutes
 - **Finality-Aware Operations** - 64-block confirmation for large rebalances
 
-### What Makes Amplifi Best-in-Class
+### What Makes AmpliFi Best-in-Class
 
 | Feature | Implementation | Advantage |
 |---------|---------------|-----------|

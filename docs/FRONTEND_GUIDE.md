@@ -1,8 +1,8 @@
-# Amplifi Frontend User Guide
+# AmpliFi Frontend User Guide
 
 ## Overview
 
-Amplifi provides a modern, reactive web interface for interacting with the yield optimization system. The frontend consists of multiple specialized pages for different functionality areas.
+AmpliFi provides a modern, reactive web interface for interacting with the yield optimization system. The frontend consists of multiple specialized pages for different functionality areas.
 
 ## Dashboard
 

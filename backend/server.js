@@ -235,7 +235,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`\n🚀 Amplifi Backend Server running on http://localhost:${PORT}`);
+    console.log(`\n🚀 AmpliFi Backend Server running on http://localhost:${PORT}`);
     console.log(`\n📊 Endpoints:`);
     console.log(`   GET /api/vault   - Vault data (TVL, snapshots, assets)`);
     console.log(`   GET /api/funder  - Funder gas tank balance`);
