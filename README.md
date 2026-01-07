@@ -6,6 +6,12 @@
   > Cross-Chain Yield Optimization using Reactive Smart Contracts
 
   **Powered by Reactive Network** | **Bounty 3 Edition**
+
+  <br/>
+
+  [![Watch Demo Video](https://img.youtube.com/vi/MVmQVMIO-BM/maxresdefault.jpg)](https://youtu.be/MVmQVMIO-BM)
+  
+  **📹 [Watch the Demo Video](https://youtu.be/MVmQVMIO-BM)**
 </div>
 
 ---
