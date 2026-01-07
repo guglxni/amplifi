@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="amplifi-logo.svg" alt="Amplifi Logo" width="200"/>
+  <img src="frontend/assets/defi.jpg" alt="Amplifi Logo" width="300"/>
   
   # Amplifi - Reactive Yield Optimizer
 
